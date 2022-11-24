@@ -21,7 +21,6 @@
 #ifndef __SHLS_SEV_COMMON_HPP__
 #define __SHLS_SEV_COMMON_HPP__
 
-#include "helpers.hpp"
 #include "params.hpp"
 #include <hls/streaming.hpp>
 
@@ -30,6 +29,10 @@
 #else
 // Removes the 'code' when __SYNTHESIS__ is defined.
 #define LEGUP_SW_IMPL(code)
+#endif
+
+#ifndef __SYNTHESIS__
+#include <assert.h>
 #endif
 
 namespace hls {
@@ -51,7 +54,7 @@ class Img {
     using STORAGE_T_ = typename std::conditional<
         STORAGE == StorageType::FIFO, hls::FIFO<DATA_T_>,
         typename std::conditional<
-            STORAGE == StorageType::FRAME_BUFFER, DATA_T_[H * W],
+            STORAGE == StorageType::FRAME_BUFFER, DATA_T_[H * W / NPPC],
             typename std::conditional<
                 STORAGE == StorageType::EXTERNAL_FRAME_BUFFER, DATA_T_ *,
                 PrimT<DT<PIXEL_T, NPPC>::W> *>::type>::type>::type;
@@ -115,6 +118,15 @@ class Img {
 
     unsigned get_height() const { return height; }
     unsigned get_width() const { return width; }
+
+    void set_height(unsigned h) {
+        LEGUP_SW_IMPL(assert(h <= H));
+        height = h;
+    }
+    void set_width(unsigned w) {
+        LEGUP_SW_IMPL(assert(w <= W));
+        width = w;
+    }
 
     /**
      * Constructor of Img. Enable only if EXTERNAL_FRAME_BUFFER type, and sets

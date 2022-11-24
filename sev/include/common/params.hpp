@@ -21,6 +21,9 @@
 #ifndef __SHLS_SEV_PARAMS_HPP__
 #define __SHLS_SEV_PARAMS_HPP__
 
+#include <hls/ap_int.hpp>
+#include <stdint.h>
+
 namespace hls {
 namespace sev {
 
@@ -31,27 +34,21 @@ enum StorageType {
     PRIMITIVE_TYPE_EXTERNAL_FRAME_BUFFER
 };
 
+// The corresponding types in OpenCV are defined by CvPixelTypeList.
 enum PixelType {
     SEV_8UC1 = 0,
-    SEV_16UC1 = 1,
-    SEV_16SC1 = 2,
-    SEV_32UC1 = 3,
-    SEV_32FC1 = 4,
-    SEV_32SC1 = 5,
-    SEV_8UC2 = 6,
-    SEV_8UC4 = 7,
-    SEV_2UC1 = 8,
-    SEV_8UC3 = 9,
-    SEV_16UC3 = 10,
-    SEV_16SC3 = 11,
-    SEV_16UC4 = 12,
-    SEV_10UC1 = 13,
-    SEV_10UC4 = 14,
-    SEV_12UC1 = 15,
-    SEV_12UC4 = 16,
-    SEV_10UC3 = 17,
-    SEV_12UC3 = 18,
-    SEV_32FC3 = 19
+    SEV_8UC2 = 1,
+    SEV_8UC3 = 2,
+    SEV_8UC4 = 3,
+    SEV_16UC1 = 4,
+    SEV_16UC3 = 5,
+    SEV_16UC4 = 6,
+    SEV_16SC1 = 7,
+    SEV_16SC3 = 8,
+    SEV_32SC1 = 9,
+    SEV_32SC3 = 10,
+    // SEV_32FC1 = 11,
+    // SEV_32FC3 = 12,
 };
 
 enum NumPixelsPerCycle {
@@ -63,6 +60,60 @@ enum NumPixelsPerCycle {
     NPPC_32 = 32,
     NPPC_64 = 64
 };
+
+/**
+ * This struct is used to convert the combination of pixels per clock and pixel
+ * type to an ap_uint (or ap_int if using a signed type) of size DT.W bits
+ * stored in DT.T. The bitwidth (DT.W) is equal to #pixel components * component
+ * size * pixels per clock) stored it DT.T.
+ */
+template <PixelType PIXEL_T, NumPixelsPerCycle NPPC = NPPC_1> struct DT {
+    struct T {};
+};
+
+#define __SEV_DT__(NAME, PerChannelWidth_, NumChannels_, APType, PixelPrimT_)  \
+    template <NumPixelsPerCycle NPPC> struct DT<NAME, NPPC> {                  \
+        static constexpr unsigned PerChannelPixelWidth = PerChannelWidth_;     \
+        static constexpr unsigned NumChannels = NumChannels_;                  \
+        static constexpr unsigned W = PerChannelWidth_ * NumChannels_ * NPPC;  \
+        using T = APType<W>;                                                   \
+        using PixelPrimT = PixelPrimT_;                                        \
+    }
+
+__SEV_DT__(SEV_8UC1, 8, 1, ap_uint, uint8_t);
+__SEV_DT__(SEV_8UC2, 8, 2, ap_uint, uint8_t);
+__SEV_DT__(SEV_8UC3, 8, 3, ap_uint, uint8_t);
+__SEV_DT__(SEV_8UC4, 8, 4, ap_uint, uint8_t);
+__SEV_DT__(SEV_16UC1, 16, 1, ap_uint, uint16_t);
+__SEV_DT__(SEV_16UC3, 16, 3, ap_uint, uint16_t);
+__SEV_DT__(SEV_16UC4, 16, 4, ap_uint, uint16_t);
+__SEV_DT__(SEV_16SC1, 16, 1, ap_int, int16_t);
+__SEV_DT__(SEV_16SC3, 16, 3, ap_int, int16_t);
+__SEV_DT__(SEV_32SC1, 32, 1, ap_int, int32_t);
+__SEV_DT__(SEV_32SC3, 32, 3, ap_int, int32_t);
+
+// TODO: revisit floating point types (search FC):
+// __SEV_DT__(SEV_32FC1, 32, 1, ap_int, float);
+// __SEV_DT__(SEV_32FC3, 32, 3, ap_int, float);
+
+#undef __SEV_DT__
+
+#include <stdint.h>
+
+template <unsigned W> struct InvalidWidthToUsePrimitiveType {
+    static_assert(false && W, "Invalid width to use primitive type pointer.");
+};
+
+template <unsigned W>
+using PrimT = typename std::conditional<
+    W <= 8, uint8_t,
+    typename std::conditional<
+        W <= 16, uint16_t,
+        typename std::conditional<
+            W <= 32, uint32_t,
+            typename std::conditional<
+                W <= 64, uint64_t,
+                InvalidWidthToUsePrimitiveType<W>>::type>::type>::type>::type;
 
 } // End of namespace sev.
 } // End of namespace hls.
