@@ -23,6 +23,7 @@
 
 #include <type_traits>
 
+#include "../common/common.hpp"
 // FIXME: move LineBuffer to within SEV library.
 #include <hls/image_processing.hpp>
 
@@ -63,12 +64,24 @@ void Sobel_3x3(sev::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_1> &img_in,
         bool outofbounds = (i < 1) | (i > img_in.get_height() - 2) | //
                            (j < 1) | (j > img_in.get_width() - 2);
 
+        DATA_T_IN Window[3][3];
+        for (int m = -1; m <= 1; m++) {
+            for (int n = -1; n <= 1; n++) {
+                int y = i + m, x = j + n;
+                bool window_oob = (y < 0) | (y >= img_in.get_height()) |
+                                  (x < 0) | (x >= img_in.get_width());
+                Window[m + 1][n + 1] = window_oob
+                                           ? DATA_T_IN(0)
+                                           : line_buffer.window[m + 1][n + 1];
+            }
+        }
+
         // Apply the sobel filter at the current "receptive field".
         DATA_T_OUT gx_sum = 0, gy_sum = 0;
         for (int m = -1; m <= 1; m++) {
             for (int n = -1; n <= 1; n++) {
                 // Get the pixel in "receptive field" from LineBuffer's window.
-                DATA_T_IN pixel = line_buffer.window[m + 1][n + 1];
+                DATA_T_IN pixel = Window[m + 1][n + 1];
                 gx_sum += pixel * GX[m + 1][n + 1];
                 gy_sum += pixel * GY[m + 1][n + 1];
             }
@@ -81,8 +94,7 @@ void Sobel_3x3(sev::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_1> &img_in,
         sum = (sum > 255) ? DATA_T_OUT(255) : sum;
 
         // Set output to 0 if the current 3x3 receptive field is out of bound.
-        img_out.write(count - line_buffer_fill_count,
-                      outofbounds ? DATA_T_OUT(0) : sum);
+        img_out.write(count - line_buffer_fill_count, sum);
 
         // Keep track of row/column of image.
         if (j < W - 1) {
