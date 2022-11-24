@@ -24,8 +24,7 @@
 #include <type_traits>
 
 #include "../common/common.hpp"
-// FIXME: move LineBuffer to within SEV library.
-#include <hls/image_processing.hpp>
+#include "../common/utils.hpp"
 
 namespace hls {
 namespace sev {
@@ -117,8 +116,7 @@ void Sobel(sev::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &img_in,
     static_assert(FILTER_SIZE == 3 && NPPC == NPPC_1,
                   "Sobel only supports filter size of 3 and number of "
                   "pixels per cycle of 1.");
-    Sobel_3x3<PIXEL_T_IN, PIXEL_T_OUT, H, W, STORAGE_IN, STORAGE_OUT>(img_in,
-                                                                      img_out);
+    Sobel_3x3(img_in, img_out);
 }
 
 } // End of namespace sev.

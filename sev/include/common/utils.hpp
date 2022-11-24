@@ -64,6 +64,120 @@ void TransformPixel(sev::Img<PIXEL_T_I, H, W, STORAGE_I, NPPC> &ImgIn,
     }
 }
 
+/**
+ * The LineBuffer class implements the line buffer that can be used to buffer a
+ * few lines of pixels and provide a window of pixels as a stencil for applying
+ * filters.
+ * Example usage:
+ * - Instantiate the line buffer in your C++ implementation.  If you are
+ *   instantiating the line buffer inside a pipelined function (accepting a new
+ *   pixel in every function call), you will need to add 'static' to make the
+ *   line buffer static.   The window maintained by the line buffer assumes a
+ *   square WindowSize x WindowSize window.
+ *   > static hls::LineBuffer<unsigned char, ImageWidth, WindowSize> line_buffer;
+ *
+ * - Shift in a new pixel by calling the ShiftInPixel method:
+ *   > line_buffer.ShiftInPixel(input_pixel);
+ *
+ * - Then your filter can access the window by "line_buffer.window[i][j]".
+ */
+template <typename PixelType, unsigned ImageWidth, unsigned WindowSize,
+          bool LowRamUsage = false>
+class LineBuffer {};
+
+template <typename PixelType, unsigned ImageWidth, unsigned WindowSize>
+class LineBuffer<PixelType, ImageWidth, WindowSize, false> {
+  public:
+    PixelType window[WindowSize][WindowSize];
+
+    void ShiftInPixel(PixelType input_pixel) {
+        // Shift existing window to the left by one.
+        for (unsigned i = 0; i < WindowSize; i++) {
+            for (unsigned j = 0; j < WindowSize - 1; j++) {
+                window[i][j] = window[i][j + 1];
+            }
+        }
+
+        // Load data into a simpler array prev_row_loads which can be more
+        // easily partitioned by HLS.
+        PixelType prev_row_loads[WindowSize - 1];
+        for (unsigned i = 0; i < WindowSize - 1; i++)
+            prev_row_loads[i] = prev_row[i][prev_row_index];
+
+        // Grab next column (the rightmost column of the sliding window).
+        for (unsigned i = 0; i < WindowSize; i++) {
+            window[i][WindowSize - 1] =
+                (i == WindowSize - 1) ? input_pixel
+                                      : prev_row_loads[WindowSize - 2 - i];
+        }
+
+        for (int i = WindowSize - 2; i >= 0; i--) {
+            prev_row[i][prev_row_index] =
+                (i == 0) ? input_pixel : prev_row_loads[i - 1];
+        }
+
+        prev_row_index =
+            (prev_row_index == ImageWidth - 1) ? 0 : prev_row_index + 1;
+    }
+
+  private:
+    // Index that points to the current column of prev_row.
+    unsigned prev_row_index = 0;
+    PixelType prev_row[WindowSize - 1][ImageWidth];
+};
+
+template <typename PixelType, unsigned ImageWidth, unsigned WindowSize>
+class LineBuffer<PixelType, ImageWidth, WindowSize, true> {
+  public:
+    PixelType window[WindowSize][WindowSize];
+
+    void ShiftInPixel(PixelType input_pixel) {
+        // Shift existing window to the left by one.
+        for (unsigned i = 0; i < WindowSize; i++) {
+            for (unsigned j = 0; j < WindowSize - 1; j++) {
+                window[i][j] = window[i][j + 1];
+            }
+        }
+
+        // Grab next column (the rightmost column of the sliding window).
+        for (unsigned i = 0; i < WindowSize; i++) {
+            window[i][WindowSize - 1] =
+                (i == WindowSize - 1)
+                    ? input_pixel
+                    : prev_row[(WindowSize - 2 - i) * ImageWidth +
+                               prev_row_index];
+        }
+
+        for (int i = WindowSize - 2; i >= 0; i--) {
+            prev_row[i * ImageWidth + prev_row_index] =
+                (i == 0) ? input_pixel
+                         : prev_row[(i - 1) * ImageWidth + prev_row_index];
+        }
+
+        prev_row_index =
+            (prev_row_index == ImageWidth - 1) ? 0 : prev_row_index + 1;
+    }
+
+  private:
+    // Index that points to the current column of prev_row.
+    unsigned prev_row_index{0};
+    PixelType prev_row[(WindowSize - 1) * ImageWidth];
+};
+
+// Specialization when the WindowSize is 1.
+template <typename PixelType, unsigned ImageWidth>
+class LineBuffer<PixelType, ImageWidth, 1, true> {
+  public:
+    PixelType window[1][1];
+    void ShiftInPixel(PixelType input_pixel) { window[0][0] = input_pixel; }
+};
+template <typename PixelType, unsigned ImageWidth>
+class LineBuffer<PixelType, ImageWidth, 1, false> {
+  public:
+    PixelType window[1][1];
+    void ShiftInPixel(PixelType input_pixel) { window[0][0] = input_pixel; }
+};
+
 } // End of namespace sev.
 } // End of namespace hls.
 
