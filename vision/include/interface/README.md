@@ -1,17 +1,17 @@
 <!-- TOC -->
 
 - [Configure Top-level RTL interface for Img arguments](#configure-top-level-rtl-interface-for-img-arguments)
-    - [**Memory interface** and **AXI4 Stream interface**](#memory-interface-and-axi4-stream-interface)
-    - [**AXI4 Initiator interface** and **AXI4 Target interface**](#axi4-initiator-interface-and-axi4-target-interface)
-        + [`AxiMM2Img()`](#aximm2img)
-        + [`Img2AxiMM()`](#img2aximm)
+    - [Memory interface and AXI4 Stream interface](#memory-interface-and-axi4-stream-interface)
+    - [AXI4 Initiator interface and AXI4 Target interface](#axi4-initiator-interface-and-axi4-target-interface)
+        + [AxiMM2Img()](#aximm2img)
+        + [Img2AxiMM()](#img2aximm)
     - [Mixed interfaces](#mixed-interfaces)
 - [AXI4-Stream Video Protocol](#axi4-stream-video-protocol)
     - [AXIS-Video vs FIFO-based vision::Img AXI4 Stream interface](#axis-video-vs-fifo-based-visionimg-axi4-stream-interface)
-    - [`AxisVideo2Img()`](#axisvideo2img)
-    - [`Img2AxisVideo()`](#img2axisvideo)
-    - [`AxiMM2AxisVideo()`](#aximm2axisvideo)
-    - [`AxisVideo2AxiMM()`](#axisvideo2aximm)
+    - [AxisVideo2Img()](#axisvideo2img)
+    - [Img2AxisVideo()](#img2axisvideo)
+    - [AxiMM2AxisVideo()](#aximm2axisvideo)
+    - [AxisVideo2AxiMM()](#axisvideo2aximm)
 
 <!-- /TOC -->
 # Configure Top-level RTL interface for `Img` arguments

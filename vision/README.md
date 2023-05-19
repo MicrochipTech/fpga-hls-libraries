@@ -48,6 +48,8 @@ Please see the readme files in sub-directories for more details.
 
 - To use the SmartHLS Vision library, you should first install the SmartHLS tool, which is part of the [Libero SoC Design Suite](https://www.microchip.com/en-us/products/fpgas-and-plds/fpga-and-soc-design-tools/fpga/libero-software-later-versions).
 
+`Note: This library is designed to work on the latest Libero SoC Design Suite version, 2023.1, and may not be compatible with previous versions of Libero and SmartHLS.`
+
 - Then clone this SmartHLS library repository,
   - We will do this in command line.  Windows users can [launch the Cygwin terminal](https://microchiptech.github.io/fpga-hls-docs/userguide.html#launch-cygwin-terminal-on-windows)
     in SmartHLS installation by opening `<SMARTHLS_INSTALLATION_DIR>/cygwin64/Cygwin.bat`.
