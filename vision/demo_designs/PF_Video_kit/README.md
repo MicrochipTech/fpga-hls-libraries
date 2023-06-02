@@ -34,9 +34,28 @@ The diagram above illustrates the main components of the design,
 
   As you can see, the camera data is not passed directly to the video pipeline and display, but is instead first buffered in DDR.
   This is because of the mismatched frame rates between the camera and display module.
-  By buffering the data in DDR, our DDR writer and reader will automatically adapt to the frame rates of camera and display modules respectively and create a stable data flow.
+  By buffering the data in DDR, our DDR writer and reader will automatically adapt to the frame rates of upstream (camera) and downstream (video pipeline and display) respectively and create a stable data flow.
   The "automatic rate adaption" is implicitly done by using the AXI-Stream interface's ready-valid handshaking for data transfer,
   e.g., the DDR writer writes to DDR when camera has "valid" data, and the DDR reader only outputs data when the video pipeline is "ready".
+
+  - The wrapper module also instantiates a [FrameBufferControl](libero/src/hdl/ddr_access_wrapper.v#L136) module that is not shown in the diagram.
+    - The `FrameBufferControl` module provides the base addresses in DDR for DDR writer and reader to access.
+    - Each time the DDR writer finishes writing a frame to DDR, `FrameBufferControl` provides a new address for the DDR writer to write the next frame;
+      and provides to the DDR reader with the address of latest frame (the frame that just got written to DDR by DDR writer).
+    - In this design, `FrameBufferControl` is parameterized to use 4 frame buffers with each frame buffer taking 8 MB of space.
+    - The purpose of the `FrameBufferControl` is to make sure the DDR writer and reader do not simultaneously access the same frame buffer in DDR.
+      If DDR writer and reader are writing and reading the same frame buffer at the same time, the DDR reader can read a "broken" frame that contains pixels from different frames (because a new frame is being written while read is happening).
+      The `FrameBufferControl` module always provides distinct buffer addresses to the DDR writer and reader.
+      The buffer address update mechanism also allows to better adapt the mismatched frame rates from the write and read side.
+      - If the reader has a higher frame rate than the writer, the `FrameBufferControl` will not always provide a new buffer address for the reader between consecutive frames,
+        because a new address is only provided to the reader when the writer finishes writing a frame.
+        So the reader may read the same frame buffer back-to-back, but it is guaranteed that the frame is not "broken".
+      - If the writer has a higher frame rate, since `FrameBufferControl` always updates the read buffer address to the latest written frame, the reader can catch up the write side by reading the latest written frame, and skip older frames.
+        As long as the write side is no more than 2X faster than the read side, 4 frame buffers can guarantee that the read and write sides never access the same frame.
+        - Say the reader starts reading Frame Buffer 1 **right before** the writer finishes writing Frame Buffer 2 (reader always reads the latest written frame).
+          In order for the writer to overwrite Frame Buffer 1 while reader is still reading it (which can cause "broken" frame), the writer will need to finish writing to Frame Buffer 3 & 4 before reader finishes reading Frame Buffer 1.
+          Essentially the writer needs to write 2 frames before the reader finishes reading 1 frame in order for the "broken" frame to occur.
+
 
 - Once the frame data is read back from DDR, the Video Pipeline starts processing on the data.
   The entire Video Pipeline is a single HLS IP core.

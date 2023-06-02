@@ -23,13 +23,13 @@
 ## RGB <--> Grayscale
 ### `RGB2GRAY()`
 ```cpp
-template <bool NTSC = true, PixelType PIXEL_T_I, PixelType PIXEL_T_O,
-          unsigned H, unsigned W, StorageType STORAGE_I = FIFO,
-          StorageType STORAGE_O = FIFO, NumPixelsPerCycle NPPC = NPPC_1>
-void RGB2GRAY(vision::Img<PIXEL_T_I, H, W, STORAGE_I, NPPC> &ImgIn,
-              vision::Img<PIXEL_T_O, H, W, STORAGE_O, NPPC> &ImgOut)
+template <bool NTSC = true, PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
+          unsigned H, unsigned W, StorageType STORAGE_IN = FIFO,
+          StorageType STORAGE_OUT = FIFO, NumPixelsPerCycle NPPC = NPPC_1>
+void RGB2GRAY(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+              vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg)
 ```
-This functions converts an input three-channel RGB `ImgIn` to an output single-channel grayscale `ImgOut`.
+This functions converts an input three-channel RGB `InImg` to an output single-channel grayscale `OutImg`.
 
 **Template parameters:**
 - `NTSC`: whether to use the [NTSC](https://en.wikipedia.org/wiki/NTSC) formula or not (the default value is `true`).
@@ -48,15 +48,15 @@ vision::RGB2GRAY<false>(InImg, OutImg3); // Explicitly do not use the NTSC formu
 
 ### `GRAY2RGB()`
 ```cpp
-template <PixelType PIXEL_T_I, PixelType PIXEL_T_O, unsigned H, unsigned W,
-          StorageType STORAGE_I = FIFO, StorageType STORAGE_O = FIFO,
+template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
+          StorageType STORAGE_IN = FIFO, StorageType STORAGE_OUT = FIFO,
           NumPixelsPerCycle NPPC = NPPC_1>
-void GRAY2RGB(vision::Img<PIXEL_T_I, H, W, STORAGE_I, NPPC> &ImgIn,
-              vision::Img<PIXEL_T_O, H, W, STORAGE_O, NPPC> &ImgOut)
+void GRAY2RGB(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+              vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg)
 ```
-This function takes in an input single-channel grayscale `ImgIn`.
-The resulting output `ImgOut` is still visually the same grayscale image but represented in RGB format.
-In other words, for each pixel in `ImgOut`, the `R`, `G`, and `B` channels all have the same value as the original grayscale value.
+This function takes in an input single-channel grayscale `InImg`.
+The resulting output `OutImg` is still visually the same grayscale image but represented in RGB format.
+In other words, for each pixel in `OutImg`, the `R`, `G`, and `B` channels all have the same value as the original grayscale value.
 
 **Template parameters:**
 - All template parameters are automatically inferred from the input and output `Img` arguments.
@@ -74,8 +74,8 @@ vision::GRAY2RGB(InImg, OutImg);
 template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, StorageType STORAGE_IN,
           StorageType STORAGE_OUT, NumPixelsPerCycle NPPC = NPPC_1>
-void DeBayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &ImgIn,
-             vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &ImgOut,
+void DeBayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+             vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
              ap_uint<2> BayerFormat = 0)
 ```
 This function converts image data in Bayer format to RGB format. Bayer format is
@@ -98,9 +98,10 @@ The image below shows how the first pixels look in each bayer format:
 ### `RGB2Bayer()`
 ```cpp
 template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
-          StorageType STORAGE = FIFO, NumPixelsPerCycle NPPC = NPPC_1>
-void RGB2Bayer(vision::Img<PIXEL_T_IN, H, W, STORAGE, NPPC> &ImgIn,
-               vision::Img<PIXEL_T_OUT, H, W, STORAGE, NPPC> &ImgOut)
+          StorageType STORAGE_IN = FIFO, StorageType STORAGE_OUT = FIFO,
+          NumPixelsPerCycle NPPC = NPPC_1>
+void RGB2Bayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+               vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg)
 ```
 This function converts an image in RGB format to RGGB (`BayerFormat` 0 in DeBayer) bayer format.
 RGB2Bayer can be useful for simulating incoming camera data in your code, and can be compiled to hardware.

@@ -32,8 +32,8 @@ namespace vision {
 template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
           StorageType STORAGE_IN, StorageType STORAGE_OUT,
           NumPixelsPerCycle NPPC>
-void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &ImgIn,
-                 vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &ImgOut,
+void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+                 vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
                  ap_uint<2> BayerFormat = 2) {
     using DATA_T_IN = typename DT<PIXEL_T_IN, NPPC>::T;
     using DATA_T_OUT = typename DT<PIXEL_T_OUT, NPPC>::T;
@@ -51,9 +51,9 @@ void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &ImgIn,
 
     // There will be no output until enough pixels have been stored in line
     // buffer (LineBufferFillCount)
-    const unsigned LineBufferFillCount = ImgIn.get_width() / NPPC + 1;
+    const unsigned LineBufferFillCount = InImg.get_width() / NPPC + 1;
     // image frame size (height * columns (width / pixels per clock))
-    const unsigned FrameSize = ImgIn.get_height() * ImgIn.get_width() / NPPC;
+    const unsigned FrameSize = InImg.get_height() * InImg.get_width() / NPPC;
 
     // used to determine if the current pixel is on an image boundary, and which
     // boundary it is on
@@ -75,8 +75,8 @@ void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &ImgIn,
         // No more reads after receiving the whole image, the extra iteration is
         // flushing out the final outputs.
         auto InputPixel = 0;
-        if (Count < ImgIn.get_height() * ImgIn.get_width() / NPPC)
-            InputPixel = ImgIn.read(Count);
+        if (Count < InImg.get_height() * InImg.get_width() / NPPC)
+            InputPixel = InImg.read(Count);
 
         LineBuffer.ShiftInPixel(InputPixel);
 
@@ -332,7 +332,7 @@ void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &ImgIn,
                 break;
             }
         }
-        ImgOut.write(RgbData, Count - LineBufferFillCount);
+        OutImg.write(RgbData, Count - LineBufferFillCount);
 
         // Keep track of row/column of image.
         if (j < W / NPPC - 1) {
@@ -356,11 +356,11 @@ void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &ImgIn,
 template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
           StorageType STORAGE_IN, StorageType STORAGE_OUT,
           NumPixelsPerCycle NPPC = NPPC_1>
-void DeBayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &ImgIn,
-             vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &ImgOut,
+void DeBayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+             vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
              ap_uint<2> BayerFormat = 2) {
-#pragma HLS memory partition argument(ImgIn) type(struct_fields)
-#pragma HLS memory partition argument(ImgOut) type(struct_fields)
+#pragma HLS memory partition argument(InImg) type(struct_fields)
+#pragma HLS memory partition argument(OutImg) type(struct_fields)
 
     static_assert(DT<PIXEL_T_IN, NPPC>::NumChannels == 1 &&
                       DT<PIXEL_T_OUT, NPPC>::NumChannels == 3 &&
@@ -369,16 +369,17 @@ void DeBayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &ImgIn,
                   "Input data should have only 1 channel and output should "
                   "only be 3 channels.");
     DeBayer_3x3<PIXEL_T_IN, PIXEL_T_OUT, H, W, STORAGE_IN, STORAGE_OUT, NPPC>(
-        ImgIn, ImgOut, BayerFormat);
+        InImg, OutImg, BayerFormat);
 }
 
 /**
  * Converts RGB to RGGB bayer format (BayerFormat 0 in DeBayer).
  */
 template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
-          StorageType STORAGE = FIFO, NumPixelsPerCycle NPPC = NPPC_1>
-void RGB2Bayer(vision::Img<PIXEL_T_IN, H, W, STORAGE, NPPC> &ImgIn,
-               vision::Img<PIXEL_T_OUT, H, W, STORAGE, NPPC> &ImgOut) {
+          StorageType STORAGE_IN = FIFO, StorageType STORAGE_OUT = FIFO,
+          NumPixelsPerCycle NPPC = NPPC_1>
+void RGB2Bayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+               vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg) {
     static_assert(
         DT<PIXEL_T_IN, NPPC>::NumChannels == 3 &&
             DT<PIXEL_T_OUT, NPPC>::NumChannels == 1 &&
@@ -386,8 +387,8 @@ void RGB2Bayer(vision::Img<PIXEL_T_IN, H, W, STORAGE, NPPC> &ImgIn,
         "RGB2Bayer only supports number of pixels per cycle of 1 or 4"
         "Input data should have 3 channels and output should be only 1"
         "channel.");
-    int ImgHeight = ImgOut.get_height();
-    int ImgWidth = ImgOut.get_width();
+    int ImgHeight = OutImg.get_height();
+    int ImgWidth = OutImg.get_width();
     int ImgColumns = ImgWidth / NPPC;
     int ImgIndex = 0;
     int ColorColumnWidth =
@@ -401,7 +402,7 @@ void RGB2Bayer(vision::Img<PIXEL_T_IN, H, W, STORAGE, NPPC> &ImgIn,
 #pragma HLS loop pipeline
 #endif
         for (int j = 0; j < ImgColumns; j++) {
-            RgbData = ImgIn.read(ImgIndex);
+            RgbData = InImg.read(ImgIndex);
 
             BayerData = 0;
             for (int k = 0; k < NPPC; k++) {
@@ -423,7 +424,7 @@ void RGB2Bayer(vision::Img<PIXEL_T_IN, H, W, STORAGE, NPPC> &ImgIn,
                     }
                 }
             }
-            ImgOut.write(BayerData, ImgIndex++);
+            OutImg.write(BayerData, ImgIndex++);
         }
     }
 }
