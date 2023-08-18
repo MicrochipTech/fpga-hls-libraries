@@ -31,32 +31,27 @@ namespace vision {
 
 // TODO T:
 // - Add support for double thresholding algorithm.
-// - Add support for other pixel-per-cycle.
 // - Add support for clamp logic. Right now we assume [0, 255] for all pixel
 //   types which is not correct, but we need to be really careful with the clamp
 //   logic since this function can be called both by itself or by Canny().
 template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
           StorageType STORAGE_IN = StorageType::FIFO,
           StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC_IN = NPPC_1,
-          NumPixelsPerCycle NPPC_OUT = NPPC_1>
-void Hysteresis(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-                vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg,
+          NumPixelsPerCycle NPPC = NPPC_1>
+void Hysteresis(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+                vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
                 unsigned Thres) {
 #pragma HLS memory partition argument(InImg) type(struct_fields)
 #pragma HLS memory partition argument(OutImg) type(struct_fields)
 
-    static_assert(DT<PIXEL_T_IN, NPPC_IN>::NumChannels == 1 &&
-                      DT<PIXEL_T_OUT, NPPC_OUT>::NumChannels == 1,
+    static_assert(DT<PIXEL_T_IN, NPPC>::NumChannels == 1 &&
+                      DT<PIXEL_T_OUT, NPPC>::NumChannels == 1,
                   "Hysteresis Thresholding only supports 1-channel images.");
-    static_assert(NPPC_IN == NPPC_OUT,
-                  "Hysteresis Thresholding only supports having the same "
-                  "number of pixels per clock in input and output data.");
-    static_assert(W % NPPC_IN == 0,
+    static_assert(W % NPPC == 0,
                   "In Hysteresis, the width of the frame has to be divisible "
                   "by the number of pixels per clock.");
-    using InPixelWordT = typename DT<PIXEL_T_IN, NPPC_IN>::T;
-    using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC_OUT>::T;
+    using InPixelWordT = typename DT<PIXEL_T_IN, NPPC>::T;
+    using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC>::T;
 
     const unsigned ImgHeight = InImg.get_height(), ImgWidth = InImg.get_width();
     OutImg.set_height(ImgHeight);
@@ -64,13 +59,12 @@ void Hysteresis(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
 
     // For all intermediate values of calculations, let's use an ap_int that has
     // a slightly larger width than max(InPixelWidth, OutPixelWidth)
-    const unsigned InPixelWidth = DT<PIXEL_T_IN, NPPC_IN>::W / NPPC_IN,
-                   OutPixelWidth = DT<PIXEL_T_OUT, NPPC_OUT>::W / NPPC_OUT;
-    const unsigned TmpPixelWidth =
-        (InPixelWidth > OutPixelWidth ? InPixelWidth : OutPixelWidth) + 2;
+    const unsigned InPixelWidth = DT<PIXEL_T_IN, NPPC>::W / NPPC,
+                   OutPixelWidth = DT<PIXEL_T_OUT, NPPC>::W / NPPC;
+    const unsigned TmpPixelWidth = InPixelWidth + 9;
     using TmpPixelT = ap_int<TmpPixelWidth>;
 
-    const unsigned FrameSize = (ImgHeight * ImgWidth) / NPPC_IN;
+    const unsigned FrameSize = (ImgHeight * ImgWidth) / NPPC;
     // Hysteresis with 1 threshold:
     // - If the pixel is greater than `Thres`, set it to the maximum value.
     // - Otherwise, set it to 0.
@@ -83,7 +77,7 @@ void Hysteresis(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
     for (unsigned ImgIdx = 0; ImgIdx < FrameSize; ImgIdx++) {
         InPixelWordT InPixelWord = InImg.read(ImgIdx);
         OutPixelWordT OutPixelWord;
-        for (int k = 0; k < NPPC_IN; k++) {
+        for (int k = 0; k < NPPC; k++) {
             TmpPixelT InPixel = InPixelWord.byte(k, InPixelWidth);
             OutPixelWord.byte(k, OutPixelWidth) =
                 (InPixel > TmpPixelT(Thres)) ? OutMaxPixelVal : TmpPixelT(0);

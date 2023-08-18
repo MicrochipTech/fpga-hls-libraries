@@ -33,29 +33,26 @@ namespace vision {
 // Also assume [0, 255] pixel range.
 template <unsigned FILTER_SIZE, PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, StorageType STORAGE_IN,
-          StorageType STORAGE_OUT, NumPixelsPerCycle NPPC_IN,
-          NumPixelsPerCycle NPPC_OUT>
+          StorageType STORAGE_OUT, NumPixelsPerCycle NPPC>
 void GaussianBlurProcess(
-    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-    vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg,
-    LineBuffer<typename DT<PIXEL_T_IN, NPPC_IN>::T, W / NPPC_IN, FILTER_SIZE,
-               DT<PIXEL_T_IN, NPPC_IN>::W / NPPC_IN, unsigned(NPPC_IN)>
-        &LineBuffer,
+    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+    vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
+    LineBuffer<typename DT<PIXEL_T_IN, NPPC>::T, W / NPPC, FILTER_SIZE,
+               DT<PIXEL_T_IN, NPPC>::W / NPPC, unsigned(NPPC)> &LineBuffer,
     unsigned &i, unsigned &j) {
 
-    using InPixelWordT = typename DT<PIXEL_T_IN, NPPC_IN>::T;
-    using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC_OUT>::T;
+    using InPixelWordT = typename DT<PIXEL_T_IN, NPPC>::T;
+    using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC>::T;
 
     // For all intermediate values of calculations, let's use an ap_int that has
     // a slightly larger width than max(InPixelWidth, OutPixelWidth)
-    const unsigned InPixelWidth = DT<PIXEL_T_IN, NPPC_IN>::W / NPPC_IN,
-                   OutPixelWidth = DT<PIXEL_T_OUT, NPPC_OUT>::W / NPPC_OUT;
-    const unsigned TmpPixelWidth =
-        (InPixelWidth > OutPixelWidth ? InPixelWidth : OutPixelWidth) + 7;
+    const unsigned InPixelWidth = DT<PIXEL_T_IN, NPPC>::W / NPPC,
+                   OutPixelWidth = DT<PIXEL_T_OUT, NPPC>::W / NPPC;
+    const unsigned TmpPixelWidth = InPixelWidth + 9;
     using TmpPixelT = ap_int<TmpPixelWidth>;
 
     const unsigned ImgHeight = InImg.get_height(), ImgWidth = InImg.get_width();
-    const unsigned ImgIdx = i * (ImgWidth / NPPC_IN) + j;
+    const unsigned ImgIdx = i * (ImgWidth / NPPC) + j;
     // TODO T: Right now we're using a hardcoded kernel that matches
     // cv::GaussianBlur(InImg, OutImg, Size(5, 5), sigmaX=0, sigmaY=0)
     // (Note: sigmaX and sigmaY are the standard deviations in x- and
@@ -67,25 +64,25 @@ void GaussianBlurProcess(
     // But of course this might require lots of computations which might make it
     // not worth doing.
     const unsigned DIVISOR = 256;
-    static const TmpPixelT Kernel[FILTER_SIZE][FILTER_SIZE] = {
-        {1, 4, 6, 4, 1},
-        {4, 16, 24, 16, 4},
-        {6, 24, 36, 24, 6},
-        {4, 16, 24, 16, 4},
-        {1, 4, 6, 4, 1}};
+    static const TmpPixelT Kernel[FILTER_SIZE]
+                                 [FILTER_SIZE] = {{1, 4, 6, 4, 1},
+                                                  {4, 16, 24, 16, 4},
+                                                  {6, 24, 36, 24, 6},
+                                                  {4, 16, 24, 16, 4},
+                                                  {1, 4, 6, 4, 1}};
     OutPixelWordT OutPixelWord;
 
     // Now do the convolution at the current point:
     // OutPixel = dot_product(Kernel, Window) / DIVISOR
     const int FilterRadius = FILTER_SIZE / 2; // e.g., 2 if FILTER_SIZE is 5.
-    for (int k = 0; k < NPPC_IN; k++) {
+    for (int k = 0; k < NPPC; k++) {
         // Initialize the input window from LineBuffer.window. If the coordinate
         // is out-of-bound, set the value to 0 (i.e., zero-padding).
         TmpPixelT Window[FILTER_SIZE][FILTER_SIZE];
         for (int OffsetY = -FilterRadius; OffsetY <= FilterRadius; OffsetY++) {
             for (int OffsetX = -FilterRadius; OffsetX <= FilterRadius;
                  OffsetX++) {
-                int y = i + OffsetY, x = j * NPPC_IN + k + OffsetX;
+                int y = i + OffsetY, x = j * NPPC + k + OffsetX;
                 bool WindowOutOfBounds =
                     (y < 0) | (y >= ImgHeight) | (x < 0) | (x >= ImgWidth);
                 // Array indices start from 0 so we need to "recalibrate" the
@@ -130,7 +127,7 @@ void GaussianBlurProcess(
     // Now write to OutImg.
     OutImg.write(OutPixelWord, ImgIdx);
     // We're done with this pixel. Now update the coordinate to the next one.
-    if (j < W / NPPC_IN - 1) {
+    if (j < W / NPPC - 1) {
         j++;
     } else { // j == WIDTH - 1.
         i++;
@@ -141,42 +138,36 @@ void GaussianBlurProcess(
 // TODO T:
 // - Add support for FILTER_SIZE other than 5.
 // - Add support for multiple channels.
-// - Add support for other pixel-per-cycle.
 // - Add support for clamp logic. Right now we assume [0, 255] for all pixel
 //   types which is not correct, but we need to be really careful with the clamp
 //   logic since this function can be called both by itself or by Canny().
 template <unsigned FILTER_SIZE = 5, PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, StorageType STORAGE_IN = StorageType::FIFO,
           StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC_IN = NPPC_1,
-          NumPixelsPerCycle NPPC_OUT = NPPC_1>
-void GaussianBlur(
-    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-    vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg) {
+          NumPixelsPerCycle NPPC = NPPC_1>
+void GaussianBlur(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+                  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg) {
 #pragma HLS memory partition argument(InImg) type(struct_fields)
 #pragma HLS memory partition argument(OutImg) type(struct_fields)
 
     static_assert(FILTER_SIZE == 5,
                   "Gaussian Blur only supports filter size of 5.");
-    static_assert(DT<PIXEL_T_IN, NPPC_IN>::NumChannels == 1 &&
-                      DT<PIXEL_T_OUT, NPPC_OUT>::NumChannels == 1,
+    static_assert(DT<PIXEL_T_IN, NPPC>::NumChannels == 1 &&
+                      DT<PIXEL_T_OUT, NPPC>::NumChannels == 1,
                   "Gaussian Blur only supports 1-channel images.");
-    static_assert(NPPC_IN == NPPC_OUT,
-                  "Gaussian Blur only supports having the same number of "
-                  "pixels per clock in input and output data.");
-    static_assert(W % NPPC_IN == 0,
+    static_assert(W % NPPC == 0,
                   "In GaussianBlur, the width of the frame has to be divisible "
                   "by the number of pixels per clock.");
-    using InPixelWordT = typename DT<PIXEL_T_IN, NPPC_IN>::T;
-    using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC_OUT>::T;
+    using InPixelWordT = typename DT<PIXEL_T_IN, NPPC>::T;
+    using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC>::T;
 
     const unsigned ImgHeight = InImg.get_height(), ImgWidth = InImg.get_width();
     OutImg.set_height(ImgHeight);
     OutImg.set_width(ImgWidth);
 
-    const unsigned FrameSize = (ImgHeight * ImgWidth) / NPPC_IN;
-    const unsigned InPixelWidth = DT<PIXEL_T_IN, NPPC_IN>::W / NPPC_IN;
-    LineBuffer<InPixelWordT, W / NPPC_IN, FILTER_SIZE, InPixelWidth, NPPC_IN>
+    const unsigned FrameSize = (ImgHeight * ImgWidth) / NPPC;
+    const unsigned InPixelWidth = DT<PIXEL_T_IN, NPPC>::W / NPPC;
+    LineBuffer<InPixelWordT, W / NPPC, FILTER_SIZE, InPixelWidth, NPPC>
         LineBuffer;
     const unsigned FilterRadius = FILTER_SIZE / 2;
     // Before we can process the first pixel word, the LineBuffer needs to be
@@ -207,15 +198,15 @@ void GaussianBlur(
     //
     //   LineBufferPixelWordFillCount = ceil(LineBufferPixelFillCount / NPPC)
     const unsigned LineBufferPixelFillCount =
-        FilterRadius * (ImgWidth + 1) + NPPC_IN - 1;
-    unsigned LineBufferPixelWordFillCount = LineBufferPixelFillCount / NPPC_IN;
+        FilterRadius * (ImgWidth + 1) + NPPC - 1;
+    unsigned LineBufferPixelWordFillCount = LineBufferPixelFillCount / NPPC;
     // Note that C++ unsigned division rounds down, so we can do this to
     // implement ceil():
-    if (LineBufferPixelFillCount % NPPC_IN != 0) {
+    if (LineBufferPixelFillCount % NPPC != 0) {
         LineBufferPixelWordFillCount += 1;
     }
 
-    // 1. Fill LineBuffer only
+// 1. Fill LineBuffer only
 #pragma HLS loop pipeline
     for (unsigned Count = 0; Count < LineBufferPixelWordFillCount; Count++) {
         auto InPixelWord = InImg.read(Count);
@@ -225,7 +216,7 @@ void GaussianBlur(
     // i and j are the row and col indices of the current pixel word being
     // processed. They'll be incremented by GaussianBlurProcess().
     unsigned i = 0, j = 0;
-    // 2. Fill LineBuffer and process (steady state)
+// 2. Fill LineBuffer and process (steady state)
 #pragma HLS loop pipeline
     for (unsigned Count = LineBufferPixelWordFillCount; Count < FrameSize;
          Count++) {
@@ -234,7 +225,7 @@ void GaussianBlur(
         GaussianBlurProcess<FILTER_SIZE>(InImg, OutImg, LineBuffer, i, j);
     }
 
-    // 3. Process only (flush out). The input to LineBuffer is 0.
+// 3. Process only (flush out). The input to LineBuffer is 0.
 #pragma HLS loop pipeline
     for (unsigned Count = FrameSize;
          Count < FrameSize + LineBufferPixelWordFillCount; Count++) {

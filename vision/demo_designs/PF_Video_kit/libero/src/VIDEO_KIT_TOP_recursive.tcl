@@ -4,7 +4,6 @@
 source hdl_source.tcl
 build_design_hierarchy
 
-
 #Create camera and display modules
 set cwd [pwd]
 cd ../../../../rtl/camera_sd_component/IMX334_IF_TOP
@@ -13,14 +12,14 @@ cd ../../display_sd_component/HDMI_2p0
 source HDMI_2p0_recursive.tcl 
 build_design_hierarchy
 cd $cwd
+source components/FrameBufferControl.tcl 
 create_smartdesign -sd_name temp
 set_root -module {temp::work} 
 
 
 #Sourcing the Tcl files in which HDL+ core definitions are created for HDL modules
 #Create hls top Smart Design Modules
-source ../../hls/hls_output/scripts/create_hdl_plus.tcl
-source components/DDR_Access_wrapper_top.tcl 
+source ../../hls/hls_output/scripts/libero/create_hdl_plus.tcl
 
 #Sourcing the Tcl files for creating individual components under the top level
 source components/PF_CCC_C0.tcl 

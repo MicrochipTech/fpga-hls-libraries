@@ -90,7 +90,7 @@ sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {BIBUF_5:D} -value {G
 
 
 # Add CoreAHBLite_0 instance
-sd_instantiate_core -sd_name ${sd_name} -core_vlnv {Actel:DirectCore:CoreAHBLite:5.4.102} -instance_name {CoreAHBLite_0}
+sd_instantiate_core -sd_name ${sd_name} -core_vlnv "Actel:DirectCore:CoreAHBLite:${CoreAHBLite_version}" -instance_name {CoreAHBLite_0}
 # Exporting Parameters of instance CoreAHBLite_0
 sd_configure_core_instance -sd_name ${sd_name} -instance_name {CoreAHBLite_0} -params {\
 "FAMILY:26" \
@@ -214,7 +214,7 @@ sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CoreAHBLite_C0_0:REM
 
 
 # Add COREAHBTOAPB3_0 instance
-sd_instantiate_core -sd_name ${sd_name} -core_vlnv {Actel:DirectCore:COREAHBTOAPB3:3.1.100} -instance_name {COREAHBTOAPB3_0}
+sd_instantiate_core -sd_name ${sd_name} -core_vlnv "Actel:DirectCore:COREAHBTOAPB3:${COREAHBTOAPB3_version}" -instance_name {COREAHBTOAPB3_0}
 # Exporting Parameters of instance COREAHBTOAPB3_0
 sd_configure_core_instance -sd_name ${sd_name} -instance_name {COREAHBTOAPB3_0} -params {\
 "FAMILY:15" \
@@ -226,7 +226,7 @@ sd_save_core_instance_config -sd_name ${sd_name} -instance_name {COREAHBTOAPB3_0
 
 
 # Add CoreAPB3_0 instance
-sd_instantiate_core -sd_name ${sd_name} -core_vlnv {Actel:DirectCore:CoreAPB3:4.1.100} -instance_name {CoreAPB3_0}
+sd_instantiate_core -sd_name ${sd_name} -core_vlnv "Actel:DirectCore:CoreAPB3:${CoreAPB3_version}" -instance_name {CoreAPB3_0}
 # Exporting Parameters of instance CoreAPB3_0
 sd_configure_core_instance -sd_name ${sd_name} -instance_name {CoreAPB3_0} -params {\
 "APB_DWIDTH:32" \
@@ -278,7 +278,7 @@ sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CoreAPB3_0:APBmslave6}
 
 
 # Add CoreGPIO_OUT instance
-sd_instantiate_core -sd_name ${sd_name} -core_vlnv {Actel:DirectCore:CoreGPIO:3.2.102} -instance_name {CoreGPIO_OUT}
+sd_instantiate_core -sd_name ${sd_name} -core_vlnv "Actel:DirectCore:CoreGPIO:${CoreGPIO_version}" -instance_name {CoreGPIO_OUT}
 # Exporting Parameters of instance CoreGPIO_OUT
 sd_configure_core_instance -sd_name ${sd_name} -instance_name {CoreGPIO_OUT} -params {\
 "APB_WIDTH:32" \
@@ -444,9 +444,8 @@ sd_instantiate_component -sd_name ${sd_name} -component_name {COREI2C_C0} -insta
 sd_instantiate_component -sd_name ${sd_name} -component_name {COREI2C_C0} -instance_name {COREI2C_C0_2}
 
 
-
 # Add COREJTAGDEBUG_0 instance
-sd_instantiate_core -sd_name ${sd_name} -core_vlnv {Actel:DirectCore:COREJTAGDEBUG:3.1.100} -instance_name {COREJTAGDEBUG_0}
+sd_instantiate_core -sd_name ${sd_name} -core_vlnv "Actel:DirectCore:COREJTAGDEBUG:${COREJTAGDEBUG_version}" -instance_name {COREJTAGDEBUG_0}
 # Exporting Parameters of instance COREJTAGDEBUG_0
 sd_configure_core_instance -sd_name ${sd_name} -instance_name {COREJTAGDEBUG_0} -params {\
 "FAMILY:26" \
@@ -542,64 +541,121 @@ sd_instantiate_component -sd_name ${sd_name} -component_name {PF_SRAM_AHBL_AXI_C
 
 
 # Add scalar net connections
+puts "here 1\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"APB_CLK" "COREAHBTOAPB3_0:HCLK" "COREI2C_C0_0:BCLK" "COREI2C_C0_0:PCLK" "COREI2C_C0_1:BCLK" "COREI2C_C0_1:PCLK" "COREI2C_C0_2:BCLK" "COREI2C_C0_2:PCLK" "CoreAHBLite_0:HCLK" "CoreAHBLite_C0_0:HCLK" "CoreGPIO_OUT:PCLK" "MIV_RV32IMA_L1_AHB_C0_0:CLK" "PCLK" "PF_SRAM_AHBL_AXI_C0_0:HCLK" }
+puts "here 2\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"APB_Reset" "COREAHBTOAPB3_0:HRESETN" "COREI2C_C0_0:PRESETN" "COREI2C_C0_1:PRESETN" "COREI2C_C0_2:PRESETN" "CoreAHBLite_0:HRESETN" "CoreAHBLite_C0_0:HRESETN" "CoreGPIO_OUT:PRESETN" "HDMI_RST" "MIV_RV32IMA_L1_AHB_C0_0:RESETN" "PF_SRAM_AHBL_AXI_C0_0:HRESETN" "reset" }
+puts "here 3\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_0:E" "INV_0:Y" }
+puts "here 4\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_0:PAD" "CAM1_SCL" }
+puts "here 5\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_0:Y" "COREI2C_C0_2:SCLI" }
+puts "here 6\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_1:E" "INV_1:Y" }
+puts "here 7\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_1:PAD" "CAM1_SDA" }
+puts "here 8\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_1:Y" "COREI2C_C0_2:SDAI" }
+puts "here 9\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_2:E" "INV_2:Y" }
+puts "here 10\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_2:PAD" "HDMI_SCL" }
+puts "here 11\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_2:Y" "COREI2C_C0_1:SCLI" }
+puts "here 12\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_3:E" "INV_3:Y" }
+puts "here 13\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_3:PAD" "HDMI_SDA" }
+puts "here 14\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_3:Y" "COREI2C_C0_1:SDAI" }
+puts "here 15\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_4:E" "INV_4:Y" }
+puts "here 16\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_4:PAD" "CAM2_SCL" }
+puts "here 17\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_4:Y" "COREI2C_C0_0:SCLI" }
+puts "here 18\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_5:E" "INV_5:Y" }
+puts "here 19\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_5:PAD" "CAM2_SDA" }
+puts "here 20\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_5:Y" "COREI2C_C0_0:SDAI" }
+puts "here 21\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM1_RST" "CoreGPIO_OUT:GPIO_OUT[8:8]" }
+puts "here 22\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM2_RST" "CoreGPIO_OUT:GPIO_OUT[7:7]" }
+puts "here 23\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_0:INT" "MIV_RV32IMA_L1_AHB_C0_0:IRQ[29:29]" }
+puts "here 24\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_0:SCLO" "INV_4:A" }
+puts "here 25\n"
+puts "here \n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_0:SDAO" "INV_5:A" }
+puts "here 26\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_1:INT" "MIV_RV32IMA_L1_AHB_C0_0:IRQ[27:27]" }
+puts "here 27\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_1:SCLO" "INV_2:A" }
+puts "here 28\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_1:SDAO" "INV_3:A" }
+puts "here 29\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_2:INT" "MIV_RV32IMA_L1_AHB_C0_0:IRQ[28:28]" }
+puts "here 30\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_2:SCLO" "INV_0:A" }
+puts "here 31\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_2:SDAO" "INV_1:A" }
+puts "here 32\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TCK" "TCK" }
+puts "here 33\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TDI" "TDI" }
+puts "here 34\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TDO" "TDO" }
+puts "here 35\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TCK_0" "MIV_RV32IMA_L1_AHB_C0_0:TCK" }
+puts "here 36\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TDI_0" "MIV_RV32IMA_L1_AHB_C0_0:TDI" }
+puts "here 37\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TDO_0" "MIV_RV32IMA_L1_AHB_C0_0:TDO" }
+puts "here 38\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TMS_0" "MIV_RV32IMA_L1_AHB_C0_0:TMS" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TRSTB_0" "MIV_RV32IMA_L1_AHB_C0_0:TRST" }
+puts "here 39\n"
+sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TRST_0" "MIV_RV32IMA_L1_AHB_C0_0:TRST" }
+puts "here 40\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TMS" "TMS" }
+puts "here 41\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TRSTB" "TRSTB" }
+puts "here 42\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreGPIO_OUT:GPIO_OUT[4:4]" "TRNG_RST_N" }
+puts "here 43\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreGPIO_OUT:GPIO_OUT[9:9]" "GPIO_OUT" }
+puts "here 44\n"
 
 # Add bus net connections
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreGPIO_OUT:GPIO_OUT[3:0]" "GPIO_OUT_0" }
+puts "here 45\n"
 
 # Add bus interface net connections
+puts "here 46\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"APBmslave9" "CoreAPB3_0:APBmslave9" }
+puts "here 47\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREAHBTOAPB3_0:AHBslave" "CoreAHBLite_0:AHBmslave7" }
+puts "here 48\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREAHBTOAPB3_0:APBmaster" "CoreAPB3_0:APB3mmaster" }
+puts "here 49\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_0:APBslave" "CoreAPB3_0:APBmslave4" }
+puts "here 50\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_1:APBslave" "CoreAPB3_0:APBmslave8" }
+puts "here 51\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_2:APBslave" "CoreAPB3_0:APBmslave7" }
+puts "here 52\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreAHBLite_0:AHBmmaster0" "MIV_RV32IMA_L1_AHB_C0_0:AHB_MST_MMIO" }
+puts "here 53\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreAHBLite_C0_0:AHBmmaster0" "MIV_RV32IMA_L1_AHB_C0_0:AHB_MST_MEM" }
+puts "here 54\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreAHBLite_C0_0:AHBmslave16" "PF_SRAM_AHBL_AXI_C0_0:AHBSlaveInterface" }
+puts "here 55\n"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreAPB3_0:APBmslave5" "CoreGPIO_OUT:APB_bif" }
+puts "here 56\n"
 
 # Re-enable auto promotion of pins of type 'pad'
 auto_promote_pad_pins -promote_all 1

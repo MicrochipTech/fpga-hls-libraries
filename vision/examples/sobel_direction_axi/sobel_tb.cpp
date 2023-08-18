@@ -17,7 +17,7 @@ using vision::Img;
 #endif
 
 #define NumPixels (WIDTH * HEIGHT)
-#define NPPC 1
+#define NPPC 4
 #define NumPixelWords (NumPixels / NPPC)
 #define InPixelWordWidth (8 * NPPC) // Input image is 8UC1
 #define InAxiWordWidth 32           // Input AXI memory is 32-bit
@@ -31,10 +31,9 @@ using vision::Img;
 // OutDirection: AXI-Stream
 template <vision::PixelType PIXEL_T_IN, vision::PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, vision::StorageType STORAGE_IN,
-          vision::StorageType STORAGE_OUT, vision::NumPixelsPerCycle NPPC_IN,
-          vision::NumPixelsPerCycle NPPC_OUT>
+          vision::StorageType STORAGE_OUT, vision::NumPixelsPerCycle _NPPC>
 void hlsSobel(uint32_t *InAxiMM, uint32_t *OutAxiMM,
-              Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutDirection) {
+              Img<PIXEL_T_OUT, H, W, STORAGE_OUT, _NPPC> &OutDirection) {
 #pragma HLS function top
 #pragma HLS function dataflow
 #pragma HLS interface argument(InAxiMM) type(axi_initiator)                    \
@@ -43,8 +42,8 @@ void hlsSobel(uint32_t *InAxiMM, uint32_t *OutAxiMM,
     num_elements(OutNumAxiWords) max_burst_len(256)
 #pragma HLS memory partition argument(OutDirection) type(struct_fields)
 
-    Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> InImg;
-    Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> OutImg;
+    Img<PIXEL_T_IN, H, W, STORAGE_IN, _NPPC> InImg;
+    Img<PIXEL_T_OUT, H, W, STORAGE_OUT, _NPPC> OutImg;
 
     // 1. AXI Memory to Img conversion
     vision::AxiMM2Img<InAxiWordWidth>(InAxiMM, InImg);
@@ -84,39 +83,41 @@ int main() {
     // Then write the content of Mat to `InAxiMM`.
     memcpy(InAxiMM, InMat.data, NumPixelWords * InPixelWordWidth / 8);
     // Declare OutDirection which is an Img.
-    Img<vision::PixelType::HLS_16SC1, HEIGHT, WIDTH, vision::StorageType::FIFO,
-        vision::NPPC_1>
-        OutDirection;
+    Img<vision::PixelType::HLS_8UC1, HEIGHT, WIDTH, vision::StorageType::FIFO,
+        vision::NPPC_4>
+        OutDirection, OutDirectionSw;
     // Now, call the SmartHLS top-level function.
     hlsSobel</*PIXEL_T_IN=*/vision::PixelType::HLS_8UC1,
-             /*PIXEL_T_OUT=*/vision::PixelType::HLS_16SC1, /*H=*/HEIGHT,
+             /*PIXEL_T_OUT=*/vision::PixelType::HLS_8UC1, /*H=*/HEIGHT,
              /*W=*/WIDTH, /*STORAGE_IN=*/vision::StorageType::FIFO,
              /*STORAGE_OUT=*/vision::StorageType::FIFO,
-             /*NPPC_IN=*/vision::NPPC_1, /*NPPC_OUT=*/vision::NPPC_1>(
-        InAxiMM, OutAxiMM, OutDirection);
+             /*_NPPC=*/vision::NPPC_4>(InAxiMM, OutAxiMM, OutDirection);
     // Finally, convert the `OutAxiMM` back to OpenCV `Mat`.
-    Mat HlsOutMat_16SC1(HEIGHT, WIDTH, CV_16SC1, OutAxiMM);
-    Mat HlsOutMat_8UC1;
-    HlsOutMat_16SC1.convertTo(HlsOutMat_8UC1, CV_8UC1);
+    Mat HlsOutMat(HEIGHT, WIDTH, CV_8UC1, OutAxiMM);
 
     // 2. OpenCV result
     Mat CvOutMat;
     cvSobel(InMat, CvOutMat);
     cv::convertScaleAbs(CvOutMat, CvOutMat);
 
-    // 3. Print the HlsOutMat_8UC1 and CvOutMat as pictures for reference.
-    cv::imwrite("hls_output.bmp", HlsOutMat_8UC1);
+    // 3. Print the HlsOutMat and CvOutMat as pictures for reference.
+    cv::imwrite("hls_output.bmp", HlsOutMat);
     cv::imwrite("cv_output.bmp", CvOutMat);
 
     // 4. Compare the SmartHLS result and the OpenCV result.
     // Use this commented out line to report location of errors.
-    // vision::compareMatAndReport<unsigned char>(HlsOutMat_8UC1, CvOutMat, 0);
-    float ErrPercent = vision::compareMat(HlsOutMat_8UC1, CvOutMat, 0);
+    // vision::compareMatAndReport<unsigned char>(HlsOutMat, CvOutMat, 0);
+    float ErrPercent = vision::compareMat(HlsOutMat, CvOutMat, 0);
     printf("Percentage of over threshold: %0.2lf%\n", ErrPercent);
 
     // Clean up
     delete[] InAxiMM;
     delete[] OutAxiMM;
 
-    return ErrPercent;
+    if (ErrPercent == 0.0) {
+        printf("PASS");
+        return 0;
+    }
+    printf("FAIL");
+    return 1;
 }

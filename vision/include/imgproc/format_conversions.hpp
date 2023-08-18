@@ -53,6 +53,10 @@ void RGB2GRAY(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
         "The per channel pixel width of the input and output must be the same");
     // TODO T: Assert the sign information as well e.g. 16UC vs 16SC?
 
+    const unsigned ImgHeight = InImg.get_height(), ImgWidth = InImg.get_width();
+    OutImg.set_height(ImgHeight);
+    OutImg.set_width(ImgWidth);
+
     /* Define a functor to transform InImg pixel-by-pixel to get OutImg */
     struct RGB2GRAYFunctor {
         typename DT<PIXEL_T_OUT>::T
@@ -106,6 +110,10 @@ void GRAY2RGB(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
             DT<PIXEL_T_OUT, NPPC>::PerChannelPixelWidth,
         "The per channel pixel width of the input and output must be the same");
     // TODO T: Assert the sign information as well e.g. 16UC vs 16SC?
+
+    const unsigned ImgHeight = InImg.get_height(), ImgWidth = InImg.get_width();
+    OutImg.set_height(ImgHeight);
+    OutImg.set_width(ImgWidth);
 
     /* Define a functor to transform InImg pixel-by-pixel to get OutImg */
     struct GRAY2RGBFunctor {

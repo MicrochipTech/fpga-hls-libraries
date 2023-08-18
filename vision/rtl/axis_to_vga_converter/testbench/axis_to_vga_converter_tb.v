@@ -26,7 +26,7 @@ module AXIS_To_VGA_Converter_tb();
     wire [C_WIDTH-1:0] R_O, G_O, B_O;
 
 
-    integer j,k, log, c;
+    integer j,k, out_file, c, frame;
 
     initial clk = 0;
 
@@ -43,25 +43,27 @@ module AXIS_To_VGA_Converter_tb();
 
     initial begin
         pattern_sel <= 0;
+        for (frame = 0; frame < 3; frame = frame + 1) begin
         //write the output frame into a ppm image
-        $display($sformatf("**printing to output.ppm"));
-        log = $fopen ($sformatf("output.ppm"), "w");
-    
-        $fwrite (log, "P3\n");
-        $fwrite (log, "%3d %3d\n", 1920, 1080);
-        $fwrite (log, "255\n");
-        for (j=0; j<1080; j=j+1) begin
-            for (k=0; k<1920; ) begin
-                @(posedge clk) ;
-                if(data_enable_O == 1)begin
-                    $fwrite (log, "\t%1d %1d %1d", R_O, G_O, B_O);
-                    k = k+1;
+            $display($sformatf("**printing to output%0d.ppm", frame));
+            out_file = $fopen ($sformatf("output%0d.ppm", frame), "w");
+        
+            $fwrite (out_file, "P3\n");
+            $fwrite (out_file, "%3d %3d\n", 1920, 1080);
+            $fwrite (out_file, "255\n");
+            for (j=0; j<1080; j=j+1) begin
+                for (k=0; k<1920; ) begin
+                    @(posedge clk) ;
+                    if(data_enable_O == 1)begin
+                        $fwrite (out_file, "\t%1d %1d %1d", R_O, G_O, B_O);
+                        k = k+1;
+                    end
                 end
+                $fwrite (out_file, "\n");
             end
-            $fwrite (log, "\n");
+            $fclose(out_file);
+            $display($sformatf("**DONE printing output%0d", frame));
         end
-        $fclose(log);
-        $display($sformatf("**DONE printing output"));
         $finish;
 
     end

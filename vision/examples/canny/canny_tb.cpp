@@ -11,10 +11,12 @@ using vision::Img;
 #define WIDTH 100
 #define HEIGHT 56
 #define INPUT_IMAGE "toronto_100x56.bmp"
+#define GOLDEN_IMAGE "canny_golden_100x56.png"
 #else
 #define WIDTH 1920
 #define HEIGHT 1080
 #define INPUT_IMAGE "toronto_1080p.bmp"
+#define GOLDEN_IMAGE "canny_golden_1080p.png"
 #endif
 #define SIZE (WIDTH * HEIGHT)
 
@@ -22,10 +24,9 @@ using vision::Img;
 // calls vision::Canny().  This is required by our CoSim flow.
 template <vision::PixelType PIXEL_T_IN, vision::PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, vision::StorageType STORAGE_IN,
-          vision::StorageType STORAGE_OUT, vision::NumPixelsPerCycle NPPC_IN,
-          vision::NumPixelsPerCycle NPPC_OUT>
-void hlsCanny(Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-              Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg,
+          vision::StorageType STORAGE_OUT, vision::NumPixelsPerCycle NPPC>
+void hlsCanny(Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+              Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
               unsigned Thres) {
 #pragma HLS function top
 #pragma HLS function dataflow
@@ -54,38 +55,57 @@ int main() {
     // 1. SmartHLS result
     // First, convert the OpenCV `Mat` into `Img`.
     Img<vision::PixelType::HLS_8UC1, HEIGHT, WIDTH, vision::StorageType::FIFO,
-        vision::NPPC_1>
-        HlsInImg;
-    Img<vision::PixelType::HLS_32SC1, HEIGHT, WIDTH, vision::StorageType::FIFO,
-        vision::NPPC_1>
-        HlsOutImg;
+        vision::NPPC_4>
+        HlsInImg, HlsInImgSW;
+    Img<vision::PixelType::HLS_8UC1, HEIGHT, WIDTH, vision::StorageType::FIFO,
+        vision::NPPC_4>
+        HlsOutImg, HlsOutImgSW;
     convertFromCvMat(InMat, HlsInImg);
     // Then, call the SmartHLS top-level function.
     hlsCanny(HlsInImg, HlsOutImg, Thres);
     // Finally, convert the `Img` back to OpenCV `Mat`.
-    Mat HlsOutMat, HlsOutMat_8UC1;
+    Mat HlsOutMat;
     convertToCvMat(HlsOutImg, HlsOutMat);
-    HlsOutMat.convertTo(HlsOutMat_8UC1, CV_8UC1);
 
     // 2. OpenCV result
     Mat CvOutMat;
     cvCanny(InMat, CvOutMat, Thres);
 
     // 3. Print the HlsOutMat and CvOutMat as pictures for reference.
-    cv::imwrite("hls_output.png", HlsOutMat_8UC1);
+    cv::imwrite("hls_output.png", HlsOutMat);
     cv::imwrite("cv_output.png", CvOutMat);
 
     // 4. Compare the SmartHLS result and the OpenCV result.
     // Use this commented out line to report location of errors.
-    // vision::compareMatAndReport<unsigned char>(HlsOutMat_8UC1, CvOutMat, 0);
-    float ErrPercent = vision::compareMat(HlsOutMat_8UC1, CvOutMat, 0);
-    printf("Percentage of over threshold: %0.2lf%\n", ErrPercent);
+
+    // Uncomment the line below to print the places where there is difference
+    // between images
+    // vision::compareMatAndReport<unsigned char>(HlsOutMat, CvOutMat,0);
+    float ErrPercentCV = vision::compareMat(HlsOutMat, CvOutMat, 0);
+
+    // Compare the output with golden output
+    Mat GoldenMat = cv::imread(GOLDEN_IMAGE, cv::IMREAD_GRAYSCALE);
+
+    // Uncomment the line below to print the places where there is difference
+    // between images
+    // vision::compareMatAndReport<unsigned char>(HlsOutMat, GoldenMat,0);
+    float ErrPercentGolden = vision::compareMat(HlsOutMat, GoldenMat, 0);
+
+    printf("Percentage of over threshold against OpenCV: %0.2lf%\n",
+           ErrPercentCV);
+    printf("Percentage of over threshold against golden output: %0.2lf%\n",
+           ErrPercentGolden);
 
     // Allow a higher percentage error for SMALL_TEST_FRAME since the total
     // number of pixels is lower.
+    bool MatchGolden = (ErrPercentGolden == 0.0);
+    bool Pass;
 #ifdef SMALL_TEST_FRAME
-    return (ErrPercent < 10.f) ? 0 : ErrPercent;
+    Pass = (ErrPercentCV < 10.f) && MatchGolden;
 #else
-    return (ErrPercent < 2.5f) ? 0 : ErrPercent;
+    Pass = (ErrPercentCV < 2.5f) && MatchGolden;
 #endif
+    printf("%s\n", Pass ? "PASS" : "FAIL");
+
+    return Pass ? 0 : 1; // Only return 0 on pass.
 }

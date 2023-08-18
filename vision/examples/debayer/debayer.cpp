@@ -8,19 +8,18 @@ using vision::PixelType;
 using vision::StorageType;
 
 // This line tests on a smaller image for faster co-simulation.
-#define FAST_COSIM
+// #define FAST_COSIM
 
 #ifdef FAST_COSIM
 #define WIDTH 100
 #define HEIGHT 56
 #define INPUT_IMAGE "toronto_100x56.bmp"
-#define GOLDEN_OUTPUT "toronto_100x56.bmp"
-
+#define GOLDEN_OUTPUT "debayer_golden_100x56.png"
 #else
 #define WIDTH 1920
 #define HEIGHT 1080
 #define INPUT_IMAGE "toronto_1080p.bmp"
-#define GOLDEN_OUTPUT "toronto_1080p.bmp"
+#define GOLDEN_OUTPUT "debayer_golden_1920x1080.png"
 #endif
 
 #define SIZE (WIDTH * HEIGHT)
@@ -76,6 +75,12 @@ int main() {
     Mat OutMat;
     vision::convertToCvMat(OutImg, OutMat);
 
+    // Compare output image with golden image. They should completely match
+    Mat BGRGoldenMat = cv::imread(GOLDEN_OUTPUT, cv::IMREAD_COLOR);
+    Mat RGBGoldenMat;
+    cv::cvtColor(BGRGoldenMat, RGBGoldenMat, cv::COLOR_BGR2RGB);
+    float ErrPercentGolden = vision::compareMat(RGBGoldenMat, OutMat, 0);
+
     // Compare the output image with the input image
     // Converting RGB to bayer format results in 3x reduction in data size, and
     // converting back from bayer to RGB (using debayer function) will result in
@@ -83,8 +88,8 @@ int main() {
     // So we will say pass as long as less than 5% of pixels (each channel) have
     // mismatch greater than 32 (in range of 0-255).
     float ErrPercent = vision::compareMat(RGBInMat, OutMat, 32);
-    printf("Percentage of over threshold: %0.2lf%\n", ErrPercent);
-    if (ErrPercent < 5) {
+    printf("Percentage of over threshold In vs Out: %0.2lf%\n", ErrPercent);
+    if (ErrPercent < 5 && ErrPercentGolden == 0.0) {
         printf("PASS");
         return 0;
     }

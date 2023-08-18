@@ -28,7 +28,7 @@ module Camera_To_AXIS_Converter_tb();
     wire [C_WIDTH-1:0] R_int, G_int, B_int;
     wire tready_I, hsync_int, vsync_int, data_enable_int;
 
-    integer j, k, log, c;
+    integer j, k, out_file, c, frame;
     initial clk = 0;
     always @(clk) clk <= #(CLOCK_PERIOD/2) ~clk;
 
@@ -42,24 +42,26 @@ module Camera_To_AXIS_Converter_tb();
 
     //Store the output frame in a file
     initial begin
-        $display($sformatf("**printing to output.ppm"));
-        log = $fopen ($sformatf("output.ppm"), "w");
-        $fwrite (log, "P3\n");
-        $fwrite (log, "%3d %3d\n", 1920, 1080);
-        $fwrite (log, "255\n");
-        for (j=0; j<1080; j=j+1) begin
-            for (k=0; k<1920; ) begin
-                @(posedge clk);
-                if(tvalid_O == 1)begin
-                    $fwrite (log, "\t%1d %1d %1d", tdata_O[C_WIDTH-1:0], 
-		tdata_O[2*C_WIDTH-1:C_WIDTH], tdata_O[3*C_WIDTH-1:2*C_WIDTH]);
-                    k = k+1;
+        for (frame=0; frame < 3; frame = frame + 1) begin
+            $display($sformatf("**printing to output%0d.ppm", frame));
+            out_file = $fopen ($sformatf("output%0d.ppm", frame), "w");
+            $fwrite (out_file, "P3\n");
+            $fwrite (out_file, "%3d %3d\n", 1920, 1080);
+            $fwrite (out_file, "255\n");
+            for (j=0; j<1080; j=j+1) begin
+                for (k=0; k<1920; ) begin
+                    @(posedge clk);
+                    if(tvalid_O == 1)begin
+                        $fwrite (out_file, "\t%1d %1d %1d", tdata_O[C_WIDTH-1:0], 
+                            tdata_O[2*C_WIDTH-1:C_WIDTH], tdata_O[3*C_WIDTH-1:2*C_WIDTH]);
+                        k = k+1;
+                    end
                 end
+                $fwrite (out_file, "\n");
             end
-            $fwrite (log, "\n");
+            $fclose(out_file);
+            $display($sformatf("**DONE printing output%0d", frame));
         end
-        $fclose(log);
-                $display($sformatf("**DONE printing output"));
         $finish;
     end
 
