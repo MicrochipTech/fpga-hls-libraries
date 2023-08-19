@@ -45,13 +45,16 @@ module AXIS_To_VGA_Converter # (
     output  [PIXEL_PER_CLK * C_WIDTH-1:0] G_O,   
     output  [PIXEL_PER_CLK * C_WIDTH-1:0] B_O
 );
+    wire hsync_counter, hsync_VGA, vsync_counter, vsync_VGA; 
     wire fifo_full;
     wire fifo_almost_empty;
     wire pop_fifo;
     wire [$clog2(FIFO_DEPTH):0] fifo_used_w;
     wire [PIXEL_PER_CLK*3*C_WIDTH+1:0] fifo_o;
+    wire display_data;
 
     wire tready_int_converter, tlast_int_converter, tvalid_int_converter;
+    wire data_enable_VGA, data_enable_counter;
     wire [TUSER_WIDTH-1:0] tuser_int_converter;
     wire [PIXEL_PER_CLK*3*C_WIDTH-1:0] tdata_int_converter; 
     wire tready_int_debubble, tlast_int_debubble, tvalid_int_debubble;
@@ -62,17 +65,23 @@ module AXIS_To_VGA_Converter # (
     genvar i;
     generate
         for(i=0; i < PIXEL_PER_CLK; i = i + 1)begin
-            assign R_O[(i + 1 ) * C_WIDTH - 1 : i * C_WIDTH] = fifo_o [i*3*C_WIDTH+C_WIDTH-1:i*3*C_WIDTH];
-            assign G_O[(i + 1 ) * C_WIDTH - 1 : i * C_WIDTH] = fifo_o [i*3*C_WIDTH+2*C_WIDTH-1:i*3*C_WIDTH+C_WIDTH];
-            assign B_O[(i + 1 ) * C_WIDTH - 1 : i * C_WIDTH] = fifo_o [i*3*C_WIDTH+3*C_WIDTH-1:i*3*C_WIDTH+2*C_WIDTH];
+            // Display yellow if not locked/resync
+            assign R_O[(i + 1 ) * C_WIDTH - 1 : i * C_WIDTH] = display_data ? fifo_o [i*3*C_WIDTH+C_WIDTH-1:i*3*C_WIDTH] : {C_WIDTH{1'b1}};
+            assign G_O[(i + 1 ) * C_WIDTH - 1 : i * C_WIDTH] = display_data ? fifo_o [i*3*C_WIDTH+2*C_WIDTH-1:i*3*C_WIDTH+C_WIDTH] : {C_WIDTH{1'b1}};
+            assign B_O[(i + 1 ) * C_WIDTH - 1 : i * C_WIDTH] = display_data ? fifo_o [i*3*C_WIDTH+3*C_WIDTH-1:i*3*C_WIDTH+2*C_WIDTH] : {C_WIDTH{1'b0}};
         end
     endgenerate
+
     assign tready_O = (DEBUBBLE) ? tready_int_debubble : tready_int_converter;
     assign tlast_int_converter = (DEBUBBLE) ? tlast_int_debubble : tlast;
     assign tvalid_int_converter = (DEBUBBLE) ? tvalid_int_debubble : tvalid;
     assign tuser_int_converter = (DEBUBBLE) ? tuser_int_debubble : tuser;
     assign tdata_int_converter = (DEBUBBLE) ? tdata_int_debubble : tdata;
 
+    // assign vsync and hsync based on whether VGA controller is in locked mode or not
+    assign hsync_O = display_data ? hsync_VGA : hsync_counter;
+    assign vsync_O = display_data ? vsync_VGA : vsync_counter;
+    assign data_enable_O = display_data ? data_enable_VGA : data_enable_counter;
 
     AXIS_VGA_fwft_fifo #(
         .width (PIXEL_PER_CLK*3*C_WIDTH+2),
@@ -110,10 +119,24 @@ module AXIS_To_VGA_Converter # (
         .RESETN_I(~reset),
         .SYS_CLK_I(clk),
         .ENABLE_I(1'b1),
-        .H_SYNC_O(hsync_O),
-        .V_SYNC_O(vsync_O),
-        .DATA_ENABLE_O(data_enable_O)
+        .H_SYNC_O(hsync_VGA),
+        .V_SYNC_O(vsync_VGA),
+        .DATA_ENABLE_O(data_enable_VGA),
+        .DISPLAY_DATA_O(display_data)
     );
+
+
+    // Added for yellow screen
+ VGA_Counter # (
+    .RESOLUTION(RESOLUTION),
+    .PIXEL_PER_CLK(PIXEL_PER_CLK)
+ ) V_Count_A(
+    .reset(reset),//active high
+    .clk(clk),
+    .hsync_O(hsync_counter),
+    .vsync_O(vsync_counter),
+    .data_enable_O(data_enable_counter)
+);
 
 
     generate 
@@ -860,3 +883,209 @@ end
 endmodule
 
 
+// Added for yellow screen
+module VGA_Counter # (
+    parameter RESOLUTION = 1,// 0 -> 1280x720 1 -> 1920x1080 2-> 3840x2160 
+    //3-> 640x360
+    parameter PIXEL_PER_CLK = 1
+)
+(
+    input   reset,//active high
+    input   clk,
+    output reg hsync_O,
+    output reg vsync_O,
+    output data_enable_O
+);
+
+// Counter values used for the yellow screen
+wire [15:0] h_resolution, v_resolution, h_f_porch, h_b_porch, v_f_porch,
+            v_b_porch, h_sync_width, v_sync_width;
+reg [15:0] h_counter, v_counter;
+wire [15:0] h_event1, h_event2, h_event3, v_event1, v_event2, 
+            v_event3, v_blank, h_total, v_total;
+reg h_active_dly, h_active_fe, h_active, v_active; 
+
+
+
+
+// Assign active/blanking period values based on resolution and pixels per clock
+generate
+  if (RESOLUTION == 0 && PIXEL_PER_CLK == 1) begin : FORMAT_1280x720
+    assign h_resolution = 16'h0500;
+    assign v_resolution = 16'h02D0;
+    assign h_f_porch = 16'h006E;
+    assign h_b_porch = 16'h00DC;
+    assign v_f_porch = 16'h0005;
+    assign v_b_porch = 16'h0014;
+    assign h_sync_width = 16'h0028;
+    assign v_sync_width = 16'h0005;
+  end
+
+  if (RESOLUTION == 0 && PIXEL_PER_CLK == 4) begin : FORMAT_1280x720_4p
+    assign h_resolution = 16'h0140;
+    assign v_resolution = 16'h02D0;
+    assign h_f_porch = 16'h001B;
+    assign h_b_porch = 16'h0037;
+    assign v_f_porch = 16'h0005;
+    assign v_b_porch = 16'h0014;
+    assign h_sync_width = 16'h000A;
+    assign v_sync_width = 16'h0005;
+  end
+
+  if (RESOLUTION == 1 && PIXEL_PER_CLK == 1) begin : FORMAT_1920x1080
+    assign h_resolution = 16'h0780;
+    assign v_resolution = 16'h0438;
+    assign h_f_porch = 16'h0058;
+    assign h_b_porch = 16'h0094;
+    assign v_f_porch = 16'h0004;
+    assign v_b_porch = 16'h0024;
+    assign h_sync_width = 16'h002C;
+    assign v_sync_width = 16'h0005;
+  end
+
+  if (RESOLUTION == 1 && PIXEL_PER_CLK == 4) begin : FORMAT_1920x1080_4p
+    assign h_resolution = 16'h01E0;
+    assign v_resolution = 16'h0438;
+    assign h_f_porch = 16'h0016;
+    assign h_b_porch = 16'h0025;
+    assign v_f_porch = 16'h0004;
+    assign v_b_porch = 16'h0024;
+    assign h_sync_width = 16'h000B;
+    assign v_sync_width = 16'h0005;
+  end
+
+  if (RESOLUTION == 2 && PIXEL_PER_CLK == 1) begin : FORMAT_3840x2160
+    assign h_resolution = 16'h0F00;
+    assign v_resolution = 16'h0870;
+    assign h_f_porch = 16'h00B0;
+    assign h_b_porch = 16'h0128;
+    assign v_f_porch = 16'h0008;
+    assign v_b_porch = 16'h0048;
+    assign h_sync_width = 16'h0058;
+    assign v_sync_width = 16'h000A;
+  end
+
+  if (RESOLUTION == 2 && PIXEL_PER_CLK == 4) begin : FORMAT_3840x2160_4p
+    assign h_resolution = 16'h03C0;
+    assign v_resolution = 16'h0870;
+    assign h_f_porch = 16'h002C;
+    assign h_b_porch = 16'h004A;
+    assign v_f_porch = 16'h0008;
+    assign v_b_porch = 16'h0048;
+    assign h_sync_width = 16'h0016;
+    assign v_sync_width = 16'h000A;
+  end
+
+  if (RESOLUTION == 3 && PIXEL_PER_CLK == 1) begin : FORMAT_640x360
+    assign h_resolution = 16'h0280;
+    assign v_resolution = 16'h0168;
+    assign h_f_porch = 16'h0058;
+    assign h_b_porch = 16'h0094;
+    assign v_f_porch = 16'h0004;
+    assign v_b_porch = 16'h0024;
+    assign h_sync_width = 16'h002C;
+    assign v_sync_width = 16'h0005;
+  end
+endgenerate
+
+assign h_event1 = h_f_porch;
+assign h_event2 = h_f_porch + h_sync_width;
+assign h_event3 = h_f_porch + h_sync_width + h_b_porch;
+assign v_event1 = v_f_porch;
+assign v_event2 = v_f_porch + v_sync_width;
+assign v_event3 = v_f_porch + v_sync_width + v_b_porch;
+assign v_blank  = v_sync_width + v_b_porch;
+assign h_total  = h_resolution + h_f_porch + h_b_porch + h_sync_width - 1;
+assign v_total  = v_resolution + v_f_porch + v_b_porch + v_sync_width - 1;
+
+assign data_enable_O = h_active & v_active;
+
+// V_vounter incrementation
+always @ (posedge clk) begin
+  if (reset) begin
+    h_active_dly <= 0;
+    h_active_fe  <= 0;
+    v_counter    <= v_event3;
+  end
+  else begin
+    h_active_dly <= h_active;
+    h_active_fe  <= (!h_active & h_active_dly);
+    if (h_active_fe == 1) begin
+      if (v_counter < v_total) 
+        v_counter <= v_counter + 1;
+      else
+        v_counter <= 0;
+    end
+  end
+end
+
+
+
+
+// H_counter incrementation
+always @ (posedge clk) begin
+  if (reset)
+    h_counter <= 0;
+  else begin
+    if(h_counter < h_total) 
+      h_counter <= h_counter + 1;
+    else
+      h_counter <= 0;
+  end
+end
+
+
+// H timing gen
+always @ (posedge clk) begin
+  if (reset) begin
+    hsync_O    <= 0;
+    h_active <= 0;
+  end
+  else begin
+    if(h_counter < h_event1) begin
+        hsync_O <= 0;
+        h_active <= 0;
+    end
+    else if(h_counter < h_event2) begin
+        hsync_O    <= 1;
+        h_active <= 0;
+    end
+    else if(h_counter < h_event3) begin
+        hsync_O    <= 0;
+        h_active <= 0;
+    end
+    else begin
+        hsync_O    <= 0;
+        h_active <= 1;
+    end
+  end
+end
+
+
+// V timing gen
+always @ (posedge clk) begin
+  if (reset) begin
+    vsync_O    <= 0;
+    v_active <= 0;
+  end
+  else begin
+    if(v_counter < v_event1) begin
+        vsync_O    <= 0;
+        v_active <= 0;
+    end
+    else if(v_counter < v_event2) begin
+        vsync_O    <= 1;
+        v_active <= 0;
+    end
+    else if(v_counter < v_event3) begin
+        vsync_O    <= 0;
+        v_active <= 0;
+    end
+    else begin
+        vsync_O <= 0;
+        v_active <= 1;
+    end
+  end
+end
+
+endmodule

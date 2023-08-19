@@ -21,10 +21,9 @@ using vision::Img;
 // calls vision::RGB2GRAY(). This is required by our CoSim flow.
 template <vision::PixelType PIXEL_T_IN, vision::PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, vision::StorageType STORAGE_IN,
-          vision::StorageType STORAGE_OUT, vision::NumPixelsPerCycle NPPC_IN,
-          vision::NumPixelsPerCycle NPPC_OUT>
-void hlsRGB2GRAY(Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-                 Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg) {
+          vision::StorageType STORAGE_OUT, vision::NumPixelsPerCycle NPPC>
+void hlsRGB2GRAY(Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+                 Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg) {
 #pragma HLS function top
 #pragma HLS function dataflow
 

@@ -38,9 +38,9 @@ using vision::Img;
 void hlsAxiWidthConversionTop(uint32_t *InAxiMM, uint32_t *OutAxiMM) {
 #pragma HLS function top
 #pragma HLS function dataflow
-#pragma HLS interface argument(InAxiMM) type(axi_initiator)                   \
+#pragma HLS interface argument(InAxiMM) type(axi_initiator)                    \
     num_elements(InNumAxiWords) max_burst_len(256)
-#pragma HLS interface argument(OutAxiMM) type(axi_target)                     \
+#pragma HLS interface argument(OutAxiMM) type(axi_target)                      \
     num_elements(OutNumAxiWords)
     Img<vision::PixelType::HLS_8UC3, HEIGHT, WIDTH, vision::StorageType::FIFO,
         vision::NPPC_1>
@@ -81,9 +81,11 @@ int main() {
     float ErrPercent = vision::compareMat(InMat, OutMat, 0);
     printf("Percentage of over threshold: %0.2lf%\n", ErrPercent);
 
+    bool Pass = (ErrPercent == 0.0);
+    printf("%s\n", Pass ? "PASS" : "FAIL");
+
     // Clean up
     delete[] InAxiMM;
     delete[] OutAxiMM;
-
-    return ErrPercent;
+    return Pass ? 0 : 1; // Only return 0 on pass.
 }

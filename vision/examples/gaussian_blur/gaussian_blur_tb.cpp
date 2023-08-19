@@ -45,17 +45,13 @@ int main() {
     // First, convert the OpenCV `Mat` into `Img`.
     Img<vision::PixelType::HLS_8UC1, HEIGHT, WIDTH, vision::StorageType::FIFO,
         vision::NPPC_1>
-        InImg;
-    Img<vision::PixelType::HLS_32SC1, HEIGHT, WIDTH, vision::StorageType::FIFO,
-        vision::NPPC_1>
-        OutImg;
+        InImg, OutImg;
     convertFromCvMat(InMat, InImg);
     // Then, call the SmartHLS top-level function.
     hlsGaussianBlur(InImg, OutImg);
     // Finally, convert the `Img` back to OpenCV `Mat`.
-    Mat HlsOutMat_32SC1, HlsOutMat_8UC1;
-    convertToCvMat(OutImg, HlsOutMat_32SC1);
-    HlsOutMat_32SC1.convertTo(HlsOutMat_8UC1, CV_8UC1);
+    Mat HlsOutMat;
+    convertToCvMat(OutImg, HlsOutMat);
 
     // 2. OpenCV result
     Mat CvOutMat;
@@ -63,13 +59,17 @@ int main() {
     cv::convertScaleAbs(CvOutMat, CvOutMat);
 
     // 3. Print the HlsOutMat_8UC1 and CvOutMat as pictures for reference.
-    cv::imwrite("hls_output.bmp", HlsOutMat_8UC1);
+    cv::imwrite("hls_output.bmp", HlsOutMat);
     cv::imwrite("cv_output.bmp", CvOutMat);
 
     // 4. Compare the SmartHLS result and the OpenCV result.
     // Use this commented out line to report location of errors.
     //  vision::compareMatAndReport<unsigned char>(HlsOutMat_8UC1, CvOutMat, 0);
-    float ErrPercent = vision::compareMat(HlsOutMat_8UC1, CvOutMat, 0);
+    float ErrPercent = vision::compareMat(HlsOutMat, CvOutMat, 0);
     printf("Percentage of over threshold: %0.2lf%\n", ErrPercent);
-    return ErrPercent;
+    if (ErrPercent == 0.0) {
+        printf("PASS");
+        return 0;
+    }
+    return 1;
 }

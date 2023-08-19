@@ -15,10 +15,12 @@ using vision::Img;
 #define WIDTH 100
 #define HEIGHT 56
 #define INPUT_IMAGE "toronto_100x56.bmp"
+#define GOLDEN_IMAGE "rgb2gray_golden_100x56.png"
 #else
 #define WIDTH 1920
 #define HEIGHT 1080
 #define INPUT_IMAGE "toronto_1080p.bmp"
+#define GOLDEN_IMAGE "rgb2gray_golden_1080p.png"
 #endif
 #define SIZE (WIDTH * HEIGHT)
 
@@ -26,10 +28,9 @@ using vision::Img;
 // calls vision::RGB2GRAY. This is required by our CoSim flow.
 template <vision::PixelType PIXEL_T_IN, vision::PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, vision::StorageType STORAGE_IN,
-          vision::StorageType STORAGE_OUT, vision::NumPixelsPerCycle NPPC_IN,
-          vision::NumPixelsPerCycle NPPC_OUT>
-void hlsRGB2GRAY(Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-                 Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg) {
+          vision::StorageType STORAGE_OUT, vision::NumPixelsPerCycle NPPC>
+void hlsRGB2GRAY(Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+                 Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg) {
 #pragma HLS function top
     vision::RGB2GRAY(InImg, OutImg);
 }
@@ -77,9 +78,17 @@ int main() {
 
     // 4. Compare the SmartHLS result and the OpenCV result.
     // Use this commented out line to report location of errors.
-    //   vision::compareMatAndReport<unsigned char>(HlsOutMat, CvOutMat, 0);
-    float ErrPercent = vision::compareMat(HlsOutMat, CvOutMat, 0);
-    printf("Percentage of over threshold: %0.2lf%\n", ErrPercent);
-
-    return ErrPercent;
+    // vision::compareMatAndReport<unsigned char>(HlsOutMat, CvOutMat, 0);
+    float ErrPercentCV = vision::compareMat(HlsOutMat, CvOutMat, 0);
+    printf("Percentage of over threshold against OpenCV: %f\n", ErrPercentCV);
+    // Compare the result with golden result
+    Mat Golden = cv::imread(GOLDEN_IMAGE, cv::IMREAD_GRAYSCALE);
+    // Use this commented out line to report location of errors.
+    // vision::compareMatAndReport<unsigned char>(HlsOutMat, Golden, 0);
+    float ErrPercentGolden = vision::compareMat(HlsOutMat, Golden, 0);
+    printf("Percentage of over threshold against Golden output: %f\n",
+           ErrPercentGolden);
+    bool Pass = (ErrPercentCV < 0.001) && (ErrPercentGolden == 0.0);
+    printf("%s\n", Pass ? "PASS" : "FAIL");
+    return Pass ? 0 : 1;
 }

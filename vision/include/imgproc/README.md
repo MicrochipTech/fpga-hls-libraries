@@ -131,11 +131,9 @@ template <unsigned GAUSSIAN_SIZE = 5, unsigned SOBEL_SIZE = 3,
           vision::PixelType PIXEL_T_IN, vision::PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, StorageType STORAGE_IN = StorageType::FIFO,
           StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC_IN = NPPC_1,
-          NumPixelsPerCycle NPPC_OUT = NPPC_1>
-void Canny(Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-           Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg,
-           unsigned Thres)
+          NumPixelsPerCycle NPPC = NPPC_1>
+void Canny(Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+           Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg, unsigned Thres)
 ```
 This function finds edges in an image using the [Canny Edge Detection Algorithm](https://en.wikipedia.org/wiki/Canny_edge_detector).
 
@@ -171,10 +169,9 @@ This function calls four sub-functions that carry out the four stages of the Can
 template <unsigned FILTER_SIZE = 5, PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, StorageType STORAGE_IN = StorageType::FIFO,
           StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC_IN = NPPC_1,
-          NumPixelsPerCycle NPPC_OUT = NPPC_1>
-void GaussianBlur(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-                  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg)
+          NumPixelsPerCycle NPPC = NPPC_1>
+void GaussianBlur(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+                  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg)
 ```
 This functions blurs an image using a Gaussian filter. The output `OutImg` is the result of the convolution between the input `InImg` and the Gaussian filter.
 
@@ -211,10 +208,9 @@ $$
 template <unsigned FILTER_SIZE = 3, PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, StorageType STORAGE_IN = StorageType::FIFO,
           StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC_IN = NPPC_1,
-          NumPixelsPerCycle NPPC_OUT = NPPC_1>
-void Sobel(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-           vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg)
+          NumPixelsPerCycle NPPC = NPPC_1>
+void Sobel(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+           vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg)
 ```
 This function does edge detection by calculating the Sobel gradients of the input image's pixel intensity:
 - At each pixel position, calculate horizontal gradient <code>G<sub>x</sub></code> and vertical gradient <code>G<sub>y</sub></code> by doing the following convolutions:
@@ -261,11 +257,10 @@ $$
 template <unsigned FILTER_SIZE = 3, PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, StorageType STORAGE_IN = StorageType::FIFO,
           StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC_IN = NPPC_1,
-          NumPixelsPerCycle NPPC_OUT = NPPC_1>
-void Sobel(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-           vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg,
-           vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutDirection)
+          NumPixelsPerCycle NPPC = NPPC_1>
+void Sobel(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+           vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
+           vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutDirection)
 ```
 This function behaves exactly like the [`Sobel(InImg, OutImg)`](#sobelinimg-outimg-sobelhpp) above, but also outputs an extra `Img` object `OutDirection` that represents the gradient direction at each pixel position.
 
@@ -303,12 +298,11 @@ The main use for this function is to be run in [`canny()`](#canny-cannyhpp), whe
 template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
           StorageType STORAGE_IN = StorageType::FIFO,
           StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC_IN = NPPC_1,
-          NumPixelsPerCycle NPPC_OUT = NPPC_1>
+          NumPixelsPerCycle NPPC = NPPC_1>
 void NonMaximumSuppression(
-    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InDirection,
-    vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg)
+    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InDirection,
+    vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg)
 ```
 This function makes the edges of the image thinner by looking at the gradient direction (which is perpendicular to the edge direction), and suppress the pixel to 0 if it is smaller than the two adjacent pixels in the gradient direction.
 
@@ -339,10 +333,9 @@ The following process is done to all pixels in the input image. The resulting ou
 template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
           StorageType STORAGE_IN = StorageType::FIFO,
           StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC_IN = NPPC_1,
-          NumPixelsPerCycle NPPC_OUT = NPPC_1>
-void Hysteresis(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-                vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg,
+          NumPixelsPerCycle NPPC = NPPC_1>
+void Hysteresis(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+                vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
                 unsigned Thres)
 ```
 This function "sharpens" the image by suppressing weak edges and strengthening strong edges.

@@ -21,25 +21,17 @@ using vision::PixelType::HLS_8UC3;
 
 // Define data types used in the design.
 using BayerAxisVideoT = vision::AxisVideoFIFO<HLS_8UC1, NPPC_4>;
-using RgbAxisVideoT = vision::AxisVideoFIFO<HLS_8UC3, NPPC_4>;
+using RGBAxisVideoT = vision::AxisVideoFIFO<HLS_8UC3, NPPC_4>;
 using BayerImgT =
     vision::Img<HLS_8UC1, HEIGHT, WIDTH, StorageType::FIFO, NPPC_4>;
-using RgbImgT = vision::Img<HLS_8UC3, HEIGHT, WIDTH, StorageType::FIFO, NPPC_4>;
+using RGBImgT = vision::Img<HLS_8UC3, HEIGHT, WIDTH, StorageType::FIFO, NPPC_4>;
+using GrayImgT =
+    vision::Img<HLS_8UC1, HEIGHT, WIDTH, StorageType::FIFO, NPPC_4>;
 
-// The following 3 top functions are compiled to RTL and are used on board:
-void DDR_Read_wrapper(uint64_t *Buf, BayerAxisVideoT &VideoOut, int HRes,
-                      int VRes) {
-#pragma HLS function top dataflow
-#pragma HLS interface argument(Buf) type(axi_initiator)                        \
-    num_elements(NumAxiWords) max_burst_len(256)
-
-    vision::AxiMM2AxisVideo<AxiWordWidth, uint64_t, HEIGHT, WIDTH>(
-        Buf, VideoOut, HRes, VRes);
-}
-
+// The following 2 top functions are compiled to RTL and are used on board:
 void DDR_Write_wrapper(BayerAxisVideoT &VideoIn, uint64_t *Buf, int HRes,
                        int VRes) {
-#pragma HLS function top dataflow
+#pragma HLS function top
 #pragma HLS interface argument(Buf) type(axi_initiator)                        \
     num_elements(NumAxiWords) max_burst_len(256)
 
@@ -47,74 +39,80 @@ void DDR_Write_wrapper(BayerAxisVideoT &VideoIn, uint64_t *Buf, int HRes,
                                                                    HRes, VRes);
 }
 
-void VideoPipelineTop(BayerAxisVideoT &VideoIn, RgbAxisVideoT &VideoOut,
+void VideoPipelineTop(uint64_t *Buf, RGBAxisVideoT &VideoOut,
                       ap_uint<2> BayerFormat = 0) {
 #pragma HLS function top
 #pragma HLS function dataflow
+#pragma HLS interface argument(Buf) type(axi_initiator)                        \
+    num_elements(NumAxiWords) max_burst_len(256)
     BayerImgT BayerImg;
-    RgbImgT RGBImage;
-    vision::AxisVideo2Img(VideoIn, BayerImg);
-    vision::DeBayer(BayerImg, RGBImage, BayerFormat);
-    vision::Img2AxisVideo(RGBImage, VideoOut);
+    RGBImgT RGBInImg, RGBOutImg;
+    GrayImgT GSImg, CannyImg;
+    unsigned Thres = 110;
+
+    vision::AxiMM2Img<AxiWordWidth>(Buf, BayerImg);
+    vision::DeBayer(BayerImg, RGBInImg, BayerFormat);
+    vision::RGB2GRAY(RGBInImg, GSImg);
+    vision::Canny(GSImg, CannyImg, Thres);
+    vision::GRAY2RGB(CannyImg, RGBOutImg);
+    vision::Img2AxisVideo(RGBOutImg, VideoOut);
 }
 
 // This main implements a testbench verifying the above top-level functions.
 int main() {
     // Step 1: create the input to top-level functions.
-    // - generate an RGB image using pattern generator
-    // - convert the image to Bayer format
-    // - then inject the image into an AXI-S video protocol stream.
+    // - Read an RGB image
+    // - Convert the image to Bayer format
+    // - Then inject the image into an AXI-S video protocol stream.
     // The resulting pixel stream is similar to the input data coming from the
     // camera module on board.
-    RgbImgT PatternImg;
-    BayerImgT BayerImgIn;
-    BayerAxisVideoT InputStream(NumPixelWords), DDRReadFIFO(NumPixelWords);
-    vision::PatternGenerator<3>(PatternImg);
-    vision::RGB2Bayer(PatternImg, BayerImgIn);
-    vision::Img2AxisVideo(BayerImgIn, InputStream);
+    RGBImgT InImg;
+    BayerImgT BayerInImg;
+    BayerAxisVideoT InStream(NumPixelWords), DDRReadFIFO(NumPixelWords);
+    Mat BGRInMat = cv::imread("toronto_4k.jpg", cv::IMREAD_COLOR);
+    Mat RGBInMat;
+    cv::cvtColor(BGRInMat, RGBInMat, cv::COLOR_BGR2RGB);
+
+    // Convert the cv Mat into Img class
+    convertFromCvMat(RGBInMat, InImg);
+    vision::RGB2Bayer(InImg, BayerInImg);
+    vision::Img2AxisVideo(BayerInImg, InStream);
 
     // Step 2: pass the input to the top-level functions and obtain the output.
-    // The InputStream is fed to DDR write and read functions, which write
-    // incoming data to DDR and read it back.
-    // The data read from DDR is then forwarded to the video pipeline which does
-    // DeBayer on the incoming data and outputs data in RGB format.
+    // The InStream is fed to DDR write function, which writes incoming data
+    // to DDR.
+    // The video pipeline reads data from DDR and does DeBayer, RGB2Gray, Canny,
+    // Gray2RGB, and outputs data in RGB format.
 
-    // Intermediate data between DDR writer and DDR reader. You can think of it
-    // as the DDR memory. 'static' so we don't get stack overflow.
+    // Intermediate data between DDR writer and video pipeline. You can think of
+    // it as the DDR memory. 'static' so we don't get stack overflow.
     static uint64_t Buf[NumPixelWords];
     // Output from
-    RgbAxisVideoT OutputStream(NumPixelWords);
-    // Call the three top-level funtions.
-    DDR_Write_wrapper(InputStream, Buf, WIDTH, HEIGHT);
-    DDR_Read_wrapper(Buf, DDRReadFIFO, WIDTH, HEIGHT);
-    VideoPipelineTop(DDRReadFIFO, OutputStream, 0);
-
+    RGBAxisVideoT OutputStream(NumPixelWords);
+    // Call the two top-level functions.
+    DDR_Write_wrapper(InStream, Buf, WIDTH, HEIGHT);
+    VideoPipelineTop(Buf, OutputStream, 0);
     // Step 3: verify the output data by comparing against an expected image.
 
     // Convert OutputStream to `vision::Img` type and then to `cv::Mat` type.
-    RgbImgT OutImg;
+    RGBImgT OutImg;
     vision::AxisVideo2Img(OutputStream, OutImg);
     cv::Mat HlsOutMat;
     convertToCvMat(OutImg, HlsOutMat);
+    cv::imwrite("hls_out.png", HlsOutMat);
 
-    // Create the golden output Mat with the same pattern as above input image.
-    RgbImgT GoldenImg;
-    vision::PatternGenerator<3>(GoldenImg);
-    cv::Mat GoldenMat;
-    convertToCvMat(GoldenImg, GoldenMat);
+    // Read the golden image
+    Mat GoldenMat = cv::imread("demo_golden.png", cv::IMREAD_COLOR);
+    Mat GoldenRGBMat;
+    cv::cvtColor(GoldenMat, GoldenRGBMat, cv::COLOR_BGR2RGB);
 
     // Now compare the two Mat's, with a threshold of 0 (any pixel with
     // difference in value will be considered as an error).
+
     // Use this commented out line to report location of errors.
-    //   vision::compareMatAndReport<cv::Vec3b>(HlsOutMat, GoldenMat, 0);
-    float ErrPercent = vision::compareMat(HlsOutMat, GoldenMat, 0);
-    printf("Percentage of pixels with difference over threshold: %0.2lf%\n",
-           ErrPercent);
-
-    // Consider the test passes if there is less than 1% of pixels in
-    // difference.
-    bool Pass = (ErrPercent < 1.f);
-    printf("%s\n", Pass ? "PASS" : "FAIL");
-
+    // vision::compareMatAndReport<cv::Vec3b>(HlsOutMat, GoldenRGBMat, 0);
+    float ErrPercent = vision::compareMat(HlsOutMat, GoldenRGBMat, 0);
+    bool Pass = (ErrPercent == 0.0);
+    printf("%s\n", Pass ? "Pass" : "Fail");
     return Pass ? 0 : 1; // Only return 0 on pass.
 }

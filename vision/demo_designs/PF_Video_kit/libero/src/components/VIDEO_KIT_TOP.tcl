@@ -111,22 +111,29 @@ sd_instantiate_component -sd_name ${sd_name} -component_name {COREAXI4INTERCONNE
 
 
 
-# Add DDR_Access_wrapper_top_0 instance
-sd_instantiate_hdl_core -sd_name ${sd_name} -hdl_core_name {DDR_Access_wrapper_top} -instance_name {DDR_Access_wrapper_top_0}
-# Exporting Parameters of instance DDR_Access_wrapper_top_0
-sd_configure_core_instance -sd_name ${sd_name} -instance_name {DDR_Access_wrapper_top_0} -params {\
-"ADDR_WIDTH:32" \
-"AXI_DATA_WIDTH:64" \
-"AXI_ID_WIDTH:1" }\
+# Add DDR_Write_wrapper_top_0 instance
+sd_instantiate_hdl_core -sd_name ${sd_name} -hdl_core_name {DDR_Write_wrapper_top} -instance_name {DDR_Write_wrapper_top_0}
+# Exporting Parameters of instance DDR_Write_wrapper_top_0
+sd_save_core_instance_config -sd_name ${sd_name} -instance_name {DDR_Write_wrapper_top_0}
+sd_update_instance -sd_name ${sd_name} -instance_name {DDR_Write_wrapper_top_0}
+sd_invert_pins -sd_name ${sd_name} -pin_names {DDR_Write_wrapper_top_0:reset}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Write_wrapper_top_0:start} -value {VCC}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Write_wrapper_top_0:HRes} -value {00000000000000000000111100000000}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Write_wrapper_top_0:VRes} -value {00000000000000000000100001110000}
+
+
+
+# Add FrameBufferControl_0 instance
+sd_instantiate_hdl_core -sd_name ${sd_name} -hdl_core_name {FrameBufferControl} -instance_name {FrameBufferControl_0}
+# Exporting Parameters of instance FrameBufferControl_0
+sd_configure_core_instance -sd_name ${sd_name} -instance_name {FrameBufferControl_0} -params {\
+"BUFFER_SIZE:8388608" \
+"NUM_BUFFERS:4" }\
 -validate_rules 0
-sd_save_core_instance_config -sd_name ${sd_name} -instance_name {DDR_Access_wrapper_top_0}
-sd_update_instance -sd_name ${sd_name} -instance_name {DDR_Access_wrapper_top_0}
-sd_invert_pins -sd_name ${sd_name} -pin_names {DDR_Access_wrapper_top_0:reset}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Access_wrapper_top_0:start_write} -value {VCC}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Access_wrapper_top_0:start_read} -value {VCC}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Access_wrapper_top_0:buf_var} -value {01100000000000000000000000000000}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Access_wrapper_top_0:hres} -value {00000000000000000000111100000000}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Access_wrapper_top_0:vres} -value {00000000000000000000100001110000}
+sd_save_core_instance_config -sd_name ${sd_name} -instance_name {FrameBufferControl_0}
+sd_update_instance -sd_name ${sd_name} -instance_name {FrameBufferControl_0}
+sd_invert_pins -sd_name ${sd_name} -pin_names {FrameBufferControl_0:reset}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {FrameBufferControl_0:base_address} -value {01100000000000000000000000000000}
 
 
 
@@ -169,6 +176,9 @@ sd_instantiate_component -sd_name ${sd_name} -component_name {Reset} -instance_n
 
 # Add VideoPipelineTop_top_0 instance
 sd_instantiate_hdl_core -sd_name ${sd_name} -hdl_core_name {VideoPipelineTop_top} -instance_name {VideoPipelineTop_top_0}
+# Exporting Parameters of instance VideoPipelineTop_top_0
+sd_save_core_instance_config -sd_name ${sd_name} -instance_name {VideoPipelineTop_top_0}
+sd_update_instance -sd_name ${sd_name} -instance_name {VideoPipelineTop_top_0}
 sd_invert_pins -sd_name ${sd_name} -pin_names {VideoPipelineTop_top_0:reset}
 sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {VideoPipelineTop_top_0:start} -value {VCC}
 sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {VideoPipelineTop_top_0:BayerFormat} -value {00}
@@ -206,9 +216,10 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"CK0" "PF_DDR4_C0_0:CK0" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CK0_N" "PF_DDR4_C0_0:CK0_N" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CKE" "PF_DDR4_C0_0:CKE" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREAXI4INTERCONNECT_C0_0:ARESETN" "Reset_0:FABRIC_RESET_N" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"COREAXI4INTERCONNECT_C0_0:M_CLK0" "DDR_Access_wrapper_top_0:clk" "HDMI:LANE0_TX_CLK_R" "IMX334_IF_TOP_0:i_axis_clk" "Reset_0:CLK" "VideoPipelineTop_top_0:clk" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"COREAXI4INTERCONNECT_C0_0:M_CLK0" "COREAXI4INTERCONNECT_C0_0:M_CLK1" "DDR_Write_wrapper_top_0:clk" "FrameBufferControl_0:clk" "HDMI:LANE0_TX_CLK_R" "IMX334_IF_TOP_0:i_axis_clk" "Reset_0:CLK" "VideoPipelineTop_top_0:clk" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CS_N" "PF_DDR4_C0_0:CS_N" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Access_wrapper_top_0:reset" "HDMI:RESET_N_I_0" "IMX334_IF_TOP_0:i_axis_reset" "Reset_0:FABRIC_RESET_N_0" "VideoPipelineTop_top_0:reset" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_wrapper_top_0:finish" "FrameBufferControl_0:wr_finish" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_wrapper_top_0:reset" "FrameBufferControl_0:reset" "HDMI:RESET_N_I_0" "IMX334_IF_TOP_0:i_axis_reset" "Reset_0:FABRIC_RESET_N_0" "VideoPipelineTop_top_0:reset" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI:LANE0_RXD_N" "LANE0_RXD_N" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI:LANE0_RXD_P" "LANE0_RXD_P" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI:LANE0_TXD_N" "LANE0_TXD_N" }
@@ -259,16 +270,18 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM1_RXD" "IMX334_IF_TOP_0:CAM1
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM1_RXD_N" "IMX334_IF_TOP_0:CAM1_RXD_N" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM2_RXD" "IMX334_IF_TOP_0:CAM2_RXD" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM2_RXD_N" "IMX334_IF_TOP_0:CAM2_RXD_N" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_wrapper_top_0:Buf" "FrameBufferControl_0:wr_address" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DM_N" "PF_DDR4_C0_0:DM_N" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DQ" "PF_DDR4_C0_0:DQ" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DQS" "PF_DDR4_C0_0:DQS" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DQS_N" "PF_DDR4_C0_0:DQS_N" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"FrameBufferControl_0:rd_address" "VideoPipelineTop_top_0:Buf" }
 
 # Add bus interface net connections
-sd_connect_pins -sd_name ${sd_name} -pin_names {"COREAXI4INTERCONNECT_C0_0:AXI4mmaster0" "DDR_Access_wrapper_top_0:axi4initiator" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"COREAXI4INTERCONNECT_C0_0:AXI4mmaster0" "DDR_Write_wrapper_top_0:axi4initiator" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"COREAXI4INTERCONNECT_C0_0:AXI4mmaster1" "VideoPipelineTop_top_0:axi4initiator" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREAXI4INTERCONNECT_C0_0:AXI4mslave0" "PF_DDR4_C0_0:AXI4slave0" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Access_wrapper_top_0:VideoIn_axi4stream" "IMX334_IF_TOP_0:AXIS" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Access_wrapper_top_0:VideoOut_axi4stream" "VideoPipelineTop_top_0:VideoIn_axi4stream" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_wrapper_top_0:VideoIn_axi4stream" "IMX334_IF_TOP_0:AXIS" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI:AXIS" "VideoPipelineTop_top_0:VideoOut_axi4stream" }
 
 # Re-enable auto promotion of pins of type 'pad'

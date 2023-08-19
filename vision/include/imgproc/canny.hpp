@@ -27,9 +27,9 @@
 #include "../common/utils.hpp"
 
 #include "gaussian_blur.hpp"
-#include "sobel_direction.hpp"
-#include "nonmaximum_suppression.hpp"
 #include "hysteresis.hpp"
+#include "nonmaximum_suppression.hpp"
+#include "sobel_direction.hpp"
 
 namespace hls {
 namespace vision {
@@ -40,30 +40,29 @@ template <unsigned GAUSSIAN_SIZE = 5, unsigned SOBEL_SIZE = 3,
           vision::PixelType PIXEL_T_IN, vision::PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, StorageType STORAGE_IN = StorageType::FIFO,
           StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC_IN = NPPC_1,
-          NumPixelsPerCycle NPPC_OUT = NPPC_1>
-void Canny(Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-           Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg,
-           unsigned Thres) {
+          NumPixelsPerCycle NPPC = NPPC_1>
+void Canny(Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+           Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg, unsigned Thres) {
 #pragma HLS function dataflow
 
     // 1. Gaussian Blur
-    Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> GaussianBlurImg;
+    Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> GaussianBlurImg;
     vision::GaussianBlur<GAUSSIAN_SIZE>(InImg, GaussianBlurImg);
 
     // 2. Sobel
-    Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> SobelImg;
-    Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> SobelDirection;
+    Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> SobelImg;
+    Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> SobelDirection;
     // When SobelDirection is consumed by NonMaximumSuppression, the data is
     // only consumed after the LineBuffer is filled for 1 line + 1 pixel. So it
     // needs to have sufficient FIFO depth for this.
+
     // TODO T: Fix the line below not working.
-    // SobelDirection.set_fifo_depth(InImg.get_width() / NPPC_OUT + 2);
-    SobelDirection.set_fifo_depth(W / NPPC_OUT + 2);
+    // SobelDirection.set_fifo_depth(InImg.get_width() / NPPC + 3);
+    SobelDirection.set_fifo_depth(W / NPPC + 3);
     vision::Sobel<SOBEL_SIZE>(GaussianBlurImg, SobelImg, SobelDirection);
 
     // 3. Non-maximum Suppression
-    Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> NMSImg;
+    Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> NMSImg;
     vision::NonMaximumSuppression(SobelImg, SobelDirection, NMSImg);
 
     // 4. Hysteresis Thresholding

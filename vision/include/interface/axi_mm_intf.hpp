@@ -423,26 +423,7 @@ void AxiMM2AxisVideo(AxiDT *InAxiMM, AxisVideoFIFO<PIXEL_T, NPPC> &OutVideo,
                   "AxiMM2AxisVideo(): The image size (in bits) has to be "
                   "divisible by 'AxiWordWidth'.");
     Img<PIXEL_T, H, W, vision::StorageType::FIFO, NPPC> TmpImg(VRes, HRes);
-
-    // 1. AxiMM2Img()
-    // TODO T: Have to inline because of a current limitation.
-    // AxiMM2Img<AxiWordWidth>(InAxiMM, TmpImg);
-    const unsigned PixelWordWidth = DT<PIXEL_T, NPPC>::W;
-    const unsigned NumPixelWords = H * W / NPPC;
-    const unsigned NumAxiWords = NumPixelWords * PixelWordWidth / AxiWordWidth;
-    hls::FIFO<ap_uint<AxiWordWidth>> TmpFIFO;
-#ifndef __SYNTHESIS__
-    TmpFIFO.setDepth(NumAxiWords);
-#else
-    const unsigned NumAxiWordsPerPixelWord = PixelWordWidth / AxiWordWidth + 1;
-    if (NumAxiWordsPerPixelWord > 2)
-        TmpFIFO.setDepth(NumAxiWordsPerPixelWord);
-#endif
-    const unsigned NumIters = NumAxiWords > NumPixelWords ? NumAxiWords : NumPixelWords;
-    AxiMM2FIFO(InAxiMM, TmpFIFO, NumAxiWords);
-    widthConvertFIFO2Img(TmpFIFO, TmpImg, NumIters);
-
-    // 2. Img2AxisVideo()
+    AxiMM2Img<AxiWordWidth>(InAxiMM, TmpImg);
     Img2AxisVideo(TmpImg, OutVideo);
 }
 
@@ -468,27 +449,8 @@ void AxisVideo2AxiMM(AxisVideoFIFO<PIXEL_T, NPPC> &InVideo, AxiDT *OutAxiMM,
                   "AxisVideo2AxiMM(): The image size (in bits) has to be "
                   "divisible by 'AxiWordWidth'.");
     Img<PIXEL_T, H, W, vision::StorageType::FIFO, NPPC> TmpImg(VRes, HRes);
-
-    // 1. AxisVideo2Img()
     AxisVideo2Img(InVideo, TmpImg);
-
-    // 2. Img2AxiMM()
-    // TODO T: Have to inline because of a current limitation.
-    // Img2AxiMM<AxiWordWidth>(TmpImg, OutAxiMM);
-    const unsigned PixelWordWidth = DT<PIXEL_T, NPPC>::W;
-    const unsigned NumPixelWords = H * W / NPPC;
-    const unsigned NumAxiWords = NumPixelWords * PixelWordWidth / AxiWordWidth;
-    hls::FIFO<ap_uint<AxiWordWidth>> TmpFIFO;
-#ifndef __SYNTHESIS__
-    TmpFIFO.setDepth(NumAxiWords);
-#else
-    const unsigned NumAxiWordsPerPixelWord = PixelWordWidth / AxiWordWidth + 1;
-    if (NumAxiWordsPerPixelWord > 2)
-        TmpFIFO.setDepth(NumAxiWordsPerPixelWord);
-#endif
-    const unsigned NumIters = NumPixelWords > NumAxiWords ? NumPixelWords : NumAxiWords;
-    widthConvertImg2FIFO(TmpImg, TmpFIFO, NumIters);
-    FIFO2AxiMM(TmpFIFO, OutAxiMM, NumAxiWords);
+    Img2AxiMM<AxiWordWidth>(TmpImg, OutAxiMM);
 }
 
 } // end of namespace vision

@@ -36,7 +36,7 @@ template <vision::PixelType PIXEL_I_T,
 void DDR_Read_Wrapper(uint64_t *Buf,
                       vision::AxisVideoFIFO<PIXEL_I_T, NPPC> &VideoOut,
                       int HRes, int VRes) {
-#pragma HLS function top dataflow
+#pragma HLS function top
 #pragma HLS interface argument(Buf) type(axi_initiator)                        \
     num_elements(NumAxiWords) max_burst_len(256)
 
@@ -48,7 +48,7 @@ template <vision::PixelType PIXEL_I_T,
           vision::NumPixelsPerCycle NPPC = vision::NPPC_1>
 void DDR_Write_Wrapper(vision::AxisVideoFIFO<PIXEL_I_T, NPPC> &VideoIn,
                        uint64_t *Buf, int HRes, int VRes) {
-#pragma HLS function top dataflow
+#pragma HLS function top
 #pragma HLS interface argument(Buf) type(axi_initiator)                        \
     num_elements(NumAxiWords) max_burst_len(256)
 
@@ -91,7 +91,7 @@ int main() {
     printf("Percentage of over threshold: %0.2lf%\n", ErrPercent);
     // Consider the test passes if there is less than 1% of pixels in
     // difference.
-    bool Pass = (ErrPercent < 1.f);
+    bool Pass = (ErrPercent == 0.0);
     printf("%s\n", Pass ? "PASS" : "FAIL");
 
     // Clean up

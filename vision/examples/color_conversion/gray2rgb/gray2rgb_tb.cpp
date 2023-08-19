@@ -26,10 +26,9 @@ using vision::Img;
 // calls vision::RGB2GRAY. This is required by our CoSim flow.
 template <vision::PixelType PIXEL_T_IN, vision::PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, vision::StorageType STORAGE_IN,
-          vision::StorageType STORAGE_OUT, vision::NumPixelsPerCycle NPPC_IN,
-          vision::NumPixelsPerCycle NPPC_OUT>
-void hlsGRAY2RGB(Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-                 Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg) {
+          vision::StorageType STORAGE_OUT, vision::NumPixelsPerCycle NPPC>
+void hlsGRAY2RGB(Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+                 Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg) {
 #pragma HLS function top
     vision::GRAY2RGB(InImg, OutImg);
 }
@@ -80,5 +79,8 @@ int main() {
     float ErrPercent = vision::compareMat(HlsOutMat, CvOutMat, 0);
     printf("Percentage of over threshold: %0.2lf%\n", ErrPercent);
 
-    return ErrPercent;
+    bool Pass = (ErrPercent == 0.0);
+    printf("%s\n", Pass ? "PASS" : "FAIL");
+
+    return Pass ? 0 : 1; // Only return 0 on pass.
 }

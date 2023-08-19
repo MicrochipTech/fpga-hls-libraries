@@ -31,40 +31,38 @@ namespace vision {
 
 template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
           StorageType STORAGE_IN, StorageType STORAGE_OUT,
-          NumPixelsPerCycle NPPC_IN, NumPixelsPerCycle NPPC_OUT>
+          NumPixelsPerCycle NPPC>
 void NonMaxSuppProcess(
-    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InDirection,
-    vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg,
-    LineBuffer<typename DT<PIXEL_T_IN, NPPC_IN>::T, W / NPPC_IN, 3,
-               DT<PIXEL_T_IN, NPPC_IN>::W / NPPC_IN, unsigned(NPPC_IN)>
-        &LineBuffer,
+    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InDirection,
+    vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
+    LineBuffer<typename DT<PIXEL_T_IN, NPPC>::T, W / NPPC, 3,
+               DT<PIXEL_T_IN, NPPC>::W / NPPC, unsigned(NPPC)> &LineBuffer,
     unsigned &i, unsigned &j) {
 
-    using InPixelWordT = typename DT<PIXEL_T_IN, NPPC_IN>::T;
-    using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC_OUT>::T;
+    using InPixelWordT = typename DT<PIXEL_T_IN, NPPC>::T;
+    using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC>::T;
 
     // For all intermediate values of calculations, let's use an ap_int that has
     // a slightly larger width than max(InPixelWidth, OutPixelWidth)
-    const unsigned InPixelWidth = DT<PIXEL_T_IN, NPPC_IN>::W / NPPC_IN,
-                   OutPixelWidth = DT<PIXEL_T_OUT, NPPC_OUT>::W / NPPC_OUT;
-    const unsigned TmpPixelWidth =
-        (InPixelWidth > OutPixelWidth ? InPixelWidth : OutPixelWidth) + 4;
+    const unsigned InPixelWidth = DT<PIXEL_T_IN, NPPC>::W / NPPC,
+                   OutPixelWidth = DT<PIXEL_T_OUT, NPPC>::W / NPPC;
+    const unsigned TmpPixelWidth = InPixelWidth + 9;
     using TmpPixelT = ap_int<TmpPixelWidth>;
 
     const unsigned ImgHeight = InImg.get_height(), ImgWidth = InImg.get_width();
-    const unsigned ImgIdx = i * (ImgWidth / NPPC_IN) + j;
+    const unsigned ImgIdx = i * (ImgWidth / NPPC) + j;
     OutPixelWordT OutPixelWord;
     auto InDirectionPixelWord = InDirection.read(ImgIdx);
 
     // Now do the non-max suppression at the current point:
-    for (int k = 0; k < NPPC_IN; k++) {
+    for (int k = 0; k < NPPC; k++) {
         // Initialize the input window from LineBuffer.window. If the coordinate
         // is out-of-bound, set the value to 0 (i.e., zero-padding).
         TmpPixelT Window[3][3];
         for (int OffsetY = -1; OffsetY <= 1; OffsetY++) {
             for (int OffsetX = -1; OffsetX <= 1; OffsetX++) {
-                int y = i + OffsetY, x = j * NPPC_IN + k + OffsetX;
+                int y = i + OffsetY, x = j * NPPC + k + OffsetX;
                 bool WindowOutOfBounds =
                     (y < 0) | (y >= ImgHeight) | (x < 0) | (x >= ImgWidth);
                 // Array indices start from 0 so we need to "recalibrate" the
@@ -164,7 +162,7 @@ void NonMaxSuppProcess(
     // Now write to OutImg.
     OutImg.write(OutPixelWord, ImgIdx);
     // We're done with this pixel. Now update the coordinate to the next one.
-    if (j < W / NPPC_IN - 1) {
+    if (j < W / NPPC - 1) {
         j++;
     } else { // j == WIDTH - 1.
         i++;
@@ -174,43 +172,38 @@ void NonMaxSuppProcess(
 
 // TODO T:
 // - Add support for multiple channels.
-// - Add support for other pixel-per-cycle.
 template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
           StorageType STORAGE_IN = StorageType::FIFO,
           StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC_IN = NPPC_1,
-          NumPixelsPerCycle NPPC_OUT = NPPC_1>
+          NumPixelsPerCycle NPPC = NPPC_1>
 void NonMaximumSuppression(
-    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InImg,
-    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC_IN> &InDirection,
-    vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC_OUT> &OutImg) {
+    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+    vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InDirection,
+    vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg) {
 #pragma HLS memory partition argument(InImg) type(struct_fields)
 #pragma HLS memory partition argument(InDirection) type(struct_fields)
 #pragma HLS memory partition argument(OutImg) type(struct_fields)
 
-    static_assert(DT<PIXEL_T_IN, NPPC_IN>::NumChannels == 1 &&
-                      DT<PIXEL_T_OUT, NPPC_OUT>::NumChannels == 1,
+    static_assert(DT<PIXEL_T_IN, NPPC>::NumChannels == 1 &&
+                      DT<PIXEL_T_OUT, NPPC>::NumChannels == 1,
                   "NonMaximumSuppression only supports 1-channel images.");
-    static_assert(NPPC_IN == NPPC_OUT,
-                  "NonMaximumSuppression only supports having the same number "
-                  "of pixels per clock in input and output data.");
-    static_assert(W % NPPC_IN == 0,
+    static_assert(W % NPPC == 0,
                   "In NonMaximumSuppression, the width of the frame has to be "
                   "divisible by the number of pixels per clock.");
-    using InPixelWordT = typename DT<PIXEL_T_IN, NPPC_IN>::T;
-    using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC_OUT>::T;
+    using InPixelWordT = typename DT<PIXEL_T_IN, NPPC>::T;
+    using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC>::T;
 
     const unsigned ImgHeight = InImg.get_height(), ImgWidth = InImg.get_width();
     OutImg.set_height(ImgHeight);
     OutImg.set_width(ImgWidth);
 
-    const unsigned FrameSize = (ImgHeight * ImgWidth) / NPPC_IN;
-    const unsigned InPixelWidth = DT<PIXEL_T_IN, NPPC_IN>::W / NPPC_IN;
-    LineBuffer<InPixelWordT, W / NPPC_IN, 3, InPixelWidth, NPPC_IN> LineBuffer;
+    const unsigned FrameSize = (ImgHeight * ImgWidth) / NPPC;
+    const unsigned InPixelWidth = DT<PIXEL_T_IN, NPPC>::W / NPPC;
+    LineBuffer<InPixelWordT, W / NPPC, 3, InPixelWidth, NPPC> LineBuffer;
     // The LineBuffer needs to be filled for 1 row, plus 1 pixel.
-    const unsigned LineBufferPixelWordFillCount = ImgWidth / NPPC_IN + 1;
+    const unsigned LineBufferPixelWordFillCount = ImgWidth / NPPC + 1;
 
-    // 1. Fill LineBuffer only
+// 1. Fill LineBuffer only
 #pragma HLS loop pipeline
     for (unsigned Count = 0; Count < LineBufferPixelWordFillCount; Count++) {
         auto InPixelWord = InImg.read(Count);
@@ -220,7 +213,7 @@ void NonMaximumSuppression(
     // i and j are the row and col indices of the current pixel word being
     // processed. They'll be incremented by SobelProcess().
     unsigned i = 0, j = 0;
-    // 2. Fill LineBuffer and process (steady state)
+// 2. Fill LineBuffer and process (steady state)
 #pragma HLS loop pipeline
     for (unsigned Count = LineBufferPixelWordFillCount; Count < FrameSize;
          Count++) {
@@ -229,7 +222,7 @@ void NonMaximumSuppression(
         NonMaxSuppProcess(InImg, InDirection, OutImg, LineBuffer, i, j);
     }
 
-    // 3. Process only (flush out). The input to LineBuffer is 0.
+// 3. Process only (flush out). The input to LineBuffer is 0.
 #pragma HLS loop pipeline
     for (unsigned Count = FrameSize;
          Count < FrameSize + LineBufferPixelWordFillCount; Count++) {

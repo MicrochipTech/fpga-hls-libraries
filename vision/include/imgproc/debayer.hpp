@@ -49,11 +49,12 @@ void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
     LineBuffer<DATA_T_IN, W / NPPC, WindowSize, ChannelPixelWidth, NPPC>
         LineBuffer;
 
+    const unsigned ImgHeight = InImg.get_height(), ImgWidth = InImg.get_width();
     // There will be no output until enough pixels have been stored in line
     // buffer (LineBufferFillCount)
-    const unsigned LineBufferFillCount = InImg.get_width() / NPPC + 1;
+    const unsigned LineBufferFillCount = ImgWidth / NPPC + 1;
     // image frame size (height * columns (width / pixels per clock))
-    const unsigned FrameSize = InImg.get_height() * InImg.get_width() / NPPC;
+    const unsigned FrameSize = ImgHeight * ImgWidth / NPPC;
 
     // used to determine if the current pixel is on an image boundary, and which
     // boundary it is on
@@ -68,14 +69,14 @@ void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
     // k: index of the pixel within the column l: horizontal location of
     // the current pixel in image line
     ap_uint<13> i = 0, j = 0, l;
-    int k = 0;
+    unsigned k = 0;
 #pragma HLS loop pipeline
-    for (int Count = 0; Count < FrameSize + LineBufferFillCount; Count++) {
+    for (unsigned Count = 0; Count < FrameSize + LineBufferFillCount; Count++) {
 
         // No more reads after receiving the whole image, the extra iteration is
         // flushing out the final outputs.
         auto InputPixel = 0;
-        if (Count < InImg.get_height() * InImg.get_width() / NPPC)
+        if (Count < FrameSize)
             InputPixel = InImg.read(Count);
 
         LineBuffer.ShiftInPixel(InputPixel);
@@ -139,11 +140,18 @@ void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
                     // red value
                     RgbData.byte(3 * k + 0, ChannelPixelWidth) =
                         LineBuffer.AccessWindow(1, 1, k);
-                    // green value
-                    RgbData.byte(3 * k + 1, ChannelPixelWidth) =
-                        (LineBuffer.AccessWindow(1, 0, k) +
-                         LineBuffer.AccessWindow(1, 2, k)) >>
-                        1;
+                    // green 
+                    // The if statement is added to avoid using uninitialized 
+                    // data for the first pixel
+                    if (l > 0) {
+                        RgbData.byte(3 * k + 1, ChannelPixelWidth) =
+                            (LineBuffer.AccessWindow(1, 0, k) +
+                             LineBuffer.AccessWindow(1, 2, k)) >>
+                            1;
+                    } else {
+                        RgbData.byte(3 * k + 1, ChannelPixelWidth) =
+                            (LineBuffer.AccessWindow(1, 2, k));
+                    }
                     // blue value
                     RgbData.byte(3 * k + 2, ChannelPixelWidth) =
                         (LineBuffer.AccessWindow(2, 0, k) +
@@ -151,10 +159,18 @@ void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
                         1;
                 } else {
                     // red value
-                    RgbData.byte(3 * k + 0, ChannelPixelWidth) =
-                        (LineBuffer.AccessWindow(1, 0, k) +
-                         LineBuffer.AccessWindow(1, 2, k)) >>
-                        1;
+                    // The if statement is added to avoid using uninitialized 
+                    // data for the first pixel
+                    if (l > 0) {
+                        RgbData.byte(3 * k + 0, ChannelPixelWidth) =
+                            (LineBuffer.AccessWindow(1, 0, k) +
+                             LineBuffer.AccessWindow(1, 2, k)) >>
+                            1;
+                    } else {
+                        RgbData.byte(3 * k + 0, ChannelPixelWidth) =
+                            (LineBuffer.AccessWindow(1, 2, k));
+                    }
+
                     // green value
                     RgbData.byte(3 * k + 1, ChannelPixelWidth) =
                         LineBuffer.AccessWindow(1, 1, k);
@@ -368,6 +384,11 @@ void DeBayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
                   "DeBayer only supports number of pixels per cycle of 1 or 4. "
                   "Input data should have only 1 channel and output should "
                   "only be 3 channels.");
+
+    const unsigned ImgHeight = InImg.get_height(), ImgWidth = InImg.get_width();
+    OutImg.set_height(ImgHeight);
+    OutImg.set_width(ImgWidth);
+
     DeBayer_3x3<PIXEL_T_IN, PIXEL_T_OUT, H, W, STORAGE_IN, STORAGE_OUT, NPPC>(
         InImg, OutImg, BayerFormat);
 }
@@ -387,44 +408,49 @@ void RGB2Bayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
         "RGB2Bayer only supports number of pixels per cycle of 1 or 4"
         "Input data should have 3 channels and output should be only 1"
         "channel.");
-    int ImgHeight = OutImg.get_height();
-    int ImgWidth = OutImg.get_width();
-    int ImgColumns = ImgWidth / NPPC;
-    int ImgIndex = 0;
-    int ColorColumnWidth =
-        ImgColumns / DT<PIXEL_T_IN, NPPC>::PerChannelPixelWidth;
+
+    const unsigned ImgHeight = InImg.get_height(), ImgWidth = InImg.get_width();
+    OutImg.set_height(ImgHeight);
+    OutImg.set_width(ImgWidth);
+    const unsigned FrameSize = (ImgHeight * ImgWidth) / NPPC;
 
     typename DT<PIXEL_T_IN, NPPC>::T RgbData;
     typename DT<PIXEL_T_OUT, NPPC>::T BayerData;
 
-    for (int i = 0; i < ImgHeight; i++) {
-#ifdef __SYNTHESIS__
+    unsigned i = 0, j = 0;
 #pragma HLS loop pipeline
-#endif
-        for (int j = 0; j < ImgColumns; j++) {
-            RgbData = InImg.read(ImgIndex);
+    for (unsigned ImgIdx = 0; ImgIdx < FrameSize; ImgIdx++) {
+        RgbData = InImg.read(ImgIdx);
 
-            BayerData = 0;
-            for (int k = 0; k < NPPC; k++) {
-                if (i % 2 == 0) {
-                    if ((j * NPPC + k) % 2 == 0) {
-                        // red
-                        BayerData.byte(k) = RgbData.byte(3 * k);
-                    } else {
-                        // green
-                        BayerData.byte(k) = RgbData.byte(3 * k + 1);
-                    }
+        BayerData = 0;
+        for (unsigned k = 0; k < NPPC; k++) {
+            if (i % 2 == 0) {
+                if ((j * NPPC + k) % 2 == 0) {
+                    // red
+                    BayerData.byte(k) = RgbData.byte(3 * k);
                 } else {
-                    if ((j * NPPC + k) % 2 == 0) {
-                        // green
-                        BayerData.byte(k) = RgbData.byte(3 * k + 1);
-                    } else {
-                        // blue
-                        BayerData.byte(k) = RgbData.byte(3 * k + 2);
-                    }
+                    // green
+                    BayerData.byte(k) = RgbData.byte(3 * k + 1);
+                }
+            } else {
+                if ((j * NPPC + k) % 2 == 0) {
+                    // green
+                    BayerData.byte(k) = RgbData.byte(3 * k + 1);
+                } else {
+                    // blue
+                    BayerData.byte(k) = RgbData.byte(3 * k + 2);
                 }
             }
-            OutImg.write(BayerData, ImgIndex++);
+        }
+        OutImg.write(BayerData, ImgIdx);
+
+        // We're done with this pixel. Now update the coordinate to the next
+        // one.
+        if (j < ImgWidth / NPPC - 1) {
+            j++;
+        } else { // j == ImgWidth / NPPC - 1.
+            i++;
+            j = 0;
         }
     }
 }

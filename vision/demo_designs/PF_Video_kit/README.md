@@ -24,46 +24,42 @@ The reference design uses the HLS C++ library functions and the provided RTL com
 The diagram above illustrates the main components of the design,
 - The design starts with using the [Camera SmartDesign (SD) component](../../rtl/camera_sd_component/IMX334_IF_TOP/IMX334_IF_TOP_recursive.tcl) to acquire camera frames in Bayer format.
   The Camera SD component is provided as part of the library. The component outputs the camera's Bayer format frame in [AXI-stream Video Protocol](../../include/interface/README.md#axi4-stream-video-protocol).
-  The AXI-S video protocol embeds the start-of-frame and the end-of-line signals as part of the data stream, and supports back-pressure and data bubble, permitting easier integration between the camera, display and processing cores.
+  The AXI-Stream video protocol embeds the start-of-frame and the end-of-line signals as part of the data stream, and supports back-pressure and data bubble, permitting easier integration between the camera, display and processing cores.
 
-- The next block in the pipeline is the DDR Access Wrapper, consisting of an AXI-Stream to DDR writer module and a DDR to AXI-stream reader module.
-  Both modules are HLS IP cores generated from the Vision library's [`AxiMM2AxisVideo()`](../../include/interface/README.md#aximm2axisvideo), and [`AxisVideo2AxiMM`](../../include/interface/README.md#axisvideo2aximm) conversion function (`AxiMM` here means AXI Memory Map, and represents a DDR region of memory).
-  - The DDR writer module receives frame data in AXI-S video format and writes the data to DDR via an AXI-initiator (M) interface (write channels only: AW, W, and B).
-  - The DDR reader module reads data back from DDR using an AXI-initiator (M) interface (read channels only: AR and R) and outputs the data in AXI-stream.
-  - The wrapper combines the read and write channels of the AXI-initiator interfaces into a single AXI-initiator interface, which is then connected to the DDR controller's AXI-target (S) interface.
+- The next block in the pipeline is the `DDR writer` module which receives frame data in AXI-Stream video format and writes the data to DDR via an AXI-initiator (M) interface (write channels only: AW, W, and B). This module is an HLS core generated using the Vision library's [`AxisVideo2AxiMM`](../../include/interface/README.md#axisvideo2aximm) conversion function (`AxiMM` here means AXI Memory Map, and represents a DDR region of memory).
 
-  As you can see, the camera data is not passed directly to the video pipeline and display, but is instead first buffered in DDR.
-  This is because of the mismatched frame rates between the camera and display module.
-  By buffering the data in DDR, our DDR writer and reader will automatically adapt to the frame rates of upstream (camera) and downstream (video pipeline and display) respectively and create a stable data flow.
-  The "automatic rate adaption" is implicitly done by using the AXI-Stream interface's ready-valid handshaking for data transfer,
-  e.g., the DDR writer writes to DDR when camera has "valid" data, and the DDR reader only outputs data when the video pipeline is "ready".
+- The entire `Video Pipeline` is a single HLS IP core.
+  - The pipeline reads the frame data from DDR using the Vision library's [`AxiMM2Img()`](../../include/interface/README.md#aximm2img) conversion function, and is connected to DDR using an AXI-initiator (M) interface (read channels only: AR and R).
+    - As you can see, the camera data is not passed directly to the `Video Pipeline` and display, but is instead first buffered in DDR.
+    This is because of the mismatched frame rates between the camera and display module.
+    By buffering the data in DDR, our `DDR writer` and `Video Pipeline` will automatically adapt to the frame rates of upstream (camera) and downstream (video pipeline and display) respectively and create a stable data flow.
+    The "automatic rate adaption" is implicitly done by using the AXI interface's ready-valid handshaking for data transfer,
+    e.g., the `DDR writer` writes to DDR when camera has "valid" data, and the `Video Pipeline` reads data from DDR only when it is "ready".
+  - In `Video Pipeline`, we first do `Debayer` processing, converting Bayer format frames into RGB format suitable for display. 
+  - Then, we do `Canny` edge detection by converting the RGB data to Gray Scale and feeding the resulting data to the `Canny` function. The data output by `Canny` is  a Gray Scale image, which is then converted  to RGB format (although visually the image is still in Gray Scale, the conversion makes it possible to display the data on the RGB display).
+  - **Note** that the image processing functions in the HLS C++ library all operate on the [`vision::Img`](../../include/common/README.md#img-class) data type that permits more interface configurations (e.g., AXI4 Initiator, AXI4 Target, Memory interface) and buffering options between processing modules.
+  - At the end of the `Video Pipeline`, we use the Vision library's [`Img2AxisVideo`](../../include/interface/README.md#img2axisvideo) function to convert between `vision::Img` data type and AXI-Stream video Protocol.
 
-  - The wrapper module also instantiates a [FrameBufferControl](libero/src/hdl/ddr_access_wrapper.v#L136) module that is not shown in the diagram.
-    - The `FrameBufferControl` module provides the base addresses in DDR for DDR writer and reader to access.
-    - Each time the DDR writer finishes writing a frame to DDR, `FrameBufferControl` provides a new address for the DDR writer to write the next frame;
-      and provides to the DDR reader with the address of latest frame (the frame that just got written to DDR by DDR writer).
-    - In this design, `FrameBufferControl` is parameterized to use 4 frame buffers with each frame buffer taking 8 MB of space.
-    - The purpose of the `FrameBufferControl` is to make sure the DDR writer and reader do not simultaneously access the same frame buffer in DDR.
-      If DDR writer and reader are writing and reading the same frame buffer at the same time, the DDR reader can read a "broken" frame that contains pixels from different frames (because a new frame is being written while read is happening).
-      The `FrameBufferControl` module always provides distinct buffer addresses to the DDR writer and reader.
-      The buffer address update mechanism also allows to better adapt the mismatched frame rates from the write and read side.
-      - If the reader has a higher frame rate than the writer, the `FrameBufferControl` will not always provide a new buffer address for the reader between consecutive frames,
-        because a new address is only provided to the reader when the writer finishes writing a frame.
-        So the reader may read the same frame buffer back-to-back, but it is guaranteed that the frame is not "broken".
-      - If the writer has a higher frame rate, since `FrameBufferControl` always updates the read buffer address to the latest written frame, the reader can catch up the write side by reading the latest written frame, and skip older frames.
-        As long as the write side is no more than 2X faster than the read side, 4 frame buffers can guarantee that the read and write sides never access the same frame.
-        - Say the reader starts reading Frame Buffer 1 **right before** the writer finishes writing Frame Buffer 2 (reader always reads the latest written frame).
-          In order for the writer to overwrite Frame Buffer 1 while reader is still reading it (which can cause "broken" frame), the writer will need to finish writing to Frame Buffer 3 & 4 before reader finishes reading Frame Buffer 1.
-          Essentially the writer needs to write 2 frames before the reader finishes reading 1 frame in order for the "broken" frame to occur.
+  
 
+- The design also instantiates a [FrameBufferControl](libero/src/hdl/ddr_access_wrapper.v#L136) module.
+  - The `FrameBufferControl` module provides the base addresses in DDR for `DDR writer` and `Video Pipeline` to access.
+  - Each time the `DDR writer` finishes writing a frame to DDR, `FrameBufferControl` provides a new address for the `DDR writer` to write the next frame;
+    and provides to the `Video Pipeline` with the address of latest frame (the frame that just got written to DDR by `DDR writer`).
+  - In this design, `FrameBufferControl` is parameterized to use 4 frame buffers with each frame buffer taking 8 MB of space.
+  - The purpose of the `FrameBufferControl` is to make sure the `DDR writer` and `Video Pipeline` do not simultaneously access the same frame buffer in DDR.
+    If `DDR writer` and `Video Pipeline` are writing and reading the same frame buffer at the same time, the `Video Pipeline` can read a "broken" frame that contains pixels from different frames (because a new frame is being written while read is happening).
+    The `FrameBufferControl` module always provides distinct buffer addresses to the `DDR writer` and Video Pipeline.
+    The buffer address update mechanism also allows to better adapt the mismatched frame rates from the write and read side.
+    - If the reader (Video Pipeline) has a higher frame rate than the writer, the `FrameBufferControl` will not always provide a new buffer address for the reader between consecutive frames,
+      because a new address is only provided to the reader when the writer finishes writing a frame.
+      So the reader may read the same frame buffer back-to-back, but it is guaranteed that the frame is not "broken".
+    - If the writer has a higher frame rate, since `FrameBufferControl` always updates the read buffer address to the latest written frame, the reader can catch up the write side by reading the latest written frame, and skip older frames.
+      As long as the write side is no more than 2X faster than the read side, 4 frame buffers can guarantee that the read and write sides never access the same frame.
+      - Say `Video Pipeline` starts reading Frame Buffer 1 **right before** the writer finishes writing Frame Buffer 2 (reader always reads the latest written frame).
+        In order for the writer to overwrite Frame Buffer 1 while `Video Pipeline` is still reading it (which can cause "broken" frame), the writer will need to finish writing to Frame Buffer 3 & 4 before `Video Pipeline` finishes reading Frame Buffer 1.
+        Essentially the writer needs to write 2 frames before the `Video Pipeline` finishes reading 1 frame in order for the "broken" frame to occur.
 
-- Once the frame data is read back from DDR, the Video Pipeline starts processing on the data.
-  The entire Video Pipeline is a single HLS IP core.
-  In this design, we only perform a simple Debayer processing, converting Bayer format frames into RGB format for display.
-  However more processing blocks can be added to the pipeline easily by adding more HLS C++ functions.
-  - Note that the image processing functions in the HLS C++ library all operate on the [`vision::Img`](../../include/common/README.md#img-class) data type
-    that permits more interface configurations (e.g., AXI4 Initiator, AXI4 Target, Memory interface) and buffering options between processing modules.
-  - So at the beginning and the end of the Video Pipeline, we add two functions to convert between `vision::Img` data type and AXI-S Video Protocol.
 
 - Lastly, the resulting stream is forwarded to the [Display SD component](../../rtl/display_sd_component/HDMI_2p0/HDMI_2p0_recursive.tcl) to be displayed using HDMI.
 
@@ -72,24 +68,24 @@ and walk through the steps from compiling the HLS designs to generating the bits
 
 ## HLS Project
 
-The [hls](./hls/) subdirectory contains the SmartHLS project implementing the three HLS IP cores in the above diagram: DDR writer, DDR reader and Video Pipeline.
+The [hls](./hls/) subdirectory contains the SmartHLS project implementing the two HLS IP cores in the above diagram: `DDR writer` and `Video Pipeline`.
 
 ### C++ Source Code
 
 All HLS IP cores (top-level functions) and testbenches are specified in the [pf_demo.cpp](./hls/pf_demo.cpp) file,
-- Near the top of the files, there are four `using` statements defining the data types used in the design:
+- Near the top of the files, there are five `using` statements defining the data types used in the design:
   - For example, the `using BayerAxisVideoT = vision::AxisVideoFIFO<HLS_8UC1, NPPC_4>` statement defines the data type corresponding to the [AXI-stream Video Protocol](../../include/interface/README.md#axi4-stream-video-protocol) interface,
-    used for the input to DDR writer and output from DDR reader.
+    used for the input to `DDR writer`.
     The template parameter `HLS_8UC1` describes the Bayer format pixel type, 1 channel of 8bit unsigned value.
     The next template parameter `NPPC_4` means four pixels-per-clock-cycle, i.e., every four pixels are packed as one word in the AXI-stream.
     The pipeline needs to process four pixels per clock cycle while running at 148.5 clock frequency, in order to meet the desired data rate of 4K resolution at 30 FPS.
-  - The `RgbAxisVideoT` corresponds to the output AXI-stream from Video Pipeline going into HDMI Display. The pixel type has 3 RGB channels, each with a 8bit unsigned value.
-  - The `BayerImgT` and `RgbImgT` are the [`vision::Img`](../../include/common/README.md#img-class) class types internal to the Video Pipeline, corresponding to the input and output of the Debayer function.
-- There three top-level functions annotated with `#pragma HLS function top`: `DDR_Read_wrapper`, `DDR_write_wrapper`, and `VideoPipelineTop`. They are the three HLS IP cores in the above diagram.
-  - In the two DDR mover functions, the line `#pragma HLS interface argument(Buf) type(axi_initiator) num_elements(AXI_WORDS_PER_FRAME) max_burst_len(256)`
+  - The `RgbAxisVideoT` corresponds to the output AXI-stream from `Video Pipeline` going into HDMI Display. The pixel type has 3 RGB channels, each with a 8bit unsigned value.
+  - The `BayerImgT`, `RgbImgT`, and`GrayImgT` are the [`vision::Img`](../../include/common/README.md#img-class) class types internal to the Video Pipeline, corresponding to the inputs and outputs of the `Video Pipeline` functions.
+- There are two top-level functions annotated with `#pragma HLS function top`: `DDR_write_wrapper` and `VideoPipelineTop`. They are the two HLS IP cores in the above diagram.
+  - In top-level functions, the line `#pragma HLS interface argument(Buf) type(axi_initiator) num_elements(AXI_WORDS_PER_FRAME) max_burst_len(256)`
     informs SmartHLS to implement the `Buf` argument as an [AXI4 Initiator](https://microchiptech.github.io/fpga-hls-docs/userguide.html#axi4-initiator-interface) interface.
   - In the `VideoPipelineTop` function, a [`dataflow`](https://microchiptech.github.io/fpga-hls-docs/userguide.html#data-flow-parallelism) pragma is used
-    to specify that the three sub-functions, `AxisVideo2Img`, `DeBayer`, and `Img2AxisVideo` can run in parallel to process the continuous stream of pixel data.
+    to specify that the six sub-functions, `AxiMM2Img`, `DeBayer`, `RGB2GRAY`, `Canny`, `GRAY2RGB`, and `Img2AxisVideo` can run in parallel to process the continuous stream of pixel data.
 - The next section of the code is the `main()` function implementing a software testbench to verify the top-level functions.
   - There are three main steps in the software testbench:
     1) Prepare the input test vector for the top-level functions,
@@ -115,7 +111,6 @@ The first step will be to verify the software implementation is functionally cor
 
 We expect to see the following messages from the software run:
 ```
-Percentage of pixels with difference over threshold: 0.64%
 Pass
 ```
 
@@ -137,7 +132,7 @@ Cycle latency: 2,085,372
 SW/HW co-simulation: PASS
 ```
 The reported cycle latency corresponds to the longest running top-level functions.
-All three top-level functions have similar cycle latency, which can be approximated as the number of pixels per frame divided by 4 pixels-per-clock-cycle, i.e., 3840 * 2160 / 4 = 2,073,600.
+Both top-level functions have similar cycle latency, which can be approximated as the number of pixels per frame divided by 4 pixels-per-clock-cycle, i.e., 3840 * 2160 / 4 = 2,073,600.
 As a sanity check, this approximated cycle latency (minimum number of cycles) is fairly close to the reported cycle latency from simulation.
 
 ## Running Libero to generate the complete demo design
@@ -151,7 +146,7 @@ then synthesize, place-and-route the design, and finally generate a job file tha
 
 You can execute the TCL scripts from Libero IDE as well as from command line.
 
-`Note: This demo is designed to work on the latest Libero version, 2023.1, and may not be compatible with previous versions of Libero`
+`Note: This demo is designed to work on the latest Libero version, 2023.2, and may not be compatible with previous versions of Libero`
 
 Here are the steps to run the TCL scripts from the Libero IDE,
 - First launch Libero IDE (On Windows, please launch IDE from SmartHLS' Cygwin terminal as following),

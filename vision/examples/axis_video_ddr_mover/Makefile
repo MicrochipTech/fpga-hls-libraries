@@ -1,12 +1,12 @@
 SRCS=axis_video_ddr_tb.cpp
 LOCAL_CONFIG = -legup-config=config.tcl
-LEVEL = $(LEGUP_ROOT_DIR)/examples
+LEVEL = $(SHLS_ROOT_DIR)/examples
 
 ifeq ($(shell uname -o), Cygwin)
 # Use cygpath to locate the Windows location
-OPENCV_PATH := $(shell cygpath -t mixed $(LEGUP_ROOT_DIR)/precompiled_sw_libraries/opencv4.5.4-x86_64-cygwin)
+OPENCV_PATH := $(shell cygpath -t mixed $(SHLS_ROOT_DIR)/precompiled_sw_libraries/opencv4.5.4-x86_64-cygwin)
 else
-OPENCV_PATH := $(LEGUP_ROOT_DIR)/precompiled_sw_libraries/opencv4.5.4-x86_64-linux
+OPENCV_PATH := $(SHLS_ROOT_DIR)/precompiled_sw_libraries/opencv4.5.4-x86_64-linux
 endif
 
 USER_CXX_FLAG += -I$(OPENCV_PATH)/include/opencv4

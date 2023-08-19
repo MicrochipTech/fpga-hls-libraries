@@ -48,7 +48,7 @@ Please see the readme files in sub-directories for more details.
 
 - To use the SmartHLS Vision library, you should first install the SmartHLS tool, which is part of the [Libero SoC Design Suite](https://www.microchip.com/en-us/products/fpgas-and-plds/fpga-and-soc-design-tools/fpga/libero-software-later-versions).
 
-  `Note: This library is designed to work on the latest Libero SoC Design Suite version, 2023.1, and may not be compatible with previous versions of Libero and SmartHLS.`
+  `Note: This library is designed to work on the latest Libero SoC Design Suite version, 2023.2, and may not be compatible with previous versions of Libero and SmartHLS.`
 
 - The repository uses Git Large File System (LFS) to track media files (e.g., images). So we need to install Git LFS.
   - First make sure you have Git and Git LFS installed. If not, you can follow this instruction: https://github.com/git-guides/install-git
@@ -69,7 +69,7 @@ Please see the readme files in sub-directories for more details.
 - The SmartHLS Vision library supports using OpenCV functionality in the software testbench of a SmartHLS project.
   So we will also download a precompiled OpenCV library using a provided script (see [here](https://microchiptech.github.io/fpga-hls-docs/precompiled_sw.html#ffmpeg-4-4-and-opencv-4-5-4) for more details):
   ```console
-  > /cygdrive/c/Microchip/Libero_SoC_v2023.1/SmartHLS-2023.1/SmartHLS/examples/scripts/utils/download_libraries.sh
+  > /cygdrive/c/Microchip/Libero_SoC_v2023.2/SmartHLS-2023.2/SmartHLS/examples/scripts/utils/download_libraries.sh
   ```
 
 ## Getting Started

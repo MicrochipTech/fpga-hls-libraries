@@ -1,5 +1,4 @@
 #include "../../include/vision.hpp"
-#include "define.hpp"
 #include <assert.h>
 #include <iostream>
 #include <opencv2/opencv.hpp>
@@ -10,6 +9,20 @@ using vision::Img;
 using vision::PixelType;
 using vision::StorageType;
 
+// This line tests on a smaller image for faster co-simulation
+
+// #define SMALL_TEST_FRAME
+#ifdef SMALL_TEST_FRAME
+#define WIDTH 100
+#define HEIGHT 56
+#define GOLDEN_OUTPUT "pattern_gen_golden_100x56.png"
+#else
+#define WIDTH 1920
+#define HEIGHT 1080
+#define GOLDEN_OUTPUT "pattern_gen_golden.png"
+#endif
+#define SIZE (WIDTH * HEIGHT)
+
 // RGB image type with 4 Pixels Per Clock (PPC)
 using RgbImgT4PPC =
     Img<PixelType::HLS_8UC3, HEIGHT, WIDTH, StorageType::FIFO, vision::NPPC_4>;
@@ -17,7 +30,8 @@ using RgbImgT4PPC =
 // Pattern generator top function wrapper
 template <int format, PixelType PIXEL_T, unsigned H, unsigned W,
           StorageType STORAGE, vision::NumPixelsPerCycle NPPC>
-void PatternGeneratorWrapper(vision::Img<PIXEL_T, H, W, STORAGE, NPPC> &ImgOut) {
+void PatternGeneratorWrapper(
+    vision::Img<PIXEL_T, H, W, STORAGE, NPPC> &ImgOut) {
 #pragma HLS function top
     vision::PatternGenerator<format>(ImgOut);
 }
@@ -43,7 +57,7 @@ int main() {
     // Compare the output image with the golden image
     float ErrPercent = vision::compareMat(RGBGoldenMat, OutMat, 0);
     printf("Percentage of over threshold: %0.2lf%\n", ErrPercent);
-    if (ErrPercent < 0.1f) {
+    if (ErrPercent == 0.0) {
         printf("PASS");
         return 0;
     }
