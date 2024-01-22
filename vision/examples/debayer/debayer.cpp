@@ -1,4 +1,4 @@
-#include "../../include/vision.hpp"
+#include "vision.hpp"
 #include <opencv2/opencv.hpp>
 
 using namespace hls;
@@ -7,19 +7,12 @@ using vision::Img;
 using vision::PixelType;
 using vision::StorageType;
 
-// This line tests on a smaller image for faster co-simulation.
-// #define FAST_COSIM
-
 #ifdef FAST_COSIM
 #define WIDTH 100
 #define HEIGHT 56
-#define INPUT_IMAGE "toronto_100x56.bmp"
-#define GOLDEN_OUTPUT "debayer_golden_100x56.png"
 #else
 #define WIDTH 1920
 #define HEIGHT 1080
-#define INPUT_IMAGE "toronto_1080p.bmp"
-#define GOLDEN_OUTPUT "debayer_golden_1920x1080.png"
 #endif
 
 #define SIZE (WIDTH * HEIGHT)
@@ -53,12 +46,13 @@ void RGB2BayerWrapper(vision::Img<PIXEL_T_IN, H, W, STORAGE, NPPC> &ImgIn,
     vision::RGB2Bayer(ImgIn, ImgOut);
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     RgbImgT4PPC InImg, OutImg, DeBayerGoldImg;
     BayerImgT4PPC BayerImg;
 
     // Read input image into a cv Mat and convert it to RGB format since cv
     // reads images in BGR format
+    std::string INPUT_IMAGE=argv[1];
     Mat BGRInMat = cv::imread(INPUT_IMAGE, cv::IMREAD_COLOR);
     Mat RGBInMat;
     cv::cvtColor(BGRInMat, RGBInMat, cv::COLOR_BGR2RGB);
@@ -76,6 +70,7 @@ int main() {
     vision::convertToCvMat(OutImg, OutMat);
 
     // Compare output image with golden image. They should completely match
+    std::string GOLDEN_OUTPUT=argv[2];
     Mat BGRGoldenMat = cv::imread(GOLDEN_OUTPUT, cv::IMREAD_COLOR);
     Mat RGBGoldenMat;
     cv::cvtColor(BGRGoldenMat, RGBGoldenMat, cv::COLOR_BGR2RGB);

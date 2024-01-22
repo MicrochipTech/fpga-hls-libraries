@@ -1,4 +1,4 @@
-#include "../../../include/vision.hpp"
+#include "vision.hpp"
 #include <opencv2/core/matx.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
@@ -10,15 +10,12 @@ using namespace hls;
 using cv::Mat;
 using vision::Img;
 
-// #define SMALL_TEST_FRAME // for faster simulation.
 #ifdef SMALL_TEST_FRAME
 #define WIDTH 100
 #define HEIGHT 56
-#define INPUT_IMAGE "toronto_100x56.bmp"
 #else
 #define WIDTH 1920
 #define HEIGHT 1080
-#define INPUT_IMAGE "toronto_1080p.bmp"
 #endif
 #define SIZE (WIDTH * HEIGHT)
 
@@ -38,8 +35,9 @@ void cvGRAY2RGB(cv::Mat &InMat, cv::Mat &OutMat) {
     cv::cvtColor(InMat, OutMat, cv::COLOR_GRAY2RGB);
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     // Load image from file, using OpenCV's imread function.
+    std::string INPUT_IMAGE = argv[1];
     Mat BGRInMat = cv::imread(INPUT_IMAGE, cv::IMREAD_COLOR);
 
     // Convert to grayscale

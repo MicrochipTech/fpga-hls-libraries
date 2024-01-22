@@ -55,12 +55,12 @@ This template parameter is very similar to the type seen in OpenCV. For example,
 Within the `Img` class, the pixel data type is stored as an `ap_[u]int` of size `channel_width * num_channel * NPPC`, where `NPPC` means the number of pixels per cycle (see [`NPPC`](#nppc)).
 For example, a `HLS_8UC1` pixel with `NPPC_4` will be stored as an `ap_uint<32>`.
 
-For more information about the `ap_[u]int` class, please refer to the SmartHLS User Guide: [C++ Arbitrary Precision Data Types Library](https://microchiptech.github.io/fpga-hls-docs/userguide.html#ap-lib).
+For more information about the `ap_[u]int` class, please refer to the SmartHLS User Guide: [C++ Arbitrary Precision Data Types Library](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-E579B24E-641A-474D-A181-D2C4748BBD9A.html).
 
 ### `StorageType`
 This template parameter specifies the underlying data structure of the frame data. It can have one of the following values:
 - `FRAME_BUFFER`: the frame is stored inside a C++ array.
-- `FIFO`: the frame is stored inside a [`hls::FIFO`](https://microchiptech.github.io/fpga-hls-docs/userguide.html#streaming-lib) object.
+- `FIFO`: the frame is stored inside a [`hls::FIFO`](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-AA56C127-64A7-4328-9988-D4259A5F1CF0.html) object.
   - If this `Img` object is in a hardware function (i.e. top-level functions and their descendants), the FIFO will have a default depth of 2, but this FIFO depth can be configured by using the constructor [`Img(unsigned height_, unsigned width_, unsigned fifo_depth)`](#imgunsigned-height_-unsigned-width_-unsigned-fifo_depth), or by using the class member function [`set_fifo_depth(unsigned fifo_depth)`](#void-set_fifo_depthunsigned-fifo_depth).
   - If this `Img` object is in a software function (software testbench functions), then the FIFO depth is automatically set to `H * W`, i.e., the FIFO needs to be large enough to hold the entire frame.
 
@@ -68,7 +68,7 @@ This template parameter specifies the underlying data structure of the frame dat
   - The `FIFO` storage type should only be used if you can ensure that the frame data can be read or written pixel-by-pixel in a sequential order.
   - As a starting point, a FIFO depth of `H * W` is guaranteed to be sufficient for functional correctness.
     - However, for hardware functions, you would want to set the FIFO depth to something smaller to save resource.
-      A smaller FIFO depth is still sufficient for functional correctness if you use the SmartHLS [Data Flow Parallelism](https://microchiptech.github.io/fpga-hls-docs/userguide.html#data-flow-parallelism) feature. Under data flow parallelism, data can flow in and out of the top-level function all the time. As a result, the FIFO inside the `Img` object doesn't need to be too large.
+      A smaller FIFO depth is still sufficient for functional correctness if you use the SmartHLS [Data Flow Parallelism](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-24B4CBDB-506F-433E-95F9-28FA2811E9CF.html) feature. Under data flow parallelism, data can flow in and out of the top-level function all the time. As a result, the FIFO inside the `Img` object doesn't need to be too large.
       The exact choice for the FIFO depth that guarantees both functional correctness and good resource utilization depends on your specific application. For an example, please see our implementation of the [Canny Edge Detection Algorithm](../imgproc/canny.hpp).
     - For software functions, since there is no dataflow parallelism, the FIFO needs to be large enough to hold the entire frame, so the FIFO depth is automatically set to `H * W`.
   - The `FIFO` storage type generally provides better resource utilization than `FRAME_BUFFER` especially at low FIFO depth. For example, for a 1920x1080 frame:
@@ -219,7 +219,7 @@ The output image produced by this function is determined by the `Format` templat
  * 3: Angled orange lines over vertical  colored lines
  * 4: Checker board pattern
 
-![pattern_gen](./doc_images/pattern_gen.png)
+![pattern_gen](../../media_files/common_doc_images/pattern_gen.png)
 
 # Line buffer
 The LineBuffer class is responsible for implementing the line buffer structure, 
@@ -227,7 +227,7 @@ which is frequently used in image convolution (filtering) operations. In these o
 a filter kernel is moved across an input image, and it is applied to a local window of pixels (often in a square shape) at each new sliding location.
 As this process occurs, the line buffer receives a new pixel at each new sliding location,
 while retaining the pixels from previous image rows that can be included in the sliding window.
-The Vision library's line buffer is an enhancement of the existing [HLS line buffer](https://microchiptech.github.io/fpga-hls-docs/userguide.html#line-buffer-user-guide),
+The Vision library's line buffer is an enhancement of the existing [HLS line buffer](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-475FBC67-2D66-4094-8D38-F6F7EA473ABF.html),
 with the added advantage of supporting multiple pixels per clock cycle.
 The user can use the `AccessWindow(x, y, k)` function to access x, y coordinates in a window where the centroid is at the k-th pixel out of `Number of Pixels Per Clock (NPPC)`.
  

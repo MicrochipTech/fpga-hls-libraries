@@ -1,0 +1,3 @@
+SHLS_MATH_LIBRARY = ../../../..
+USER_CXX_FLAG+=-I$(SHLS_MATH_LIBRARY)
+LOCAL_CONFIG = -legup-config=config.tcl

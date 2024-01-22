@@ -1,4 +1,4 @@
-#include "../../include/vision.hpp"
+#include "vision.hpp"
 #include <assert.h>
 #include <iostream>
 #include <opencv2/opencv.hpp>
@@ -9,17 +9,12 @@ using vision::Img;
 using vision::PixelType;
 using vision::StorageType;
 
-// This line tests on a smaller image for faster co-simulation
-
-// #define SMALL_TEST_FRAME
 #ifdef SMALL_TEST_FRAME
 #define WIDTH 100
 #define HEIGHT 56
-#define GOLDEN_OUTPUT "pattern_gen_golden_100x56.png"
 #else
 #define WIDTH 1920
 #define HEIGHT 1080
-#define GOLDEN_OUTPUT "pattern_gen_golden.png"
 #endif
 #define SIZE (WIDTH * HEIGHT)
 
@@ -38,7 +33,7 @@ void PatternGeneratorWrapper(
 
 // Testbench generates uses pattern generator to create an image and
 // then compares it with a golden image file.
-int main() {
+int main(int argc, char* argv[]) {
     RgbImgT4PPC ImgOut, GoldImg;
     // Pattern generator format (the generated image changes based on the
     // format)
@@ -49,6 +44,7 @@ int main() {
     Mat OutMat;
     vision::convertToCvMat(ImgOut, OutMat);
     // Read golden image file
+    std::string GOLDEN_OUTPUT=argv[1];
     Mat BGRGoldenMat = cv::imread(GOLDEN_OUTPUT, cv::IMREAD_COLOR);
     Mat RGBGoldenMat;
     // Since cv::imread reads the image in BGR format, we convert to RGB

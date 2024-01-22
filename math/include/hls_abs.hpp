@@ -1,0 +1,51 @@
+// ©2024 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+#pragma once
+#include "hls_common.hpp"
+
+/***
+ * @title abs
+ */
+
+namespace hls {
+namespace math {
+	
+/*** 
+ * @function abs
+ * Calculates absolute value.
+ *
+ * @template {unsigned int} W_OUT width of the output
+ * @template {int} IW_OUT width of integer portion of the output
+ * @template {unsigned int} W_IN width of the input (automatically inferred)
+ * @template {int} IW_IN width of integer portion of the input (automatically inferred)
+ *
+ * @param {ap_fixpt<unsigned int W_IN, int IW_IN>} fp input
+ * @return {ap_fixpt<unsigned int W_OUT, int IW_OUT>} absolute value of the input
+ * @example 
+ * hls::ap_fixpt<10, 2> y = -3.1;
+ * auto x = hls::math::abs<32, 16>(y); //x will be a fixpt number with the value 3.1 
+*/
+template <unsigned int W_OUT, int IW_OUT, unsigned int W_IN, int IW_IN>
+ap_fixpt<W_OUT, IW_OUT> abs(ap_fixpt<W_IN, IW_IN> fp) {
+  if (fp < 0) return (ap_fixpt<W_OUT, IW_OUT>(-fp));
+  return (ap_fixpt<W_OUT, IW_OUT>(fp));
+}
+} // namespace math
+} // namespace hls

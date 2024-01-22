@@ -36,7 +36,7 @@ The camera to AXIS-Video converter connects to the CSI2 decoder IP core and outp
 - As the camera data coming out of the CSI2 decoder IP core can have extra lines of image data at the beginning of each frame (1 line for a 4K frame),
   camera to AXIS-Video converter can drop the extra lines to have the correct number of image lines per output frame.
 
-![Camera to AXIS-Video converter](./doc_images/camera-to-axis-converter.png)
+![Camera to AXIS-Video converter](../media_files/rtl_doc_images/camera-to-axis-converter.png)
 
 
 The tables below explain the camera to AXIS-Video converter ports and parameters:
@@ -80,7 +80,7 @@ Similarly for each video frame there are blanking lines before (vertical back po
 During the active video period, the video data must be transmitted continuously without interruptions (or "bubbles" where no data is being transferred).
 Conversely, during the blanking period, no data should be transmitted.
 
-![Display signal waveforms](./doc_images/display_signal_waveforms.png)
+![Display signal waveforms](../media_files/rtl_doc_images/display_signal_waveforms.png)
 
 In order to remove cycle-accurate restrictions, enable back-pressure on I/O during active period,
 and remove knowledge of active/blanking periods from processing cores we introduce [AXIS-Video to VGA converter](axis_to_vga_converter/axis_to_vga_converter.v).
@@ -131,7 +131,7 @@ To allow for bubbles in the incoming data, AXIS-Video to VGA converter has a deb
 
 
 
-![AXIS-Video to VGA converter](./doc_images/axis_to_vga_converter.png)
+![AXIS-Video to VGA converter](../media_files/rtl_doc_images/axis_to_vga_converter.png)
 
 The tables below explain the AXIS-Video to VGA converter ports and parameters:
 
@@ -191,7 +191,7 @@ creating the component.
 ```
 The image below shows the camera SmartDesign component with (left) and without (right) the non-AXIS output camera interfaces:
 
-![Camera SmartDesign component](./doc_images/imx334.png)
+![Camera SmartDesign component](../media_files/rtl_doc_images/imx334.png)
 
 The PolarFire Video kit has 2 cameras and the user can use
 either one or both of them. The current setup uses the second camera, but the
@@ -205,7 +205,7 @@ converter and connect it to CSI2_RXDecoder_0. The IMX334_IF_TOP is configured to
 operate with a 4K resolution (3840 x 2160 pixels) at 30 Frames Per Second (FPS).
 We use this component in our [PolarFire Video Kit Demo](../demo_designs/PF_Video_kit/).
 
-![IMX334 internal](./doc_images/imx334_internal.png)
+![IMX334 internal](../media_files/rtl_doc_images/imx334_internal.png)
 
 ## Display SmartDesign component
 
@@ -216,18 +216,18 @@ AXIS-Video data to video format, and uses [HDMI TX](https://www.microchip.com/en
 and [Transceiver Interface](https://onlinedocs.microchip.com/pr/GUID-AE985A83-E181-4941-B39D-055A6746BB07-en-US-1/index.html?GUID-CC5EF101-423F-488F-85CA-3D69E4E306BB)
 IP cores to convert and forward the video signals to board pins.
 
-![Camera SmartDesign component](./doc_images/hdmi.png)
+![Camera SmartDesign component](../media_files/rtl_doc_images/hdmi.png)
 
 Our HDMI_2p0 SmartDesign component is similar to the HDMI_2p0 component in the
 PolarFire 4K dual camera video kit demo ([demo guide document](https://www.microsemi.com/document-portal/doc_download/1244036-dg0849-polarfire-fpga-4k-dual-camera-video-kit-demo-guide)), but takes
 input video data in AXIS-Video format instead of video, as shown in the figure below:
 
-![HDMI_2p0 internal](./doc_images/hdmi_internal.png)
+![HDMI_2p0 internal](../media_files/rtl_doc_images/hdmi_internal.png)
 
 
 Our HDMI_2p0 is configured for 4K 30 FPS video with 4 pixels per clock cycle,
 and can be connected to the HDMI 2.0 TX port on the PolarFire video kit.
 
-![PF board](../demo_designs/PF_Video_kit/doc_images/pf_board.png)
+![PF board](../media_files/PF_Video_kit_doc_images/pf_board.png)
 
 

@@ -1,0 +1,36 @@
+{
+    // This is an example of the launch.json file to use with gdb and
+    // enable pretty-printing for ap_fixpt and ap_uint datatypes.
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/hls_output/.hls/<PROGRAM_NAME>.sw_binary",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            // Declare env. variables to be available in the program being debugged
+            "environment": [  
+                {
+                    "name": "LD_LIBRARY_PATH",
+                    "value": "${env:SHLS_ROOT_DIR}/smarthls-library/hls"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "text": "source ${env:SHLS_ROOT_DIR}/examples/scripts/utils/gdb-pretty-printers/ap_fixed.py"
+                }
+            ]
+        }
+
+    ]
+}

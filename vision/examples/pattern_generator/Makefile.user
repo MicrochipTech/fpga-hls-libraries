@@ -1,0 +1,22 @@
+# SHLS_VISION_LIBRARY should be the path to the vision directory:
+SHLS_VISION_LIBRARY= ../..
+OPENCV_PATH = $(SHLS_VISION_LIBRARY)/precompiled_sw_libraries/opencv4.5.4-x86_64
+USER_CXX_FLAG += -I$(OPENCV_PATH)/include/opencv4 -I$(SHLS_VISION_LIBRARY)/include
+USER_LINK_FLAG += -L$(OPENCV_PATH)/lib -lopencv_core -lopencv_imgcodecs -lopencv_imgproc
+
+#SMALL_TEST_FRAME=1 # This line tests on a smaller image for faster co-simulation
+
+ifdef SMALL_TEST_FRAME
+    GOLDEN_OUTPUT=pattern_gen_golden_100x56.png
+    USER_CXX_FLAG += -DSMALL_TEST_FRAME
+endif
+ifndef GOLDEN_OUTPUT
+    GOLDEN_OUTPUT=pattern_gen_golden.png
+endif
+
+PROGRAM_ARGUMENTS+=../../media_files/test_images/$(GOLDEN_OUTPUT)
+
+# Windows needs libraries on PATH
+USER_ENV_VARS += PATH=$(OPENCV_PATH)/lib$(HLS_PATH_SEP)$$PATH
+# Linux needs libraries on LD_LIBRARY_PATH
+USER_ENV_VARS += LD_LIBRARY_PATH=$(OPENCV_PATH)/lib

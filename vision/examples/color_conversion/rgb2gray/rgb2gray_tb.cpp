@@ -1,4 +1,4 @@
-#include "../../../include/vision.hpp"
+#include "vision.hpp"
 #include <opencv2/core/matx.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
@@ -10,17 +10,12 @@ using namespace hls;
 using cv::Mat;
 using vision::Img;
 
-// #define SMALL_TEST_FRAME // for faster simulation.
 #ifdef SMALL_TEST_FRAME
 #define WIDTH 100
 #define HEIGHT 56
-#define INPUT_IMAGE "toronto_100x56.bmp"
-#define GOLDEN_IMAGE "rgb2gray_golden_100x56.png"
 #else
 #define WIDTH 1920
 #define HEIGHT 1080
-#define INPUT_IMAGE "toronto_1080p.bmp"
-#define GOLDEN_IMAGE "rgb2gray_golden_1080p.png"
 #endif
 #define SIZE (WIDTH * HEIGHT)
 
@@ -40,8 +35,9 @@ void cvRGB2GRAY(cv::Mat &InMat, cv::Mat &OutMat) {
     cv::cvtColor(InMat, OutMat, cv::COLOR_RGB2GRAY);
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     // Load image from file, using OpenCV's imread function.
+    std::string INPUT_IMAGE = argv[1];
     Mat BGRInMat = cv::imread(INPUT_IMAGE, cv::IMREAD_COLOR);
 
     // By default, OpenCV reads and write image in BGR format, so let's convert
@@ -82,6 +78,7 @@ int main() {
     float ErrPercentCV = vision::compareMat(HlsOutMat, CvOutMat, 0);
     printf("Percentage of over threshold against OpenCV: %f\n", ErrPercentCV);
     // Compare the result with golden result
+    std::string GOLDEN_IMAGE = argv[2];
     Mat Golden = cv::imread(GOLDEN_IMAGE, cv::IMREAD_GRAYSCALE);
     // Use this commented out line to report location of errors.
     // vision::compareMatAndReport<unsigned char>(HlsOutMat, Golden, 0);
