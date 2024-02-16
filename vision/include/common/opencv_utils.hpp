@@ -1,4 +1,4 @@
-// ©2022 Microchip Technology Inc. and its subsidiaries
+// ©2024 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this
 // Microchip software and any derivatives exclusively with Microchip
@@ -77,12 +77,12 @@ void convertToCvMat(Img<PIXEL_T, H, W, STORAGE, NPPC> &InImg, Mat &OutMat) {
                            DT<PIXEL_T, NPPC>::NumChannels>;
     OutMat =
         Mat(InImg.get_height(), InImg.get_width(), CvPixelTypeList[PIXEL_T]);
-    for (int i = 0, idx = 0; i < InImg.get_height(); i++) {
-        for (int j = 0; j < InImg.get_width() / NPPC; j++, idx++) {
+    for (unsigned int i = 0, idx = 0; i < InImg.get_height(); i++) {
+        for (unsigned int j = 0; j < InImg.get_width() / NPPC; j++, idx++) {
             auto V = InImg.read(idx);
             for (int n = 0, k = 0; n < NPPC; n++) {
                 auto &MPixel = OutMat.at<CvType>(i, j * NPPC + n);
-                for (int c = 0; c < NumChannels; c++, k++) {
+                for (unsigned int c = 0; c < NumChannels; c++, k++) {
                     MPixel[c] = V.byte(k, PerChannelPixelWidth);
                 }
             }
@@ -111,13 +111,13 @@ void convertFromCvMat(Mat &InMat, Img<PIXEL_T, H, W, STORAGE, NPPC> &OutImg) {
     const unsigned NumChannels = DT<PIXEL_T, NPPC>::NumChannels;
     using CvType = cv::Vec<typename DT<PIXEL_T, NPPC>::PixelPrimT,
                            DT<PIXEL_T, NPPC>::NumChannels>;
-    for (int i = 0, idx = 0; i < OutImg.get_height(); i++) {
-        for (int j = 0; j < OutImg.get_width() / NPPC; j++, idx++) {
+    for (unsigned int i = 0, idx = 0; i < OutImg.get_height(); i++) {
+        for (unsigned int j = 0; j < OutImg.get_width() / NPPC; j++, idx++) {
             // One word in Img, concatenating all channels and multiple NPPC.
             typename DT<PIXEL_T, NPPC>::T V;
-            for (int n = 0, k = 0; n < NPPC; n++) {
+            for (unsigned int n = 0, k = 0; n < NPPC; n++) {
                 auto &MPixel = MatCopy.at<CvType>(i, j * NPPC + n);
-                for (int c = 0; c < NumChannels; c++, k++) {
+                for (unsigned int c = 0; c < NumChannels; c++, k++) {
                     V.byte(k, PerChannelPixelWidth) = MPixel[c];
                 }
             }

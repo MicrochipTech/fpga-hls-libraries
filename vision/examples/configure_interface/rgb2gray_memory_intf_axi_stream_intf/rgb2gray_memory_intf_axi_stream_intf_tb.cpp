@@ -1,19 +1,16 @@
-#include "../../../include/vision.hpp"
+#include "vision.hpp"
 #include <opencv2/opencv.hpp>
 
 using namespace hls;
 using cv::Mat;
 using vision::Img;
 
-// #define SMALL_TEST_FRAME // for faster simulation.
 #ifdef SMALL_TEST_FRAME
 #define WIDTH 100
 #define HEIGHT 56
-#define INPUT_IMAGE "toronto_100x56.bmp"
 #else
 #define WIDTH 1920
 #define HEIGHT 1080
-#define INPUT_IMAGE "toronto_1080p.bmp"
 #endif
 #define SIZE (WIDTH * HEIGHT)
 
@@ -40,12 +37,13 @@ void cvRGB2GRAY(cv::Mat &InMat, cv::Mat &OutMat) {
     cv::cvtColor(InMat, OutMat, cv::COLOR_RGB2GRAY);
 }
 
-int main() {
+int main(int argc, char* argv[]) {
 #if !defined(MEMORY_INTERFACE) && !defined(AXI_STREAM_INTERFACE)
     printf("Error: Please select an interface in the project's Makefile.\n");
     return 1;
 #endif
     // Load image from file, using OpenCV's imread function.
+    std::string INPUT_IMAGE=argv[1];
     Mat BGRInMat = cv::imread(INPUT_IMAGE, cv::IMREAD_COLOR);
 
     // By default, OpenCV reads and write image in BGR format, so let's convert

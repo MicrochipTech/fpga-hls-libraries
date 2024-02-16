@@ -1,4 +1,4 @@
-#include "../../../include/vision.hpp"
+#include "vision.hpp"
 #include <assert.h>
 #include <opencv2/opencv.hpp>
 
@@ -69,7 +69,7 @@ int main() {
     RGBImgT InImg;
     BayerImgT BayerInImg;
     BayerAxisVideoT InStream(NumPixelWords), DDRReadFIFO(NumPixelWords);
-    Mat BGRInMat = cv::imread("toronto_4k.jpg", cv::IMREAD_COLOR);
+    Mat BGRInMat = cv::imread("../../../media_files/toronto_4k.jpg", cv::IMREAD_COLOR);
     Mat RGBInMat;
     cv::cvtColor(BGRInMat, RGBInMat, cv::COLOR_BGR2RGB);
 
@@ -102,7 +102,7 @@ int main() {
     cv::imwrite("hls_out.png", HlsOutMat);
 
     // Read the golden image
-    Mat GoldenMat = cv::imread("demo_golden.png", cv::IMREAD_COLOR);
+    Mat GoldenMat = cv::imread("../../../media_files/test_images/demo_golden.png", cv::IMREAD_COLOR);
     Mat GoldenRGBMat;
     cv::cvtColor(GoldenMat, GoldenRGBMat, cv::COLOR_BGR2RGB);
 

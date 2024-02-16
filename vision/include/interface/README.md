@@ -15,7 +15,7 @@
 
 <!-- /TOC -->
 # Configure Top-level RTL interface for `Img` arguments
-For general knowledge about the top-level RTL interfaces that are available in SmartHLS, please refer to the SmartHLS User Guide: [Top-Level RTL Interface](https://microchiptech.github.io/fpga-hls-docs/userguide.html#top-level-rtl-interface).
+For general knowledge about the top-level RTL interfaces that are available in SmartHLS, please refer to the SmartHLS User Guide: [Top-Level RTL Interface](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-E9EA34CC-B155-4F12-AFFC-B972E037469F.html).
 
 In SmartHLS, the top-level C++ function prototype defines the RTL interface of the top-level module.
 Generally speaking, each top-level function argument corresponds to an RTL interface.
@@ -58,7 +58,7 @@ void RGB2GRAYTop(
 
 For a complete example SmartHLS design, including how you can set up the input `InImg` and output `OutImg` outside of the top-level function in the `main()` testbench, please see: [examples/configure_interfaces/rgb2gray_memory_intf_axi_stream_intf](../../examples/configure_interface/rgb2gray_axi_initiator_intf_axi_target_intf/rgb2gray_axi_initiator_intf_axi_target_intf_tb.cpp).
 
-> Note that for **Memory interface**, we recommend you to perform [struct-field memory partition](https://microchiptech.github.io/fpga-hls-docs/userguide.html#struct-fields-partitioning) on the argument by using the associated pragma (as shown in above code), especially when your image is large.
+> Note that for **Memory interface**, we recommend you to perform [struct-field memory partition](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-48A7C215-8AB9-4BC7-B507-B77545B22CEF.html) on the argument by using the associated pragma (as shown in above code), especially when your image is large.
 > This is to prevent SmartHLS' default struct-packing optimization from happening, which packs all pixels in entire image frame to a single, very large word.
 > For example, let's take a look at the interface report for a 1920x1080 `InImg`:
 > - Undesired interface without struct-field memory partition:
@@ -124,7 +124,7 @@ void hlsRGB2GRAY(uint32_t *InAxiMM, uint32_t *OutAxiMM) {
   3) Perform outgoing width conversion on the output side to pack the 8-bit `OutImg` into the 32-bit output memory `OutAxiMM`.
 - The Vision library provides two width-conversion functions for doing step 1) and 3): `AxiMM2Img()`, and `Img2AxiMM()`.
 - To configure the `InAxiMM` and `OutAxiMM` as either **AXI4 Initiator interface** or **AXI4 Target interface**, you can use the associated SmartHLS top-level interface pragma
-  (also see SmartHLS User Guide on [AXI4 Initiator Interface](https://microchiptech.github.io/fpga-hls-docs/userguide.html#axi4-initiator-interface), and [AXI4 Target Interface](https://microchiptech.github.io/fpga-hls-docs/userguide.html#axi4-target-interface)).
+  (also see SmartHLS User Guide on [AXI4 Initiator Interface](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-93A05651-C06B-4805-94D3-0443DC0FED4E.html), and [AXI4 Target Interface](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-16F30D96-8744-48F6-BD42-AC01ED5460ED.html)).
 - Note that in the example above, both the `InAxiWordWidth` and `OutAxiWordWidth` template parameters for the two width conversion functions are 32 and denote the AXI interface's data width.
   The pointer argument (`InAxiMM` and `OutAxiMM`) must be of a type that has the same data width as the AXI interface's data width: `uint32_t *` for 32b data.
 - For the two intermediate `Img`: `InImg` and `OutImg`, we use `FIFO` `StorageType` whenever possible (when pixels are accessed in sequence) to conserve resource usage.

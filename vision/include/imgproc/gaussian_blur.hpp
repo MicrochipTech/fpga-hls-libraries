@@ -1,4 +1,4 @@
-// ©2022 Microchip Technology Inc. and its subsidiaries
+// ©2024 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -41,7 +41,6 @@ void GaussianBlurProcess(
                DT<PIXEL_T_IN, NPPC>::W / NPPC, unsigned(NPPC)> &LineBuffer,
     unsigned &i, unsigned &j) {
 
-    using InPixelWordT = typename DT<PIXEL_T_IN, NPPC>::T;
     using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC>::T;
 
     // For all intermediate values of calculations, let's use an ap_int that has
@@ -159,7 +158,6 @@ void GaussianBlur(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
                   "In GaussianBlur, the width of the frame has to be divisible "
                   "by the number of pixels per clock.");
     using InPixelWordT = typename DT<PIXEL_T_IN, NPPC>::T;
-    using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC>::T;
 
     const unsigned ImgHeight = InImg.get_height(), ImgWidth = InImg.get_width();
     OutImg.set_height(ImgHeight);

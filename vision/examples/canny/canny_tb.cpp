@@ -1,4 +1,4 @@
-#include "../../include/vision.hpp"
+#include "vision.hpp"
 #include <opencv2/opencv.hpp>
 
 using namespace hls;
@@ -6,17 +6,12 @@ using namespace std;
 using cv::Mat;
 using vision::Img;
 
-// #define SMALL_TEST_FRAME // for faster simulation.
 #ifdef SMALL_TEST_FRAME
 #define WIDTH 100
 #define HEIGHT 56
-#define INPUT_IMAGE "toronto_100x56.bmp"
-#define GOLDEN_IMAGE "canny_golden_100x56.png"
 #else
 #define WIDTH 1920
 #define HEIGHT 1080
-#define INPUT_IMAGE "toronto_1080p.bmp"
-#define GOLDEN_IMAGE "canny_golden_1080p.png"
 #endif
 #define SIZE (WIDTH * HEIGHT)
 
@@ -43,8 +38,9 @@ void cvCanny(Mat &InMat, Mat &OutMat, double Thres) {
     cv::Canny(CvGaussianBlurMat, OutMat, Thres, Thres);
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     // Load image from file, using OpenCV's imread function.
+    std::string INPUT_IMAGE=argv[1];
     Mat InMat = cv::imread(INPUT_IMAGE, cv::IMREAD_GRAYSCALE);
     unsigned Thres = 110;
 
@@ -84,6 +80,7 @@ int main() {
     float ErrPercentCV = vision::compareMat(HlsOutMat, CvOutMat, 0);
 
     // Compare the output with golden output
+    std::string GOLDEN_IMAGE=argv[2];
     Mat GoldenMat = cv::imread(GOLDEN_IMAGE, cv::IMREAD_GRAYSCALE);
 
     // Uncomment the line below to print the places where there is difference

@@ -15,11 +15,11 @@ To showcase the capabilities of the Vision library, we provide this reference de
 The board carries a MPF300T PolarFire FPGA with 300K logic elements (LE) and has a dual camera sensor plus three HDMI transmitter/receiver ports.
 This demo design will make use of one camera and a HDMI transmitter port for displaying output on a connected monitor.
 
-![PF board](./doc_images/pf_board.png)
+![PF board](../../media_files/PF_Video_kit_doc_images/pf_board.png)
 
 The reference design uses the HLS C++ library functions and the provided RTL components to form a complete video pipeline from camera to display, processing 4K resolution video at 30 FPS.
 
-![PFVideoKitDemoDiagram](./doc_images/PFVideoKitDemoDiagram.png)
+![PFVideoKitDemoDiagram](../../media_files/PF_Video_kit_doc_images/PFVideoKitDemoDiagram.png)
 
 The diagram above illustrates the main components of the design,
 - The design starts with using the [Camera SmartDesign (SD) component](../../rtl/camera_sd_component/IMX334_IF_TOP/IMX334_IF_TOP_recursive.tcl) to acquire camera frames in Bayer format.
@@ -83,8 +83,8 @@ All HLS IP cores (top-level functions) and testbenches are specified in the [pf_
   - The `BayerImgT`, `RgbImgT`, and`GrayImgT` are the [`vision::Img`](../../include/common/README.md#img-class) class types internal to the Video Pipeline, corresponding to the inputs and outputs of the `Video Pipeline` functions.
 - There are two top-level functions annotated with `#pragma HLS function top`: `DDR_write_wrapper` and `VideoPipelineTop`. They are the two HLS IP cores in the above diagram.
   - In top-level functions, the line `#pragma HLS interface argument(Buf) type(axi_initiator) num_elements(AXI_WORDS_PER_FRAME) max_burst_len(256)`
-    informs SmartHLS to implement the `Buf` argument as an [AXI4 Initiator](https://microchiptech.github.io/fpga-hls-docs/userguide.html#axi4-initiator-interface) interface.
-  - In the `VideoPipelineTop` function, a [`dataflow`](https://microchiptech.github.io/fpga-hls-docs/userguide.html#data-flow-parallelism) pragma is used
+    informs SmartHLS to implement the `Buf` argument as an [AXI4 Initiator](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-93A05651-C06B-4805-94D3-0443DC0FED4E.html?hl=axi4%2Cinitiator%2Cinterface) interface.
+  - In the `VideoPipelineTop` function, a [`dataflow`](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-24B4CBDB-506F-433E-95F9-28FA2811E9CF.html) pragma is used
     to specify that the six sub-functions, `AxiMM2Img`, `DeBayer`, `RGB2GRAY`, `Canny`, `GRAY2RGB`, and `Img2AxisVideo` can run in parallel to process the continuous stream of pixel data.
 - The next section of the code is the `main()` function implementing a software testbench to verify the top-level functions.
   - There are three main steps in the software testbench:
@@ -100,7 +100,7 @@ All HLS IP cores (top-level functions) and testbenches are specified in the [pf_
 
 Now it is time to use SmartHLS to compile the C++ functions to hardware in Verilog RTL.
 Make sure you have the repository setup according to this [Setup](../../README.md#Setup) guide.
-We will use SmartHLS' [Command Line Interface](https://microchiptech.github.io/fpga-hls-docs/userguide.html#smarthls-command-line-interface).
+We will use SmartHLS' [Command Line Interface](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-9355FB9A-5134-49FB-8F37-525A043B736E.html).
 All commands below are to be run under the `hls` directory.
 
 The first step will be to verify the software implementation is functionally correct, by compiling and running the software on your development machine (e.g., X86):
@@ -119,7 +119,7 @@ After confirming the software is working correctly, we can compile the C++ funct
 > shls hw
 ```
 
-Then we can run SmartHLS' [Software/Hardware CoSimulation](https://microchiptech.github.io/fpga-hls-docs/userguide.html#sw-hw-co-simulation)
+Then we can run SmartHLS' [Software/Hardware CoSimulation](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-1E5B6475-7959-41AD-A3B0-0F4629416576.html)
 to verify the generated RTL has the equivalent functionality as the software.
 ```console
 > shls cosim
@@ -175,4 +175,4 @@ on board.
 
 The image below shows the top-level SmartDesign inside Libero:
 
-![PF demo](./doc_images/pf_demo_sd.png)
+![PF demo](../../media_files/PF_Video_kit_doc_images/pf_demo_sd.png)

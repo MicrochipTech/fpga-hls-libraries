@@ -1,0 +1,5 @@
+set $target_riscv = 1
+set mem inaccessible-by-default off
+set arch riscv:rv32
+target extended-remote localhost:3333
+load

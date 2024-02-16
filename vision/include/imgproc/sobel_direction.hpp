@@ -1,4 +1,4 @@
-// ©2022 Microchip Technology Inc. and its subsidiaries
+// ©2024 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -43,7 +43,6 @@ void SobelProcess(
                DT<PIXEL_T_IN, NPPC>::W / NPPC, unsigned(NPPC)> &LineBuffer,
     unsigned &i, unsigned &j) {
 
-    using InPixelWordT = typename DT<PIXEL_T_IN, NPPC>::T;
     using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC>::T;
 
     // For all intermediate values of calculations, let's use an ap_int that has
@@ -117,31 +116,32 @@ void SobelProcess(
         OutPixelWord.byte(k, OutPixelWidth) = Sum;
 
         /************************* OutDirection ******************************/
-        // `OutDirection` is the Direction of the gradient (based on OutGx and
-        // OutGy), which is always orthogonal to the direction of the edge.
-        // Information about the Direction can be used for other purposes e.g.
-        // in Non-maximum suppression, where the goal is to thin out the edges.
-        //
-        // Each pixel has a corresponding OutGx and OutGy value as per above.
-        // Depending on the value of the OutGx and OutGy, that pixel can have
-        // one of the following 4 directions
-        // Note: The angle is taken from the right (0 at horizontal right), and
-        // goes counter-clockwise. It's also rounded to the nearest 45 degrees:
-        //
-        //          135     90     45
-        //            \     |     /
-        //              \   |   /
-        //                \ | /
-        //          0 ------ ------ 0
-        //                / | \
-        //              /   |   \
-        //            /     |     \
-        //          45     90     135
-        // Example: If the angle is in:
-        //  [-22.5,  22.5] or [157.5, 202.5]: direction =   0 (horizontal)
-        //  [ 22.5,  67.5] or [202.5, 247.5]: direction =  45 (NW-SE diagonal)
-        //  [ 67.5, 112.5] or [247.5, 292.5]: direction =  90 (vertical)
-        //  [112.5, 157.5] or [292.5, 337.5]: direction = 135 (NE-SW diagonal)
+        /* `OutDirection` is the Direction of the gradient (based on OutGx and
+        * OutGy), which is always orthogonal to the direction of the edge.
+        * Information about the Direction can be used for other purposes e.g.
+        * in Non-maximum suppression, where the goal is to thin out the edges.
+        *
+        * Each pixel has a corresponding OutGx and OutGy value as per above.
+        * Depending on the value of the OutGx and OutGy, that pixel can have
+        * one of the following 4 directions
+        * Note: The angle is taken from the right (0 at horizontal right), and
+        * goes counter-clockwise. It's also rounded to the nearest 45 degrees:
+        *
+        *          135     90     45
+        *            \     |     /
+        *              \   |   /
+        *                \ | /
+        *          0 ------ ------ 0
+        *                / | \
+        *              /   |   \
+        *            /     |     \
+        *          45     90     135
+        * Example: If the angle is in:
+        *  [-22.5,  22.5] or [157.5, 202.5]: direction =   0 (horizontal)
+        *  [ 22.5,  67.5] or [202.5, 247.5]: direction =  45 (NW-SE diagonal)
+        *  [ 67.5, 112.5] or [247.5, 292.5]: direction =  90 (vertical)
+        *  [112.5, 157.5] or [292.5, 337.5]: direction = 135 (NE-SW diagonal)
+        */
         ap_fixpt<16, 0> Tan22_5 = 0.4142135623730950488016887242097;
         bool GxSign = GxSum < 0, GySign = GySum < 0;
         OutPixelWordT OutDir;
@@ -195,7 +195,6 @@ void Sobel(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
                   "In Sobel, the width of the frame has to be divisible by the "
                   "number of pixels per clock.");
     using InPixelWordT = typename DT<PIXEL_T_IN, NPPC>::T;
-    using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC>::T;
 
     const unsigned ImgHeight = InImg.get_height(), ImgWidth = InImg.get_width();
     OutImg.set_height(ImgHeight);

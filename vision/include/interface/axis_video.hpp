@@ -1,4 +1,4 @@
-// ©2022 Microchip Technology Inc. and its subsidiaries
+// ©2024 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this
 // Microchip software and any derivatives exclusively with Microchip
@@ -84,7 +84,7 @@ int AxisVideo2Img(AxisVideoFIFO<PIXEL_T, NPPC> &InVideo,
 #ifdef __SYNTHESIS__
 #pragma HLS loop pipeline
 #endif
-        for (int j = 0; j < ImgColumns; j++) {
+        for (unsigned int j = 0; j < ImgColumns; j++) {
             if (SOF_Received || EOL_Received) {
                 SOF_Received = 0;
             } else {

@@ -1,4 +1,4 @@
-#include "../../include/vision.hpp"
+#include "vision.hpp"
 #include <opencv2/opencv.hpp>
 #include <stdio.h>
 
@@ -6,15 +6,18 @@ using namespace hls;
 using cv::Mat;
 using vision::Img;
 
-// #define SMALL_TEST_FRAME // for faster simulation.
+//Define **_TEST_FRAME in Makefile.user
 #ifdef SMALL_TEST_FRAME
 #define WIDTH 100
 #define HEIGHT 56
-#define INPUT_IMAGE "toronto_100x56.bmp"
+#else
+#ifdef UHD_TEST_FRAME
+#define WIDTH 3840
+#define HEIGHT 2160
 #else
 #define WIDTH 1920
 #define HEIGHT 1080
-#define INPUT_IMAGE "toronto_1080p.bmp"
+#endif
 #endif
 
 #define NumPixels (WIDTH * HEIGHT)
@@ -50,8 +53,9 @@ void hlsAxiWidthConversionTop(uint32_t *InAxiMM, uint32_t *OutAxiMM) {
     vision::Img2AxiMM<OutAxiWordWidth>(TmpImg, OutAxiMM);
 }
 
-int main() {
+int main(int argc, char*argv[]) {
     // Load image from file, using OpenCV's imread function.
+    std::string INPUT_IMAGE = argv[1];
     Mat InMat = cv::imread(INPUT_IMAGE, cv::IMREAD_COLOR);
 
     /**

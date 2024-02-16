@@ -93,7 +93,7 @@ These are the `BayerFormat` values this function supports:
 
 
 The image below shows how the first pixels look in each bayer format:
-![bayer formats](./doc_images/debayer.png)
+![bayer formats](../../media_files/imgproc_doc_images/debayer.png)
 
 ### `RGB2Bayer()`
 ```cpp
@@ -118,7 +118,7 @@ Canny Edge Detection is a popular edge detection algorithm. It consists of four 
 
 The figure below shows the visual effect of each stage:
 
-![canny_pipeline](doc_images/canny_pipeline.png)
+![canny_pipeline](../../media_files/imgproc_doc_images/canny_pipeline.png)
 
 For a reference documentation done by OpenCV on the Canny algorithm, please see https://docs.opencv.org/4.5.4/da/d22/tutorial_py_canny.html.
 
@@ -137,7 +137,7 @@ void Canny(Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
 ```
 This function finds edges in an image using the [Canny Edge Detection Algorithm](https://en.wikipedia.org/wiki/Canny_edge_detector).
 
-This function calls four sub-functions that carry out the four stages of the Canny algorithm, using SmartHLS' [Data Flow Parallelism](https://microchiptech.github.io/fpga-hls-docs/userguide.html#data-flow-parallelism):
+This function calls four sub-functions that carry out the four stages of the Canny algorithm, using SmartHLS' [Data Flow Parallelism](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-24B4CBDB-506F-433E-95F9-28FA2811E9CF.html):
 - [`GaussianBlur()`](#gaussian-blur-gaussian_blurhpp)
 - [`Sobel()`](#sobel-filter)
 - [`NonMaximumSuppression()`](#non-maximum-suppression-nonmaximum_suppressionhpp)
@@ -308,7 +308,7 @@ This function makes the edges of the image thinner by looking at the gradient di
 
 For example:
 
-![nms_fig](doc_images/nms_fig.png)
+![nms_fig](../../media_files/imgproc_doc_images/nms_fig.png)
 
 In the figure above, pixel A is on a vertical edge.
 The gradient direction is horizontal since it is always perpendicular to the edge direction.
