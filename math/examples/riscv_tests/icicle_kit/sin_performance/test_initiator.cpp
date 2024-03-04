@@ -9,31 +9,25 @@
 #define N_ITER 16
 using namespace hls::math;
 
-#define N 2000000
-#define THRESHOLD 0.01
+#define N 128000
+#define THRESHOLD 0.1
 
 void hls_test(float n[N], float vals[N]){
-#pragma HLS function top dataflow
+#pragma HLS function top
 #pragma HLS interface default type(axi_target)
 #pragma HLS interface argument(vals) type(axi_initiator) num_elements(N)
 #pragma HLS interface argument(n) type(axi_initiator) num_elements(N)
-
-#ifndef __SYNTHESIS__
-  hls::FIFO<ap_fixpt<W, IW>> fifo(N);
-#else
-  hls::FIFO<ap_fixpt<W, IW>> fifo;
-#endif
-
+ 
+ap_fixpt<W, IW> x_temp[N];
 #pragma HLS loop pipeline
   for (int i = 0; i < N; i++){
-    ap_fixpt<W, IW> x = n[i];
-    fifo.write(x);
+    x_temp[i] = n[i];
   }
-
+ 
+ap_fixpt<W, IW> temp[N];
 #pragma HLS loop pipeline
   for (int i = 0; i < N; i++){
-    auto x = fifo.read();
-    vals[i] = sin_lut<W, IW>(x).to_double();
+    vals[i] = sin_lut<W, IW>(x_temp[i]).to_double();
   }
 }
 
