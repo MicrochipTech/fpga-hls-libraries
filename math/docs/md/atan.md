@@ -97,9 +97,9 @@ Using W = 32, IW = 8, Q_M = AP_TRN, O_M = AP_WRAP
 
 | Name          | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Avg Error |   Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
 |---------------|----------------------------------|-----------------------------|-------------|-------------|--------|--------|--------|---------|---------|-----------------------|
-| atan_cmath    | 309 / 309 / 309.00               | 18 / 18 / 18.00             |    0        |    0        |  14599 |  23879 |      9 |       0 |       0 | 340.368 MHz           |
-| atan_cordic   | 16 / 17 / 16.00                  | 1 / 2 / 1.00                |    0.00012  |    0.000244 |   1107 |   1251 |      0 |       0 |       0 | 340.368 MHz           |
-| atan_rational | 79 / 80 / 79.00                  | 1 / 2 / 1.00                |    0.001957 |    0.002828 |   9627 |  13032 |     10 |       0 |       0 | 340.368 MHz           |
+| atan_cmath    | 308 / 308 / 308.00               | 17 / 17 / 17.00             |    0        |    0        |  15136 |  23146 |      9 |       0 |       6 | 277.932 MHz           |
+| atan_cordic   | 39 / 40 / 39.00                  | 1 / 2 / 1.00                |    0.00012  |    0.000244 |   3048 |   9644 |      0 |       0 |       3 | 446.030 MHz           |
+| atan_rational | 80 / 81 / 80.00                  | 1 / 2 / 1.00                |    0.001957 |    0.002828 |   9865 |  13451 |     14 |       0 |       0 | 307.882 MHz           |
 
 
 Input Plot Range: [-20.00, 20.00]
@@ -108,13 +108,12 @@ Using W = 32, IW = 16, Q_M = AP_TRN, O_M = AP_WRAP
 
 | Name          | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Avg Error |   Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
 |---------------|----------------------------------|-----------------------------|-------------|-------------|--------|--------|--------|---------|---------|-----------------------|
-| atan_cmath    | 309 / 309 / 309.00               | 18 / 18 / 18.00             |    0        |    0        |  14599 |  23879 |      9 |       0 |       0 | 340.368 MHz           |
-| atan_cordic   | 14 / 15 / 14.01                  | 1 / 2 / 1.01                |    0.000134 |    0.000348 |   1195 |   1125 |      0 |       0 |       0 | 340.368 MHz           |
-| atan_rational | 77 / 78 / 77.01                  | 1 / 2 / 1.01                |    0.002222 |    0.0028   |   9391 |  13025 |     12 |       0 |       0 | 340.368 MHz           |
+| atan_cmath    | 308 / 308 / 308.00               | 17 / 17 / 17.00             |    0        |    0        |  15136 |  23146 |      9 |       0 |       6 | 277.932 MHz           |
+| atan_cordic   | 43 / 44 / 43.01                  | 1 / 2 / 1.01                |    0.000134 |    0.000348 |   3393 |  11224 |      0 |       0 |       6 | 435.161 MHz           |
+| atan_rational | 77 / 78 / 77.01                  | 1 / 2 / 1.01                |    0.002222 |    0.0028   |   9298 |  12936 |     10 |       0 |       0 | 345.185 MHz           |
 
 Notes:
 - The standard C math library uses floating point numbers.
-- FMax is displayed as reported after RTL synthesis and may change during place and route.
 - Targeted FMax was 400MHz.
 
 

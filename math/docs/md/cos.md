@@ -125,14 +125,13 @@ Using W = 32, IW = 16, Q_M = AP_TRN, O_M = AP_WRAP
 
 | Name       | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Avg Error |   Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
 |------------|----------------------------------|-----------------------------|-------------|-------------|--------|--------|--------|---------|---------|-----------------------|
-| cos_cmath  | 173 / 297 / 259.92               | 173 / 297 / 259.90          |    0        |    0        |  25481 |  24315 |     18 |       5 |      21 | 558.347 MHz           |
-| cos_cordic | 24 / 25 / 24.00                  | 1 / 2 / 1.00                |    8.6e-05  |    0.000302 |   1272 |   1357 |      0 |       0 |       0 | 558.347 MHz           |
-| cos_taylor | 36 / 37 / 36.00                  | 1 / 2 / 1.00                |    0.000577 |    0.004517 |   2913 |   4352 |     15 |       0 |       0 | 558.347 MHz           |
-| cos_lut    | 34 / 35 / 34.00                  | 1 / 2 / 1.00                |    0.002595 |    0.007739 |   1884 |   3691 |      6 |       0 |       0 | 558.347 MHz           |
+| cos_cmath  | 173 / 297 / 260.25               | 173 / 297 / 260.23          |    0        |    0        |  27057 |  24679 |     18 |       5 |      27 | 146.306 MHz           |
+| cos_cordic | 40 / 41 / 40.00                  | 1 / 2 / 1.00                |    8.6e-05  |    0.000302 |   1800 |   4025 |      0 |       0 |       0 | 573.394 MHz           |
+| cos_taylor | 41 / 42 / 41.00                  | 1 / 2 / 1.00                |    0.000577 |    0.004517 |   3409 |   5890 |     15 |       0 |       0 | 442.282 MHz           |
+| cos_lut    | 40 / 41 / 40.00                  | 1 / 2 / 1.00                |    0.002595 |    0.007739 |   2455 |   4799 |      6 |       0 |       0 | 519.211 MHz           |
 
 Notes:
 - The standard C math library uses floating point numbers.
-- FMax is displayed as reported after RTL synthesis and may change during place and route.
 - Targeted FMax was 400MHz.
 
 
