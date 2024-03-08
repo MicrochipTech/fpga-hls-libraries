@@ -97,9 +97,9 @@ Using W = 32, IW = 16, Q_M = AP_TRN, O_M = AP_WRAP
 
 | Name       | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Avg Error |   Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
 |------------|----------------------------------|-----------------------------|-------------|-------------|--------|--------|--------|---------|---------|-----------------------|
-| exp_cmath  | 256 / 256 / 256.00               | 19 / 19 / 19.00             |    0        |    0        |   8332 |  14420 |      9 |       4 |       0 | 478.469 MHz           |
-| exp_taylor | 43 / 44 / 43.00                  | 1 / 2 / 1.00                |    7.9e-05  |    0.000664 |   4236 |   4788 |     54 |       0 |      30 | 478.469 MHz           |
-| exp_cordic | 44 / 45 / 44.00                  | 1 / 2 / 1.00                |    0.000339 |    0.003017 |   2973 |   3515 |     12 |       0 |      12 | 478.469 MHz           |
+| exp_cmath  | 260 / 260 / 260.00               | 17 / 17 / 17.00             |    0        |    0        |   8206 |  15085 |      9 |       4 |       0 | 350.263 MHz           |
+| exp_taylor | 43 / 44 / 43.00                  | 1 / 2 / 1.00                |    7.9e-05  |    0.000664 |   3791 |   4537 |     54 |       0 |      16 | 449.843 MHz           |
+| exp_cordic | 31 / 32 / 31.00                  | 1 / 2 / 1.00                |    0.000339 |    0.003017 |   1949 |   2793 |     12 |       0 |       0 | 484.496 MHz           |
 
 
 Input Plot Range: [-10.00, -2.00]
@@ -108,13 +108,12 @@ Using W = 32, IW = 8, Q_M = AP_TRN, O_M = AP_WRAP
 
 | Name       | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Avg Error |   Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
 |------------|----------------------------------|-----------------------------|-------------|-------------|--------|--------|--------|---------|---------|-----------------------|
-| exp_cmath  | 256 / 256 / 256.00               | 19 / 19 / 19.00             |       0     |     0       |   8332 |  14420 |      9 |       4 |       0 | 478.469 MHz           |
-| exp_taylor | 50 / 51 / 50.00                  | 1 / 2 / 1.00                |       0     |     3e-06   |   6331 |   7177 |     74 |       0 |      57 | 478.469 MHz           |
-| exp_cordic | 44 / 45 / 44.00                  | 1 / 2 / 1.00                |       8e-06 |     1.7e-05 |   3481 |   4017 |     16 |       0 |      18 | 478.469 MHz           |
+| exp_cmath  | 260 / 260 / 260.00               | 17 / 17 / 17.00             |       0     |     0       |   8206 |  15085 |      9 |       4 |       0 | 350.263 MHz           |
+| exp_taylor | 50 / 51 / 50.00                  | 1 / 2 / 1.00                |       0     |     3e-06   |   5565 |   6567 |     74 |       0 |      27 | 444.050 MHz           |
+| exp_cordic | 42 / 43 / 42.00                  | 1 / 2 / 1.00                |       8e-06 |     1.7e-05 |   3266 |   3765 |     16 |       0 |       8 | 451.467 MHz           |
 
 Notes:
 - The standard C math library uses floating point numbers.
-- FMax is displayed as reported after RTL synthesis and may change during place and route.
 - Targeted FMax was 400MHz.
 
 

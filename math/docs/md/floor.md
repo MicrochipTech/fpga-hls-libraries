@@ -63,12 +63,11 @@ Using W = 32, IW = 16, Q_M = AP_TRN, O_M = AP_WRAP
 
 | Name        | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Avg Error |   Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
 |-------------|----------------------------------|-----------------------------|-------------|-------------|--------|--------|--------|---------|---------|-----------------------|
-| floor_cmath | 19 / 19 / 19.00                  | 2 / 2 / 2.00                |           0 |           0 |   3027 |   6566 |      0 |       0 |       0 | 1457.726 MHz          |
+| floor_cmath | 19 / 19 / 19.00                  | 2 / 2 / 2.00                |           0 |           0 |   3105 |   6338 |      0 |       0 |       0 | 391.850 MHz           |
 | floor_hls   | 2 / 3 / 2.01                     | 1 / 2 / 1.01                |           0 |           0 |     54 |     34 |      0 |       0 |       0 | 1457.726 MHz          |
 
 Notes:
 - The standard C math library uses floating point numbers.
-- FMax is displayed as reported after RTL synthesis and may change during place and route.
 - Targeted FMax was 400MHz.
 
 

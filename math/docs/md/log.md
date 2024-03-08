@@ -72,8 +72,8 @@ Using W = 32, IW = 8, Q_M = AP_TRN, O_M = AP_WRAP
 
 | Name      | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Avg Error |   Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
 |-----------|----------------------------------|-----------------------------|-------------|-------------|--------|--------|--------|---------|---------|-----------------------|
-| log_cmath | 308 / 308 / 308.00               | 56 / 56 / 56.00             |     0       |     0       |  21237 |  27633 |      9 |       6 |       0 | 335.796 MHz           |
-| log_hls   | 180 / 181 / 180.01               | 1 / 2 / 1.01                |     2.7e-05 |     2.1e-05 |  14855 |  23500 |      0 |       3 |       2 | 335.796 MHz           |
+| log_cmath | 264 / 264 / 264.00               | 56 / 56 / 56.00             |     0       |     0       |  21387 |  27835 |      9 |       6 |       0 | 228.102 MHz           |
+| log_hls   | 165 / 166 / 165.01               | 1 / 2 / 1.01                |     2.7e-05 |     2.1e-05 |  13793 |  22098 |      0 |       3 |       2 | 327.225 MHz           |
 
 
 Input Plot Range: [1.00, 64.00]
@@ -82,8 +82,8 @@ Using W = 32, IW = 16, Q_M = AP_TRN, O_M = AP_WRAP
 
 | Name      | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Avg Error |   Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
 |-----------|----------------------------------|-----------------------------|-------------|-------------|--------|--------|--------|---------|---------|-----------------------|
-| log_cmath | 308 / 308 / 308.00               | 56 / 56 / 56.00             |    0        |    0        |  21237 |  27633 |      9 |       6 |       0 | 335.796 MHz           |
-| log_hls   | 180 / 181 / 180.00               | 1 / 2 / 1.00                |    0.000111 |    0.000113 |  14572 |  23599 |      0 |       3 |       4 | 335.796 MHz           |
+| log_cmath | 264 / 264 / 264.00               | 56 / 56 / 56.00             |    0        |    0        |  21387 |  27835 |      9 |       6 |       0 | 228.102 MHz           |
+| log_hls   | 165 / 166 / 165.00               | 1 / 2 / 1.00                |    0.000111 |    0.000113 |  13476 |  21846 |      0 |       3 |       2 | 313.283 MHz           |
 
 
 Input Plot Range: [1.00, 64.00]
@@ -92,12 +92,11 @@ Using W = 32, IW = 16, Q_M = AP_TRN, O_M = AP_WRAP
 
 | Name      | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Avg Error |   Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
 |-----------|----------------------------------|-----------------------------|-------------|-------------|--------|--------|--------|---------|---------|-----------------------|
-| log_cmath | 308 / 308 / 308.00               | 56 / 56 / 56.00             |    0        |    0        |  21237 |  27633 |      9 |       6 |       0 | 335.796 MHz           |
-| log_hls   | 180 / 181 / 180.00               | 1 / 2 / 1.00                |    0.000123 |    0.000109 |  14572 |  23599 |      0 |       3 |       4 | 335.796 MHz           |
+| log_cmath | 264 / 264 / 264.00               | 56 / 56 / 56.00             |    0        |    0        |  21387 |  27835 |      9 |       6 |       0 | 228.102 MHz           |
+| log_hls   | 165 / 166 / 165.00               | 1 / 2 / 1.00                |    0.000123 |    0.000109 |  13476 |  21846 |      0 |       3 |       2 | 313.283 MHz           |
 
 Notes:
 - The standard C math library uses floating point numbers.
-- FMax is displayed as reported after RTL synthesis and may change during place and route.
 - Targeted FMax was 400MHz.
 
 
