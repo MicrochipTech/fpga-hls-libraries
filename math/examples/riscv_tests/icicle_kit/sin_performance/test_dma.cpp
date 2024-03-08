@@ -9,7 +9,7 @@
 #define N_ITER 16
 using namespace hls::math;
 
-#define N 128000
+#define N 64000
 #define THRESHOLD 0.1
 
 
