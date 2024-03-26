@@ -1,3 +1,4 @@
+#include "common/params.hpp"
 #include "vision.hpp"
 #include <assert.h>
 #include <opencv2/opencv.hpp>
@@ -40,7 +41,7 @@ void DDR_Write_wrapper(BayerAxisVideoT &VideoIn, uint64_t *Buf, int HRes,
 }
 
 void VideoPipelineTop(uint64_t *Buf, RGBAxisVideoT &VideoOut,
-                      ap_uint<2> BayerFormat = 0) {
+                    vision::BayerFormat BayerFormat = vision::BayerFormat::BGGR) {
 #pragma HLS function top
 #pragma HLS function dataflow
 #pragma HLS interface argument(Buf) type(axi_initiator)                        \
@@ -69,9 +70,7 @@ int main() {
     RGBImgT InImg;
     BayerImgT BayerInImg;
     BayerAxisVideoT InStream(NumPixelWords), DDRReadFIFO(NumPixelWords);
-    Mat BGRInMat = cv::imread("../../../media_files/toronto_4k.jpg", cv::IMREAD_COLOR);
-    Mat RGBInMat;
-    cv::cvtColor(BGRInMat, RGBInMat, cv::COLOR_BGR2RGB);
+    Mat RGBInMat = cv::imread("../../../media_files/toronto_4k.jpg", cv::IMREAD_COLOR);
 
     // Convert the cv Mat into Img class
     convertFromCvMat(RGBInMat, InImg);
@@ -91,7 +90,7 @@ int main() {
     RGBAxisVideoT OutputStream(NumPixelWords);
     // Call the two top-level functions.
     DDR_Write_wrapper(InStream, Buf, WIDTH, HEIGHT);
-    VideoPipelineTop(Buf, OutputStream, 0);
+    VideoPipelineTop(Buf, OutputStream, vision::BayerFormat::RGGB);
     // Step 3: verify the output data by comparing against an expected image.
 
     // Convert OutputStream to `vision::Img` type and then to `cv::Mat` type.
@@ -102,9 +101,7 @@ int main() {
     cv::imwrite("hls_out.png", HlsOutMat);
 
     // Read the golden image
-    Mat GoldenMat = cv::imread("../../../media_files/test_images/demo_golden.png", cv::IMREAD_COLOR);
-    Mat GoldenRGBMat;
-    cv::cvtColor(GoldenMat, GoldenRGBMat, cv::COLOR_BGR2RGB);
+    Mat GoldenRGBMat = cv::imread("../../../media_files/test_images/demo_golden.png", cv::IMREAD_COLOR);
 
     // Now compare the two Mat's, with a threshold of 0 (any pixel with
     // difference in value will be considered as an error).
@@ -112,6 +109,7 @@ int main() {
     // Use this commented out line to report location of errors.
     // vision::compareMatAndReport<cv::Vec3b>(HlsOutMat, GoldenRGBMat, 0);
     float ErrPercent = vision::compareMat(HlsOutMat, GoldenRGBMat, 0);
+    printf("ErrorPercentage: %0.2lf%\n", ErrPercent);
     bool Pass = (ErrPercent == 0.0);
     printf("%s\n", Pass ? "Pass" : "Fail");
     return Pass ? 0 : 1; // Only return 0 on pass.

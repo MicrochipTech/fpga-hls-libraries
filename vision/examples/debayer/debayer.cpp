@@ -1,3 +1,4 @@
+#include "common/params.hpp"
 #include "vision.hpp"
 #include <opencv2/opencv.hpp>
 
@@ -32,9 +33,9 @@ template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
           vision::NumPixelsPerCycle NPPC = vision::NPPC_1>
 void DeBayerWrapper(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &ImgIn,
                     vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &ImgOut,
-                    ap_uint<2> BayerFormat = 0) {
+                    vision::BayerFormat Format = vision::BayerFormat::RGGB) {
 #pragma HLS function top
-    vision::DeBayer(ImgIn, ImgOut, BayerFormat);
+    vision::DeBayer(ImgIn, ImgOut, Format);
 }
 
 template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
@@ -53,15 +54,13 @@ int main(int argc, char* argv[]) {
     // Read input image into a cv Mat and convert it to RGB format since cv
     // reads images in BGR format
     std::string INPUT_IMAGE=argv[1];
-    Mat BGRInMat = cv::imread(INPUT_IMAGE, cv::IMREAD_COLOR);
-    Mat RGBInMat;
-    cv::cvtColor(BGRInMat, RGBInMat, cv::COLOR_BGR2RGB);
+    Mat RGBInMat = cv::imread(INPUT_IMAGE, cv::IMREAD_COLOR);
 
     // Convert the cv Mat into Img class
     convertFromCvMat(RGBInMat, InImg);
     // Process the input, converting RGB to bayer and bayer back to RGB
     RGB2BayerWrapper(InImg, BayerImg);
-    DeBayerWrapper(BayerImg, OutImg, 0);
+    DeBayerWrapper(BayerImg, OutImg, vision::BayerFormat::RGGB);
 
     // Convert the output image to cv Mat for comparing with the input image.
     // As we convert the RGB input image to bayer format and convert back to
@@ -71,10 +70,9 @@ int main(int argc, char* argv[]) {
 
     // Compare output image with golden image. They should completely match
     std::string GOLDEN_OUTPUT=argv[2];
-    Mat BGRGoldenMat = cv::imread(GOLDEN_OUTPUT, cv::IMREAD_COLOR);
-    Mat RGBGoldenMat;
-    cv::cvtColor(BGRGoldenMat, RGBGoldenMat, cv::COLOR_BGR2RGB);
+    Mat RGBGoldenMat = cv::imread(GOLDEN_OUTPUT, cv::IMREAD_COLOR);
     float ErrPercentGolden = vision::compareMat(RGBGoldenMat, OutMat, 0);
+    printf("ErrPercentGolden: %0.2lf%\n", ErrPercentGolden);
 
     // Compare the output image with the input image
     // Converting RGB to bayer format results in 3x reduction in data size, and
@@ -83,6 +81,7 @@ int main(int argc, char* argv[]) {
     // So we will say pass as long as less than 5% of pixels (each channel) have
     // mismatch greater than 32 (in range of 0-255).
     float ErrPercent = vision::compareMat(RGBInMat, OutMat, 32);
+    cv::imwrite("hls_out.png", OutMat);
     printf("Percentage of over threshold In vs Out: %0.2lf%\n", ErrPercent);
     if (ErrPercent < 5 && ErrPercentGolden == 0.0) {
         printf("PASS");
