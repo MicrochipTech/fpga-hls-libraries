@@ -232,6 +232,7 @@ Gy=\left[\begin{array}{cc}
 $$
 
 - Then, combine the magnitude of <code>G<sub>x</sub></code> and <code>G<sub>y</sub></code> to get the final output:
+  
 $$
 OutImg = |Gx| + |Gy|
 $$
@@ -242,7 +243,7 @@ $$
 
 **Template parameters:**
 - `FILTER_SIZE`: The size of the Sobel filter.
-  - Currently only supports a value of `5`.
+  - Currently only supports a value of `3`.
 - The other template parameters are automatically inferred from the input and output `Img` arguments.
 
 **Limitations:**
