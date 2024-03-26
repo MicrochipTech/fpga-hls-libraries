@@ -34,7 +34,7 @@ template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
           NumPixelsPerCycle NPPC>
 void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
                  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
-                 ap_uint<2> BayerFormat = 2) {
+                 BayerFormat Format = BayerFormat::GBRG) {
     using DATA_T_IN = typename DT<PIXEL_T_IN, NPPC>::T;
     using DATA_T_OUT = typename DT<PIXEL_T_OUT, NPPC>::T;
     DATA_T_OUT RgbData;
@@ -110,22 +110,16 @@ void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
                 BoundaryHcVc = 4;
             }
 
-            // BayerFormat:
-            //      0: RGGB
-            //      1: GRBG
-            //      2: GBRG
-            //      3: BGGR
-            //
             // We use Hc (horizontal cound), Vc (vertical count), and VcHc to
             // determine the color of the pixel we are processing (either red,
             // green or blue in the  bayer image). This depends on the bayer
             // format and location in the image.
-            if (BayerFormat == 0 || BayerFormat == 2) {
+            if (Format == BayerFormat::RGGB || Format == BayerFormat::GBRG) {
                 Hc = l[0];
             } else {
                 Hc = ~l[0];
             }
-            if (BayerFormat == 0 || BayerFormat == 1) {
+            if (Format == BayerFormat::RGGB || Format == BayerFormat::GRBG) {
                 Vc = i[0];
             } else {
                 Vc = ~i[0];
@@ -364,17 +358,17 @@ void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
  * This function converts Bayer data (1 channel) to RGB data (3 channels).
  * The user can use BayerFormat argument to determine the incoming stream's
  * bayer format:
- *      0: RGGB
- *      1: GRBG
- *      2: GBRG
- *      3: BGGR
+ *      BayerFormat::RGGB
+ *      BayerFormat::GRBG
+ *      BayerFormat::GBRG
+ *      BayerFormat::BGGR
  */
 template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
           StorageType STORAGE_IN, StorageType STORAGE_OUT,
           NumPixelsPerCycle NPPC = NPPC_1>
 void DeBayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
              vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
-             ap_uint<2> BayerFormat = 2) {
+             BayerFormat Format = BayerFormat::GBRG) {
 #pragma HLS memory partition argument(InImg) type(struct_fields)
 #pragma HLS memory partition argument(OutImg) type(struct_fields)
 
@@ -390,11 +384,11 @@ void DeBayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
     OutImg.set_width(ImgWidth);
 
     DeBayer_3x3<PIXEL_T_IN, PIXEL_T_OUT, H, W, STORAGE_IN, STORAGE_OUT, NPPC>(
-        InImg, OutImg, BayerFormat);
+        InImg, OutImg, Format);
 }
 
 /**
- * Converts RGB to RGGB bayer format (BayerFormat 0 in DeBayer).
+ * Converts RGB to BayerFormat::RGGB.
  */
 template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
           StorageType STORAGE_IN = FIFO, StorageType STORAGE_OUT = FIFO,

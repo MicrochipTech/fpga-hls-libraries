@@ -61,6 +61,13 @@ enum NumPixelsPerCycle {
     NPPC_64 = 64
 };
 
+enum BayerFormat {
+    RGGB = 0,
+    GRBG = 1,
+    GBRG = 2,
+    BGGR = 3
+};
+
 /**
  * This struct is used to convert the combination of pixels per clock and pixel
  * type to an ap_uint (or ap_int if using a signed type) of size DT.W bits
