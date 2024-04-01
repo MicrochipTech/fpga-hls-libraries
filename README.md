@@ -28,6 +28,6 @@ To use the latest version of the library, users should clone the library from Mi
     
 - Next, update any existing designs that use the libraries to include the path where the libraries have been cloned. This can be done by adding `USER_CXX_FLAG+=-I/path/to/cloned/library` to your Makefile.
 
-- If you would like to use the vision library, please make sure to setup the pre-compiled libraries first as described [here](vision/precompiled_sw_libraries).
-   - These libraries are also included with the 2024.1 release of SmartHLS, under `<PATH TO SMARTHLS INSTALLATION>/SmartHLS/smarthls-library/external/vision/precompiled_sw_libraries`. 
+- If you would like to use the vision library, after clonning the repository please make sure to setup the **OpenCV** and **FFMPEG** pre-compiled libraries first as described in this link: [vision/precompiled_sw_libraries](vision/precompiled_sw_libraries). 
+   - These libraries are also included with the latest release of SmartHLS, under `<PATH TO SMARTHLS INSTALLATION>/SmartHLS/smarthls-library/external/vision/precompiled_sw_libraries`. 
   
