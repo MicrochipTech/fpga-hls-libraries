@@ -99,6 +99,7 @@ ap_fixpt<W_OUT, IW_OUT> log2_lut(ap_ufixpt<W_IN, IW_IN> x, int& error = DEFAULT_
   return y;
 }
 
+// Adapted from http://www.ijsps.com/uploadfile/2014/1210/20141210051242629.pdf
 /***
  * @function log2_cordic
  * CORDIC based implementation of log base 2. If input is negative, then an error will occur.
