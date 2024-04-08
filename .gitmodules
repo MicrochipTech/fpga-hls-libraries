@@ -1,3 +1,6 @@
 [submodule "support/miv/platform"]
 	path = support/miv/platform
 	url = https://github.com/Mi-V-Soft-RISC-V/platform.git
+[submodule "support/platform"]
+	path = support/platform
+	url = git@github.com:Mi-V-Soft-RISC-V/platform.git
