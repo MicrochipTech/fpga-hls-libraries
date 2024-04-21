@@ -1,0 +1,4 @@
+**/hls_output
+vision/demo_designs/PF_Video_kit/libero/vision_pipeline
+vision/precompiled_sw_libraries/ffmpeg4.4-x86_64
+vision/precompiled_sw_libraries/opencv4.5.4-x86_64

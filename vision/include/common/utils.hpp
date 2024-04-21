@@ -18,11 +18,12 @@
 // https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
 // TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
 
-#ifndef __SHLS_VISION_UTILS_HPP__
-#define __SHLS_VISION_UTILS_HPP__
+#pragma once 
 
 #include "common.hpp"
 #include "line_buffer.hpp"
+#include "hls/ap_fixpt.hpp"
+#include "params.hpp"
 
 namespace hls {
 namespace vision {
@@ -33,38 +34,121 @@ namespace vision {
  * The loop iterating a line of pixels is pipelined.  If there are multiple
  * pixels per cycle, all pixels will be processed in parallel.
  */
-template <PixelType PIXEL_T_I, PixelType PIXEL_T_O, unsigned H, unsigned W,
-          StorageType STORAGE_I = FIFO, StorageType STORAGE_O = FIFO,
-          NumPixelsPerCycle NPPC = NPPC_1, typename Func>
-void TransformPixel(vision::Img<PIXEL_T_I, H, W, STORAGE_I, NPPC> &ImgIn,
-                    vision::Img<PIXEL_T_O, H, W, STORAGE_O, NPPC> &ImgOut,
-                    Func Functor) {
+template <
+    PixelType PIXEL_T_I, 
+    PixelType PIXEL_T_O, 
+    unsigned H, 
+    unsigned W,
+    StorageType STORAGE_I = FIFO, 
+    StorageType STORAGE_O = FIFO,
+    NumPixelsPerCycle NPPC = NPPC_1, 
+    typename Func>
+void TransformPixel(
+    vision::Img<PIXEL_T_I, H, W, STORAGE_I, NPPC> &ImgIn,
+    vision::Img<PIXEL_T_O, H, W, STORAGE_O, NPPC> &ImgOut,
+    Func Functor) {
 
-    for (unsigned i = 0, idx = 0; i < ImgIn.get_height(); i++) {
-#ifdef __SYNTHESIS__
-#pragma HLS loop pipeline
-#endif
-        for (unsigned j = 0; j < ImgIn.get_width() / NPPC; j++, idx++) {
-            typename DT<PIXEL_T_I, NPPC>::T ImgdataIn = ImgIn.read(idx);
-            typename DT<PIXEL_T_O, NPPC>::T ImgdataOut;
+    const unsigned InPixelWidth = DT<PIXEL_T_I>::W;
+    const unsigned OutPixelWidth = DT<PIXEL_T_O>::W;
+    const unsigned NumPixelWords = ImgIn.get_height() * ImgIn.get_width() / NPPC;
 
-            // There may be multiple pixels per cycle.
-            // We will split the pixels.
-            for (unsigned k = 0; k < NPPC; k++) {
-                const static unsigned kIW = DT<PIXEL_T_I>::W,
-                                      kOW = DT<PIXEL_T_O>::W;
+    HLS_VISION_TRANSFORMPIXEL_LOOP:
+    #pragma HLS loop pipeline
+    for (unsigned i=0, j=0, k = 0; k < NumPixelWords; k++) {
+        typename DT<PIXEL_T_I, NPPC>::T ImgdataIn = ImgIn.read(k);
+        typename DT<PIXEL_T_O, NPPC>::T ImgdataOut;
+        // There may be multiple pixels per cycle.
+        for (unsigned p = 0; p < NPPC; p++) {
+            typename DT<PIXEL_T_I>::T InPixel = ImgdataIn.byte(p, InPixelWidth);
+            typename DT<PIXEL_T_O>::T OutPixel = Functor(InPixel);
+            ImgdataOut.byte(p, OutPixelWidth) = OutPixel;
+        }
+        ImgOut.write(ImgdataOut, k);
+    }
+}
 
-                typename DT<PIXEL_T_I>::T InPixel = ImgdataIn.byte(k, kIW);
+/**
+Same as Transform() function but it passes the "i" (height index) & "j" 
+(width index) of the pixel being transformed. That way the functor can use the 
+coordinates to decide what transformation to apply to the input pixel. 
+*/
+template <
+    PixelType PIXEL_T_I, 
+    PixelType PIXEL_T_O, 
+    unsigned H, 
+    unsigned W,
+    StorageType STORAGE_I = FIFO, 
+    StorageType STORAGE_O = FIFO,
+    NumPixelsPerCycle NPPC = NPPC_1, 
+    typename Func>
+void TransformPixel_ij(
+    vision::Img<PIXEL_T_I, H, W, STORAGE_I, NPPC> &ImgIn,
+    vision::Img<PIXEL_T_O, H, W, STORAGE_O, NPPC> &ImgOut,
+    Func Functor) {
 
-                typename DT<PIXEL_T_O>::T OutPixel = Functor(InPixel);
-                ImgdataOut.byte(k, kOW) = OutPixel;
-            }
-            ImgOut.write(ImgdataOut, idx);
+    const unsigned InPixelWidth = DT<PIXEL_T_I>::W;
+    const unsigned OutPixelWidth = DT<PIXEL_T_O>::W;
+    const unsigned NumPixelWords = ImgIn.get_height() * ImgIn.get_width() / NPPC;
+
+    HLS_VISION_TRANSFORMPIXEL_LOOP:
+    #pragma HLS loop pipeline
+    for (unsigned i=0, j=0, k = 0; k < NumPixelWords; k++) {
+        typename DT<PIXEL_T_I, NPPC>::T ImgdataIn = ImgIn.read(k);
+        typename DT<PIXEL_T_O, NPPC>::T ImgdataOut;
+        for (unsigned p = 0; p < NPPC; p++, j++) {
+            typename DT<PIXEL_T_I>::T InPixel = ImgdataIn.byte(p, InPixelWidth);
+            typename DT<PIXEL_T_O>::T OutPixel = Functor(InPixel, i, j);
+            ImgdataOut.byte(p, OutPixelWidth) = OutPixel;
+        }
+        ImgOut.write(ImgdataOut, k);
+        if (j == ImgIn.get_width()) {
+            j = 0;
+            i++;
+        }
+    }
+}
+
+/**
+Same as Transform() function but it passes the "enable" argument to control
+if the pixel is being transformed or not. The use case is that where a CPU can 
+control (enable) the transformation at runtime.
+*/
+template <
+    PixelType PIXEL_T_I, 
+    PixelType PIXEL_T_O, 
+    unsigned H, 
+    unsigned W,
+    StorageType STORAGE_I = FIFO, 
+    StorageType STORAGE_O = FIFO,
+    NumPixelsPerCycle NPPC = NPPC_1, 
+    typename Func>
+void TransformPixel_enable(
+    vision::Img<PIXEL_T_I, H, W, STORAGE_I, NPPC> &ImgIn,
+    vision::Img<PIXEL_T_O, H, W, STORAGE_O, NPPC> &ImgOut,
+    ap_uint<1> enable,
+    Func Functor) {
+
+    const unsigned InPixelWidth = DT<PIXEL_T_I>::W;
+    const unsigned OutPixelWidth = DT<PIXEL_T_O>::W;
+    const unsigned NumPixelWords = ImgIn.get_height() * ImgIn.get_width() / NPPC;
+
+    HLS_VISION_TRANSFORMPIXEL_LOOP:
+    #pragma HLS loop pipeline
+    for (unsigned i=0, j=0, k = 0; k < NumPixelWords; k++) {
+        typename DT<PIXEL_T_I, NPPC>::T ImgdataIn = ImgIn.read(k);
+        typename DT<PIXEL_T_O, NPPC>::T ImgdataOut;
+        for (unsigned p = 0; p < NPPC; p++, j++) {
+            typename DT<PIXEL_T_I>::T InPixel = ImgdataIn.byte(p, InPixelWidth);
+            typename DT<PIXEL_T_O>::T OutPixel = Functor(InPixel, enable);
+            ImgdataOut.byte(p, OutPixelWidth) = OutPixel;
+        }
+        ImgOut.write(ImgdataOut, k);
+        if (j == ImgIn.get_width()) {
+            j = 0;
+            i++;
         }
     }
 }
 
 } // End of namespace vision.
 } // End of namespace hls.
-
-#endif

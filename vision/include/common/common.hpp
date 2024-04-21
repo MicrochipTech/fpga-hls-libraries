@@ -23,6 +23,7 @@
 
 #include "params.hpp"
 #include <hls/streaming.hpp>
+#include <hls/ap_fixpt.hpp>
 
 #ifndef __SYNTHESIS__
 #define LEGUP_SW_IMPL(code) code
@@ -205,6 +206,7 @@ class Img {
         LEGUP_SW_IMPL(assert(h <= H));
         height = h;
     }
+
     void set_width(unsigned w) {
         LEGUP_SW_IMPL(assert(w <= W));
         width = w;
@@ -225,6 +227,7 @@ class Img {
         data.setDepth(fifo_depth);
 #endif
     };
+
     template <
         StorageType st = STORAGE,
         typename std::enable_if<st != StorageType::FIFO>::type * = nullptr>
@@ -311,6 +314,85 @@ class Img {
         }
         return is_equal;
     });
+
+    
+
+    /**
+    * @function ConverTo  
+    * Similar to OpenCV's ConverTo. This function multiplies and adds some factors
+    * to each pixel of the image.
+    * 
+    * $$ outPix = beta + alpha * inPix $$
+    * 
+    * Both "beta" and "alpha" parameters are converted to fixed point.  
+    * 
+    * NOTE that the internal "tmp" variable uses the output pixel's width for the 
+    * fixed point representation with AP_SAT to avoid overflows in the returned value. 
+    * The "alpha" and "beta" parameters use the input pixel's width for
+    * the fixed point representation.  The number of fractional bits is set 
+    * arbitrarily to 8. We just need a few fractinal bits to multiply the pixel by
+    * factors less than 1.
+    * 
+    * @param {vision::Img OutImg} Output image. The NPPC must match the source 
+    * image
+    * @param {float alpha} optional scale factor applied to the input pixel. 
+    *   alpha = 1 by default. 
+    * @param {float beta} optional factor added to the scaled input pixel. 
+    *   beta = 0 by default.
+    * 
+    */
+    template <
+        PixelType PIXEL_T_O,
+        unsigned H_O,
+        unsigned W_O,
+        StorageType STORAGE_O = FIFO,
+        NumPixelsPerCycle NPPC_O = NPPC_1
+    >
+    void ConvertTo (
+        vision::Img<PIXEL_T_O,  H_O, W_O, STORAGE_O, NPPC_O> &OutImg,
+        float alpha = 1.0,
+        float beta = 0.0
+    ) {
+        #pragma HLS memory partition argument(OutImg) type(struct_fields)
+
+        OutImg.set_height(get_height());
+        OutImg.set_width(get_width());
+
+        const unsigned ChWidth = DT<PIXEL_T, NPPC>::PerChannelPixelWidth;
+        const unsigned PixelWordWidth = DT<PIXEL_T, NPPC>::W / NPPC;
+        const unsigned OutChWidth = DT<PIXEL_T_O, NPPC_O>::PerChannelPixelWidth;
+
+        const unsigned InNumChannels = DT<PIXEL_T>::NumChannels;
+        const unsigned OutNumChannels = DT<PIXEL_T_O>::NumChannels;
+        const unsigned NumPixels = height * width / NPPC;
+
+        static_assert(NPPC_O == NPPC,
+                  "Error. The NPPC must be the same for both images");
+
+        static_assert(InNumChannels == OutNumChannels,
+                  "Error. The number of channels must be the same for both images");
+
+        HLS_VISION_CONVERTO_LOOP:
+        #pragma HLS loop pipeline
+        for (unsigned k = 0; k < NumPixels; k++) {
+            DATA_T_ ImgdataIn = read(k);
+            typename DT<PIXEL_T_O, NPPC_O>::T ImgdataOut;
+            for (unsigned p = 0; p < NPPC; p++) {
+                DATA_T_ InPixel = ImgdataIn.byte(p, DT<PIXEL_T,NPPC>::W);
+                typename DT<PIXEL_T_O>::T OutPixel;
+                #pragma HLS loop unroll
+                for (int c = 0; c < InNumChannels; c++) {
+                  ap_ufixpt<OutChWidth, OutChWidth, AP_RND, AP_SAT> tmp;
+                  tmp = ap_ufixpt<ChWidth, ChWidth, AP_RND, AP_SAT>(beta) +
+                        ap_ufixpt<ChWidth + 8, ChWidth, AP_RND, AP_SAT>(alpha) *
+                        ap_ufixpt<ChWidth, ChWidth, AP_RND, AP_SAT>(InPixel.byte(c, ChWidth));
+                  OutPixel.byte(c, OutChWidth) = tmp;
+                }
+                ImgdataOut.byte(p, PixelWordWidth) = OutPixel;
+            }
+            OutImg.write(ImgdataOut, k);
+        }
+    }
 };
 
 } // End of namespace vision.
