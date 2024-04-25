@@ -58,6 +58,7 @@ void TransformPixel(
         typename DT<PIXEL_T_I, NPPC>::T ImgdataIn = ImgIn.read(k);
         typename DT<PIXEL_T_O, NPPC>::T ImgdataOut;
         // There may be multiple pixels per cycle.
+        HLS_VISION_TRANSFORMPIXEL_NPPC_LOOP:
         for (unsigned p = 0; p < NPPC; p++) {
             typename DT<PIXEL_T_I>::T InPixel = ImgdataIn.byte(p, InPixelWidth);
             typename DT<PIXEL_T_O>::T OutPixel = Functor(InPixel);
@@ -134,19 +135,15 @@ void TransformPixel_enable(
 
     HLS_VISION_TRANSFORMPIXEL_LOOP:
     #pragma HLS loop pipeline
-    for (unsigned i=0, j=0, k = 0; k < NumPixelWords; k++) {
+    for (unsigned k = 0; k < NumPixelWords; k++) {
         typename DT<PIXEL_T_I, NPPC>::T ImgdataIn = ImgIn.read(k);
         typename DT<PIXEL_T_O, NPPC>::T ImgdataOut;
-        for (unsigned p = 0; p < NPPC; p++, j++) {
+        for (unsigned p = 0; p < NPPC; p++) {
             typename DT<PIXEL_T_I>::T InPixel = ImgdataIn.byte(p, InPixelWidth);
             typename DT<PIXEL_T_O>::T OutPixel = Functor(InPixel, enable);
             ImgdataOut.byte(p, OutPixelWidth) = OutPixel;
         }
         ImgOut.write(ImgdataOut, k);
-        if (j == ImgIn.get_width()) {
-            j = 0;
-            i++;
-        }
     }
 }
 
