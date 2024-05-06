@@ -1,4 +1,4 @@
-#include "test_utils.hpp"
+#include "examples/test_utils.hpp"
 #include "include/hls_math.hpp"
 #include "hls/utils.hpp"
 #include "hls/streaming.hpp"
