@@ -9,15 +9,20 @@
 #define N_ITER 16
 using namespace hls::math;
 
-#define N 6400
+#define N N_ELEM
 #define THRESHOLD 0.1
 
 void hls_test(float n[N], float vals[N]){
 #pragma HLS function top
 #pragma HLS interface default type(axi_target)
+#ifdef AXI_TARGET
+#pragma HLS interface argument(vals) type(axi_target) num_elements(N) dma(__USE_DMA)
+#pragma HLS interface argument(n) type(axi_target) num_elements(N) dma(__USE_DMA)
+#else
 #pragma HLS interface argument(vals) type(axi_initiator) num_elements(N)
-#pragma HLS interface argument(n) type(axi_initiator) num_elements(N)
- 
+#pragma HLS interface argument(n) type(axi_initiator) num_elements(N) 
+#endif
+
 ap_fixpt<W, IW> x_temp[N];
 #pragma HLS loop pipeline
   for (int i = 0; i < N; i++){
@@ -31,6 +36,7 @@ ap_fixpt<W, IW> temp[N];
   }
 }
 
+
 void cmath_test(float n[N], float vals[N]){
   for (int i = 0; i < N; i++){
     float x = n[i];
@@ -40,10 +46,10 @@ void cmath_test(float n[N], float vals[N]){
 
 
 int main(){
-  float* vals = (float*)hls_malloc(sizeof(float) * N);
-  float* vals_fixpt  = (float*)hls_malloc(sizeof(float) * N);
+  float* vals = (float*)hls_malloc(sizeof(float) * N, __CACHED);
+  float* vals_fixpt  = (float*)hls_malloc(sizeof(float) * N, __CACHED);
 
-  float* x  = (float*)hls_malloc(sizeof(float) * N);
+  float* x  = (float*)hls_malloc(sizeof(float) * N, __CACHED);
   for (int i = 0; i < N; i++){
     x[i] = i/1000;
   }
