@@ -28,6 +28,20 @@
 namespace hls {
 namespace vision {
 
+constexpr unsigned FloorLog2(unsigned long long x) {
+    return x == 1 ? 0 : 1 + FloorLog2(x >> 1);
+}
+
+template <unsigned long long N> 
+struct CeilLog2 {
+    static constexpr unsigned int value = 1 + CeilLog2<(N + 1) / 2>::value;
+};
+
+template <>
+struct CeilLog2<1> {
+    static constexpr unsigned int value = 0;
+};
+
 /**
  * Iterates over the input image pixel by pixel, and calls the pass-in functor
  * to compute each output pixel based on the corresponding input pixel.
@@ -140,12 +154,50 @@ void TransformPixel_enable(
         typename DT<PIXEL_T_O, NPPC>::T ImgdataOut;
         for (unsigned p = 0; p < NPPC; p++) {
             typename DT<PIXEL_T_I>::T InPixel = ImgdataIn.byte(p, InPixelWidth);
-            typename DT<PIXEL_T_O>::T OutPixel = Functor(InPixel, enable);
+            typename DT<PIXEL_T_O>::T OutPixel = Functor(InPixel);
+            ImgdataOut.byte(p, OutPixelWidth) = enable ? OutPixel : InPixel;
+        }
+        ImgOut.write(ImgdataOut, k);
+    }
+}
+
+/**
+Transform() function but it passes an argument by reference.
+*/
+template <
+    typename ARG_T,
+    PixelType PIXEL_T_I, 
+    PixelType PIXEL_T_O, 
+    unsigned H, 
+    unsigned W,
+    StorageType STORAGE_I = FIFO, 
+    StorageType STORAGE_O = FIFO,
+    NumPixelsPerCycle NPPC = NPPC_1, 
+    typename Func>
+void TransformPixel_ref(
+    vision::Img<PIXEL_T_I, H, W, STORAGE_I, NPPC> &ImgIn,
+    vision::Img<PIXEL_T_O, H, W, STORAGE_O, NPPC> &ImgOut,
+    ARG_T &arg,
+    Func Functor) {
+
+    const unsigned InPixelWidth = DT<PIXEL_T_I>::W;
+    const unsigned OutPixelWidth = DT<PIXEL_T_O>::W;
+    const unsigned NumPixelWords = ImgIn.get_height() * ImgIn.get_width() / NPPC;
+
+    HLS_VISION_TRANSFORMPIXEL_LOOP:
+    #pragma HLS loop pipeline
+    for (unsigned k = 0; k < NumPixelWords; k++) {
+        typename DT<PIXEL_T_I, NPPC>::T ImgdataIn = ImgIn.read(k);
+        typename DT<PIXEL_T_O, NPPC>::T ImgdataOut;
+        for (unsigned p = 0; p < NPPC; p++) {
+            typename DT<PIXEL_T_I>::T InPixel = ImgdataIn.byte(p, InPixelWidth);
+            typename DT<PIXEL_T_O>::T OutPixel = Functor(InPixel, arg);
             ImgdataOut.byte(p, OutPixelWidth) = OutPixel;
         }
         ImgOut.write(ImgdataOut, k);
     }
 }
+
 
 } // End of namespace vision.
 } // End of namespace hls.
