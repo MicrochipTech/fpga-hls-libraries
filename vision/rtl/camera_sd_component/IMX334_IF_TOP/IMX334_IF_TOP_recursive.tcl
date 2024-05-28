@@ -35,6 +35,12 @@ source components/CAM_IOD_TIP_TOP.tcl
 source components/CORERESET_PF_C2.tcl 
 source components/CORERESET_PF_C3.tcl 
 source components/PF_CCC_C2.tcl 
-source components/mipicsi2rxdecoderPF_C0.tcl 
-source components/IMX334_IF_TOP.tcl 
+source components/mipicsi2rxdecoderPF_C0.tcl
+
+if {[info exists use_cam2_only]} {
+    puts "Info: Using only IMX334 CAM2 only"
+    source components/IMX334_IF_TOP_cam2_only.tcl
+} else {
+    source components/IMX334_IF_TOP.tcl 
+}
 build_design_hierarchy
