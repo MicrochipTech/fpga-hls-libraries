@@ -19,12 +19,14 @@ ifeq ($(detected_OS),Windows)
     CXX = riscv64-unknown-elf-g++
     OBJCOPY = riscv64-unknown-elf-objcopy
     SIZE = riscv64-unknown-elf-size
+    SHLS_ROOT_DIR ?= $(patsubst %\bin\shls.bat,%,$(shell where shls))
 else
     # Set to the appropriate tools for Linux or other OS
     CC = riscv64-unknown-elf-gcc
     CXX = riscv64-unknown-elf-g++
     OBJCOPY = riscv64-unknown-elf-objcopy
     SIZE = riscv64-unknown-elf-size
+    SHLS_ROOT_DIR ?= $(patsubst %/bin/shls,%,$(shell which shls))
 endif
 
 CC = riscv64-unknown-elf-gcc
@@ -33,7 +35,6 @@ OBJCOPY = riscv64-unknown-elf-objcopy
 SIZE = riscv64-unknown-elf-size
 BUILD_DIR = ./build
 MIV_PLATFORM = ../../../../support/miv/platform
-SHLS_ROOT_DIR ?= /captures/Libero_SoC_v2024.1/SmartHLS-2024.1/SmartHLS 
 HLS_PRJ ?= ../hls
 
 COMMON_FLAGS = -march=rv32imc -mabi=ilp32 -msmall-data-limit=8 -mno-save-restore 
