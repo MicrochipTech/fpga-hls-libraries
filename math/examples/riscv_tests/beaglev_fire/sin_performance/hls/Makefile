@@ -1,14 +1,17 @@
 
-SRCS=../../sources/sin_performance/test.cpp  
+
+SRCS=../../../sources/sin_performance/test.cpp  
 
 TRANSFER_TYPE?=AXI_TARGET
 #TRANSFER_TYPE?=AXI_INITIATOR
 USE_DMA=true
 N_ELEM=6400
 CACHED?=HLS_ALLOC_NONCACHED
-SHLS_MATH_LIBRARY=../../../../
+SHLS_MATH_LIBRARY=../../../../../
 
 USER_CXX_FLAG+=-I$(SHLS_MATH_LIBRARY) -I$(SHLS_ROOT_DIR)/smarthls-library -DN_ELEM=$(N_ELEM) -D__CACHED=$(CACHED) -D$(TRANSFER_TYPE) -D__USE_DMA=$(USE_DMA) 
+
+USER_LINK_FLAG_RISCV=-L/home/jennifermah76/legup/smarthls-library/hls
 
 LOCAL_CONFIG = -legup-config=config.tcl
 LEVEL = $(SHLS_ROOT_DIR)/examples
