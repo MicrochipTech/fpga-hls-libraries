@@ -24,7 +24,7 @@ SHLS_ROOT_DIR ?= $(patsubst %\bin\$(notdir $(SHLS_CMD)),%,$(SHLS_CMD))
 
 SRCS = $(HLS_DIR)/hls_output/.hls/sw/hls_accelerator_driver.cpp $(HLS_DIR)/hls_output/.hls/sw/test.cpp 
 
-FLAGS = -Wall -g -std=c++11 -mcmodel=medany -march=rv64gc -mabi=lp64d -pthread -lm -lrt -lstdc++ -fpermissive -O3
+FLAGS = -g -std=c++11 -mcmodel=medany -march=rv64gc -mabi=lp64d -pthread -lm -lrt -lstdc++ -fpermissive -O3
 
 DEFINES = -DHAS_OS -DHAS_ACCELERATOR -DN_ELEM=6400 -D__CACHED=HLS_ALLOC_NONCACHED -DAXI_TARGET -D__USE_DMA=true  
 
