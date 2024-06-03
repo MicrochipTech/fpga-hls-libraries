@@ -1,8 +1,17 @@
 #pragma once
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+#ifdef linux
+#include <sys/stat.h>
+#endif
+
 #include <string>
 #include <cstdio>
 #include <iostream>
-#include <sys/stat.h>
+
 #include <cmath>
 #include "../include/hls_common.hpp"
 using hls::ap_fixpt;
@@ -16,11 +25,17 @@ using hls::ap_uint;
  * Creates directory if it doesn't already exist.
  */
 static void create_dir(const char* dir_name){
+#ifdef linux
    struct stat exists = {0};
 
    if (stat(dir_name, &exists) == -1) {
        mkdir(dir_name, 0700);
    }
+#endif
+
+#ifdef _WIN32
+	CreateDirectory(dir_name, NULL);
+#endif
 }
 
 double timestamp() {
@@ -61,3 +76,4 @@ std::string find_test_name(const char* function, unsigned int W, int IW, double 
   test_name.insert(test_name.length(), ".dat");
   return test_name;
 }
+
