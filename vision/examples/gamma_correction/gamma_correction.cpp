@@ -28,7 +28,8 @@ void GammaCorrectionWrapper (
 ) {
     #pragma HLS function top
     unsigned enable = 1;
-    vision::GammaCorrection(ImgIn, ImgOut, enable);
+    double gamma = 2.2;
+    vision::GammaCorrection(ImgIn, ImgOut, gamma, enable);
 }
 
 int main(int argc, char **argv) {
@@ -44,8 +45,8 @@ int main(int argc, char **argv) {
     // Create a look-up table for gamma correction
     //
     // double gamma = 0.45;
-    // double gamma = 2.2;
-    double gamma = 0.5;
+    double gamma = 2.2;
+    // double gamma = 0.5;
     Mat lut(1, 256, CV_8UC1);
     for (int i = 0; i < 256; i++) {
         lut.at<uchar>(i) = cv::saturate_cast<uchar>(pow(i / 255.0, 1.0/gamma) * 255.0);

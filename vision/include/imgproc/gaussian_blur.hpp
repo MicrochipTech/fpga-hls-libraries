@@ -29,17 +29,35 @@
 namespace hls {
 namespace vision {
 
+
+struct GaussianKernel {
+    int kernel[5][5];
+
+    template<typename Func>
+    GaussianKernel(int size, int input, Func Functor) {
+        for (int i=0; i< size; i++) {
+            for (int j=0; j<size; j++){
+                kernel[i][j]=Functor(i, j, input);
+            }
+        }
+    }
+    int getNum(int i, int j) const {
+        return kernel[i][j];
+    }
+};
+
 // Only support 5x5 for now for quick prototyping.
 // Also assume [0, 255] pixel range.
 template <unsigned FILTER_SIZE, PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, StorageType STORAGE_IN,
-          StorageType STORAGE_OUT, NumPixelsPerCycle NPPC>
+          StorageType STORAGE_OUT, NumPixelsPerCycle NPPC,
+          typename Func>
 void GaussianBlurProcess(
     vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
     vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
     LineBuffer<typename DT<PIXEL_T_IN, NPPC>::T, W / NPPC, FILTER_SIZE,
                DT<PIXEL_T_IN, NPPC>::W / NPPC, unsigned(NPPC)> &LineBuffer,
-    unsigned &i, unsigned &j) {
+    unsigned &i, unsigned &j, const int kernelSize, const int kernelInput, Func Functor) {
 
     using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC>::T;
 
@@ -63,12 +81,10 @@ void GaussianBlurProcess(
     // But of course this might require lots of computations which might make it
     // not worth doing.
     const unsigned DIVISOR = 256;
-    static const TmpPixelT Kernel[FILTER_SIZE]
-                                 [FILTER_SIZE] = {{1, 4, 6, 4, 1},
-                                                  {4, 16, 24, 16, 4},
-                                                  {6, 24, 36, 24, 6},
-                                                  {4, 16, 24, 16, 4},
-                                                  {1, 4, 6, 4, 1}};
+
+    #pragma HLS memory replicate_rom variable(GKERNEL.kernel) max_replicas(0)
+    static const vision::GaussianKernel GKERNEL(kernelSize, kernelInput, Functor);
+
     OutPixelWordT OutPixelWord;
 
     // Now do the convolution at the current point:
@@ -107,7 +123,7 @@ void GaussianBlurProcess(
                     ArrayIdxX = OffsetX + FilterRadius;
                 // Get the pixel in "receptive field" from LineBuffer's window.
                 auto Pixel = Window[ArrayIdxY][ArrayIdxX];
-                Sum += Pixel * Kernel[ArrayIdxY][ArrayIdxX];
+                Sum += Pixel * GKERNEL.getNum(ArrayIdxY, ArrayIdxX);
             }
         }
 
@@ -143,9 +159,11 @@ void GaussianBlurProcess(
 template <unsigned FILTER_SIZE = 5, PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, StorageType STORAGE_IN = StorageType::FIFO,
           StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC = NPPC_1>
+          NumPixelsPerCycle NPPC = NPPC_1,
+          typename Func>
 void GaussianBlur(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
-                  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg) {
+                  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
+                  int kernelSize, int kernelInput, Func Functor) {
 #pragma HLS memory partition argument(InImg) type(struct_fields)
 #pragma HLS memory partition argument(OutImg) type(struct_fields)
 
@@ -220,7 +238,7 @@ void GaussianBlur(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
          Count++) {
         auto InPixelWord = InImg.read(Count);
         LineBuffer.ShiftInPixel(InPixelWord);
-        GaussianBlurProcess<FILTER_SIZE>(InImg, OutImg, LineBuffer, i, j);
+        GaussianBlurProcess<FILTER_SIZE>(InImg, OutImg, LineBuffer, i, j, kernelSize, kernelInput, Functor);
     }
 
 // 3. Process only (flush out). The input to LineBuffer is 0.
@@ -228,7 +246,7 @@ void GaussianBlur(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
     for (unsigned Count = FrameSize;
          Count < FrameSize + LineBufferPixelWordFillCount; Count++) {
         LineBuffer.ShiftInPixel(0);
-        GaussianBlurProcess<FILTER_SIZE>(InImg, OutImg, LineBuffer, i, j);
+        GaussianBlurProcess<FILTER_SIZE>(InImg, OutImg, LineBuffer, i, j, kernelSize, kernelInput, Functor);
     }
 }
 
