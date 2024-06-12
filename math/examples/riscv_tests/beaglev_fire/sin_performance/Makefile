@@ -18,35 +18,34 @@ endif
 
 CC = riscv64-unknown-linux-gnu-gcc
 BUILD_DIR = ./build
-SW_DIR = ./
-HLS_DIR = ../hls
+HLS_PRJ_DIR = ./hls
 SHLS_ROOT_DIR ?= $(patsubst %\bin\$(notdir $(SHLS_CMD)),%,$(SHLS_CMD))
 
-SRCS = $(HLS_DIR)/hls_output/.hls/sw/hls_accelerator_driver.cpp $(HLS_DIR)/hls_output/.hls/sw/test.cpp 
+SRCS += $(HLS_PRJ_DIR)/hls_output/.hls/sw/hls_accelerator_driver.cpp 
+SRCS += $(HLS_PRJ_DIR)/hls_output/.hls/sw/test.cpp
 
 FLAGS = -g -std=c++11 -mcmodel=medany -march=rv64gc -mabi=lp64d -pthread -lm -lrt -lstdc++ -fpermissive -O3
 
 DEFINES = -DHAS_OS -DHAS_ACCELERATOR -DN_ELEM=6400 -D__CACHED=HLS_ALLOC_NONCACHED -DAXI_TARGET -D__USE_DMA=true  
 
-INCLUDES = -I$(HLS_DIR)/hls_output/.hls/sw -I../../../../.. -I$(SHLS_ROOT_DIR)/smarthls-library 
+INCLUDES = -I$(HLS_PRJ_DIR)/hls_output/.hls/sw -I../../../.. -I$(SHLS_ROOT_DIR)/smarthls-library 
 
-LDFLAGS = -Lhls_patch 
+LDFLAGS = -L$(HLS_PRJ_DIR)/hls_patch 
 LDFLAGS +=  -Wl,-Map,$(BUILD_DIR)/hls.map  -lhls_riscv64_accel 
 
 OUTFILE = $(BUILD_DIR)/hls.accel.elf 
 
-
 .PHONY: all
 
-all: clean make_accel make_sw_binary
+all: clean test_sw make_accel make_sw_binary
 
 clean:
-	cd $(call FIX_PATH,$(HLS_DIR)); $(SHLS_CMD) clean
+	cd $(call FIX_PATH,$(HLS_PRJ_DIR)); $(SHLS_CMD) clean
 	$(RM) $(call FIX_PATH,$(BUILD_DIR))
 
 make_accel:
 	## Run soc_sw_transform first
-	cd $(call FIX_PATH,$(HLS_DIR)); $(SHLS_CMD) -a hw; $(SHLS_CMD) -a soc_source_transform
+	cd $(call FIX_PATH,$(HLS_PRJ_DIR)); $(SHLS_CMD) -a hw; $(SHLS_CMD) -a soc_source_transform
 
 make_sw_binary:
 	$(RM) $(call FIX_PATH,$(BUILD_DIR))
