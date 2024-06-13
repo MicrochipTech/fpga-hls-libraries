@@ -20,13 +20,17 @@ CC = riscv64-unknown-linux-gnu-gcc
 BUILD_DIR = ./build
 HLS_PRJ_DIR = ./hls
 SHLS_ROOT_DIR ?= $(patsubst %\bin\$(notdir $(SHLS_CMD)),%,$(SHLS_CMD))
+TRANSFER_TYPE?=AXI_TARGET
+USE_DMA=true
+N_ELEM=6400
 
 SRCS += $(HLS_PRJ_DIR)/hls_output/.hls/sw/hls_accelerator_driver.cpp 
 SRCS += $(HLS_PRJ_DIR)/hls_output/.hls/sw/test.cpp
 
 FLAGS = -g -std=c++11 -mcmodel=medany -march=rv64gc -mabi=lp64d -pthread -lm -lrt -lstdc++ -fpermissive -O3
 
-DEFINES = -DHAS_OS -DHAS_ACCELERATOR -DN_ELEM=6400 -D__CACHED=HLS_ALLOC_NONCACHED -DAXI_TARGET -D__USE_DMA=true  
+DEFINES = DN_ELEM=$(N_ELEM) -D__CACHED=HLS_ALLOC_NONCACHED 
+DEFINES += -D$(TRANSFER_TYPE) -D__USE_DMA=$(USE_DMA)  
 
 INCLUDES = -I$(HLS_PRJ_DIR)/hls_output/.hls/sw -I../../../.. -I$(SHLS_ROOT_DIR)/smarthls-library 
 
@@ -37,7 +41,7 @@ OUTFILE = $(BUILD_DIR)/hls.accel.elf
 
 .PHONY: all
 
-all: clean test_sw make_accel make_sw_binary
+all: clean make_accel make_sw_binary
 
 clean:
 	cd $(call FIX_PATH,$(HLS_PRJ_DIR)); $(SHLS_CMD) clean
