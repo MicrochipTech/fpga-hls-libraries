@@ -2,7 +2,7 @@
 
 This example is meant to show the performance improvements gained when using the sin_lut function over the cmath sin function on the [BeagleV-Fire board](https://www.beagleboard.org/boards/beaglev-fire). To run, visit the [BeagleV-Fire gateware repo](https://openbeagle.org/beaglev-fire/gateware) and see the `sin_performance.yaml` file under the `build-options` directory. 
 
-The source files for this design are located in [../../sources/sin_performance](../../sources/sin_performance). You can configure the [data transfer method](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-212067DF-C1B6-4C22-ADDD-3C306CE990E5.html) by changing the `TRANSFER_TYPE` and `USE_DMA` variables in the [hls/Makefile](hls/Makefile):  
+The source files for this design are located in [../../sources/sin_performance](../../sources/sin_performance). You can configure the [data transfer method](https://onlinedocs.microchip.com/v2/keyword-lookup?keyword=hls_data_transfer&redirect=true&version=latest) by changing the `TRANSFER_TYPE` and `USE_DMA` variables in the [hls/Makefile](hls/Makefile):  
 
 * `TRANSFER_TYPE=AXI_TARGET` and `USE_DMA=true`: use the DMA to transfer data in and out of the accelerator’s on-chip memory buffer. 
 
