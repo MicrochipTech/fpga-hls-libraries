@@ -1,10 +1,16 @@
 ## sin_performance
 
-This example is meant to show the performance improvements using the sin_lut function over the cmath sin function on the 
-[Icicle Kit](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-1F9BA312-87A9-43F0-A66E-B83D805E3F02.html). The design should be compiled using the 
-[SoC Flow](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-7324A022-0DE8-45E9-9FF0-E06D6CC7AD40.html). 
+This example is meant to show the performance improvements gained when using the sin_lut function over the cmath sin function on the [BeagleV-Fire board](https://www.beagleboard.org/boards/beaglev-fire). To run, visit the [BeagleV-Fire gateware repo](https://openbeagle.org/beaglev-fire/gateware) and see the `sin_performance.yaml` file under the `build-options` directory. 
 
-Included in this example are three variants of the design, each using a different [data transfer method](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-212067DF-C1B6-4C22-ADDD-3C306CE990E5.html). [test_dma.cpp](test_dma.cpp) uses the DMA to transfer data in and out of the accelerator’s on-chip memory buffer. [test_no_dma.cpp](test_no_dma.cpp) 
-lets the RISC-V CPU perform the data transfers in and out of the accelerator’s on-chip memory buffer. [test_initiator.cpp](test_initiator.cpp) has the 
-accelerator directly access the DDR memory so it doesn't have to copy the data onto the chip. Which design to compile can be chosen by changing the `SRCS` variable 
-in the [Makefile](Makefile) to the desired design.
+The source files for this design are located in [../../sources/sin_performance](../../sources/sin_performance). You can configure the [data transfer method](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-212067DF-C1B6-4C22-ADDD-3C306CE990E5.html) by changing the `TRANSFER_TYPE` and `USE_DMA` variables in the [hls/Makefile](hls/Makefile):  
+
+* `TRANSFER_TYPE=AXI_TARGET` and `USE_DMA=true`: use the DMA to transfer data in and out of the accelerator’s on-chip memory buffer. 
+
+* `TRANSFER_TYPE=AXI_TARGET` and `USE_DMA=false`: let the RISC-V CPU perform the data transfers in and out of the accelerator’s on-chip memory buffer. 
+
+* `TRANSFER_TYPE=AXI_INITIATOR`: let the accelerator directly access the DDR memory so it doesn't have to copy the data onto the chip. 
+
+Note that on the BeagleV-Fire board, `hls_malloc` must allocate memory in the non-cached DDR region.
+
+## 2024.1 Patch
+When using versions of SmartHLS 2024.1 or older, you must generate the binary executable for the project using the provided [Makefile](Makefile). This is because the binary must be linked with the patch provided in [hls/hls_patch](hls/hls_patch). This issue will be resolved in SmartHLS v2024.2.
