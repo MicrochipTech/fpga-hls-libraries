@@ -1,4 +1,4 @@
-SRCS=test.cpp  
+SRCS=../sources/test.cpp  
 LOCAL_CONFIG = -legup-config=config.tcl
 LEVEL = $(SHLS_ROOT_DIR)/examples
 USER_CXX_FLAG+=-I../../../../../

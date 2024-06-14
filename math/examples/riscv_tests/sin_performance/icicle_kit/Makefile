@@ -1,5 +1,5 @@
 
-SRCS=../../sources/sin_performance/test.cpp  
+SRCS=../sources/test.cpp  
 
 #TRANSFER_TYPE?=AXI_TARGET
 TRANSFER_TYPE?=AXI_INITIATOR
