@@ -5,6 +5,8 @@ set_parameter POINTSTO_ANALYZE_HW_ONLY 1
 #
 # Parameters used for SoC integration
 #
+## Note that SOC_BD_NAME must match the top_level_name in the configuration .yaml file.
+## For an example, see the build-options/sin_performance.yaml file in the BeagleV-Fire gateware repository.
 set_parameter SOC_BD_NAME                 shls_test
 set_parameter SOC_DMA_ENGINE              HARD_DMA
 set_parameter SOC_AXI_INITIATOR           BVF_RISCV_SUBSYSTEM:FIC_0_AXI4_INITIATOR
