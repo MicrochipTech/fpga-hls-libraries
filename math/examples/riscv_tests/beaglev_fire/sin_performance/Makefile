@@ -29,13 +29,12 @@ SRCS += $(HLS_PRJ_DIR)/hls_output/.hls/sw/test.cpp
 
 FLAGS = -g -std=c++11 -mcmodel=medany -march=rv64gc -mabi=lp64d -pthread -lm -lrt -lstdc++ -fpermissive -O3
 
-DEFINES = -DN_ELEM=$(N_ELEM) -D__CACHED=HLS_ALLOC_NONCACHED 
+DEFINES = -D__N_ELEM=$(N_ELEM) -D__CACHED=HLS_ALLOC_NONCACHED 
 DEFINES += -D$(TRANSFER_TYPE) -D__USE_DMA=$(USE_DMA)  
 
 INCLUDES = -I$(HLS_PRJ_DIR)/hls_output/.hls/sw -I../../../.. -I$(SHLS_ROOT_DIR)/smarthls-library 
 
-LDFLAGS = -L$(HLS_PRJ_DIR)/hls_patch 
-LDFLAGS +=  -Wl,-Map,$(BUILD_DIR)/hls.map  -lhls_riscv64_accel 
+LDFLAGS = -L$(HLS_PRJ_DIR)/hls_patch -lhls_riscv64_accel 
 
 OUTFILE = $(BUILD_DIR)/hls.accel.elf 
 

@@ -9,36 +9,35 @@
 #define N_ITER 16
 using namespace hls::math;
 
-#define N N_ELEM
 #define THRESHOLD 0.1
 
-void hls_test(float n[N], float vals[N]){
+void hls_test(float n[__N_ELEM], float vals[__N_ELEM]){
 #pragma HLS function top
 #pragma HLS interface default type(axi_target)
 #ifdef AXI_TARGET
-#pragma HLS interface argument(vals) type(axi_target) num_elements(N) dma(__USE_DMA)
-#pragma HLS interface argument(n) type(axi_target) num_elements(N) dma(__USE_DMA)
+#pragma HLS interface argument(vals) type(axi_target) num_elements(__N_ELEM) dma(__USE_DMA)
+#pragma HLS interface argument(n) type(axi_target) num_elements(__N_ELEM) dma(__USE_DMA)
 #else
-#pragma HLS interface argument(vals) type(axi_initiator) num_elements(N)
-#pragma HLS interface argument(n) type(axi_initiator) num_elements(N) 
+#pragma HLS interface argument(vals) type(axi_initiator) num_elements(__N_ELEM)
+#pragma HLS interface argument(n) type(axi_initiator) num_elements(__N_ELEM) 
 #endif
 
-ap_fixpt<W, IW> x_temp[N];
+ap_fixpt<W, IW> x_temp[__N_ELEM];
 #pragma HLS loop pipeline
-  for (int i = 0; i < N; i++){
+  for (int i = 0; i < __N_ELEM; i++){
     x_temp[i] = n[i];
   }
  
-ap_fixpt<W, IW> temp[N];
+ap_fixpt<W, IW> temp[__N_ELEM];
 #pragma HLS loop pipeline
-  for (int i = 0; i < N; i++){
+  for (int i = 0; i < __N_ELEM; i++){
     vals[i] = sin_lut<W, IW>(x_temp[i]).to_double();
   }
 }
 
 
-void cmath_test(float n[N], float vals[N]){
-  for (int i = 0; i < N; i++){
+void cmath_test(float n[__N_ELEM], float vals[__N_ELEM]){
+  for (int i = 0; i < __N_ELEM; i++){
     float x = n[i];
     vals[i] = sin(x);
   }
@@ -46,11 +45,11 @@ void cmath_test(float n[N], float vals[N]){
 
 
 int main(){
-  float* vals = (float*)hls_malloc(sizeof(float) * N, __CACHED);
-  float* vals_fixpt  = (float*)hls_malloc(sizeof(float) * N, __CACHED);
+  float* vals = (float*)hls_malloc(sizeof(float) * __N_ELEM, __CACHED);
+  float* vals_fixpt  = (float*)hls_malloc(sizeof(float) * __N_ELEM, __CACHED);
 
-  float* x  = (float*)hls_malloc(sizeof(float) * N, __CACHED);
-  for (int i = 0; i < N; i++){
+  float* x  = (float*)hls_malloc(sizeof(float) * __N_ELEM, __CACHED);
+  for (int i = 0; i < __N_ELEM; i++){
     x[i] = i/1000;
   }
 
@@ -62,7 +61,7 @@ int main(){
   hls_test(x, vals_fixpt);
   double hls_math1 = timestamp();
 
- for (int i = 0; i < N; i++){
+ for (int i = 0; i < __N_ELEM; i++){
     if (fabs(vals[i] - vals_fixpt[i]) > THRESHOLD){
       printf("failed: x: %f, expected: %f, actual: %f\r\n", x[i], vals[i], vals_fixpt[i]);
       return 1;
