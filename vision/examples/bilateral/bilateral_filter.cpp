@@ -10,6 +10,9 @@ using namespace hls::vision;
 
 #define FILTER_SIZE 5
 
+#define SIGMA_COLOR 12.0
+#define SIGMA_SPACE 16.0
+
 constexpr int H=434;
 constexpr int W=640;
 // constexpr int H=1920;
@@ -24,11 +27,11 @@ using ImgT = vision::Img<
 void BilateralFilterWrapper(
     ImgT &ImgIn,
     ImgT &ImgOut,
-    const float sigmaColor,
-    const float sigmaSpace,
     int border_type
 ) {
   #pragma HLS function top
+  const float sigmaColor = SIGMA_COLOR;
+  const float sigmaSpace = SIGMA_SPACE;
   BilateralFilter<FILTER_SIZE>(ImgIn, ImgOut, sigmaColor, sigmaSpace, border_type);
 }
 
@@ -40,15 +43,13 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  const float sigmaColor = 12.0;
-  const float sigmaSpace = 16.0;
   Mat filteredImageOpenCV;
-  cv::bilateralFilter(src, filteredImageOpenCV, FILTER_SIZE, sigmaColor, sigmaSpace);
+  cv::bilateralFilter(src, filteredImageOpenCV, FILTER_SIZE, SIGMA_COLOR, SIGMA_SPACE);
   cv::imwrite("output_opencv.png", filteredImageOpenCV);
 
   ImgT ImgIn, ImgOut;
   convertFromCvMat(src, ImgIn);
-  BilateralFilterWrapper(ImgIn, ImgOut, sigmaColor, sigmaSpace, 0);
+  BilateralFilterWrapper(ImgIn, ImgOut, 0);
   
   Mat dst;
   convertToCvMat(ImgOut, dst);
