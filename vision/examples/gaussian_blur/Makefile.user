@@ -4,7 +4,7 @@ OPENCV_PATH = $(SHLS_VISION_LIBRARY)/precompiled_sw_libraries/opencv4.5.4-x86_64
 USER_CXX_FLAG += -I$(OPENCV_PATH)/include/opencv4 -I$(SHLS_VISION_LIBRARY)/include
 USER_LINK_FLAG += -L$(OPENCV_PATH)/lib -lopencv_core -lopencv_imgcodecs -lopencv_imgproc
 
-#SMALL_TEST_FRAME=1 # for faster simulation.
+SMALL_TEST_FRAME=1 # for faster simulation.
 
 ifdef SMALL_TEST_FRAME
     INPUT_IMAGE+=toronto_100x56.bmp 

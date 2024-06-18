@@ -5,7 +5,7 @@ USER_CXX_FLAG += -I$(OPENCV_PATH)/include/opencv4 -I$(SHLS_VISION_LIBRARY)/inclu
 USER_LINK_FLAG += -L$(OPENCV_PATH)/lib -lopencv_core -lopencv_imgcodecs -lopencv_imgproc
 
 # This line tests on a smaller image for faster co-simulation.
-# FAST_COSIM=1
+FAST_COSIM=1
 
 ifdef FAST_COSIM
     INPUT_IMAGE+=toronto_100x56.bmp

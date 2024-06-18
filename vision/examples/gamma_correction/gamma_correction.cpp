@@ -13,8 +13,12 @@ using vision::StorageType;
     #define HEIGHT 1080
 #endif
 
+#ifndef GAMMA
+#define GAMMA 0.5
+#endif
+
 using RGBImgT =
-    Img<PixelType::HLS_8UC3, HEIGHT, WIDTH, StorageType::FIFO, vision::NPPC_1>;
+    Img<PixelType::HLS_8UC3, HEIGHT, WIDTH, StorageType::FIFO, vision::NPPC_2>;
 
 template <
     PixelType PIXEL_T, 
@@ -28,7 +32,7 @@ void GammaCorrectionWrapper (
 ) {
     #pragma HLS function top
     unsigned enable = 1;
-    double gamma = 2.2;
+    double gamma = GAMMA;
     vision::GammaCorrection(ImgIn, ImgOut, gamma, enable);
 }
 
@@ -44,9 +48,7 @@ int main(int argc, char **argv) {
     // Use OpenCV to compute the gamma correction as a golden reference
     // Create a look-up table for gamma correction
     //
-    // double gamma = 0.45;
-    double gamma = 2.2;
-    // double gamma = 0.5;
+    double gamma = GAMMA;
     Mat lut(1, 256, CV_8UC1);
     for (int i = 0; i < 256; i++) {
         lut.at<uchar>(i) = cv::saturate_cast<uchar>(pow(i / 255.0, 1.0/gamma) * 255.0);

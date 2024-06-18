@@ -25,7 +25,6 @@
 #include "../common/common.hpp"
 #include "../common/utils.hpp"
 #include "hls/ap_fixpt.hpp"
-// #include "gamma_correction_table.hpp"
 #include <cmath>
 
 namespace hls {
@@ -79,14 +78,6 @@ void GammaCorrection(
     #pragma HLS memory partition argument(InImg) type(struct_fields)
     #pragma HLS memory partition argument(OutImg) type(struct_fields)
 
-    #pragma HLS memory replicate_rom variable(GAMMA_CORRECTION_TABLE.Table) max_replicas(0)
-    #pragma HLS memory impl variable(GAMMA_CORRECTION_TABLE) pack(abi) byte_enable(true)
-    // static const GammaTable<8> GAMMA_CORRECTION_TABLE(GAMMA);    // Option 1
-    // static const GammaTable<8, GAMMA> GAMMA_CORRECTION_TABLE;    // Option 2
-    // static const GammaTable<8> GAMMA_CORRECTION_TABLE(2.2);
-    static const GammaTable<8> GAMMA_CORRECTION_TABLE(gamma);
-    // GAMMA_CORRECTION_TABLE.printTable();
-    // TODO. Add assert to check that InImg width is divisible by NPPC 
 
     static_assert(DT<PIXEL_T, NPPC>::PerChannelPixelWidth == 8,
         "GammaCorrection only supports ChannelWidth = 8");
@@ -96,6 +87,14 @@ void GammaCorrection(
     const unsigned PixelWidth = DT<PIXEL_T, NPPC>::W / NPPC;
     const unsigned NumChannels = DT<PIXEL_T, NPPC>::NumChannels;
     const unsigned NumPixelWords = InImg.get_height() * InImg.get_width() / NPPC;
+
+    #pragma HLS memory replicate_rom variable(GAMMA_CORRECTION_TABLE.Table) max_replicas(0)
+    static const GammaTable<ChannelWidth> GAMMA_CORRECTION_TABLE(gamma);
+    // GAMMA_CORRECTION_TABLE.printTable();
+
+    static_assert(W % NPPC == 0,
+                  "In GammaCorrection, the width of the frame has to be divisible "
+                  "by the number of pixels per clock.");
 
     OutImg.set_height(InImg.get_height());
     OutImg.set_width(InImg.get_width());
