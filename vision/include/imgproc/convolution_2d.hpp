@@ -51,14 +51,13 @@ struct ConvolutionKernel {
 // Also assume [0, 255] pixel range.
 template <unsigned FILTER_SIZE, PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
           unsigned H, unsigned W, StorageType STORAGE_IN,
-          StorageType STORAGE_OUT, NumPixelsPerCycle NPPC,
-          typename Func>
+          StorageType STORAGE_OUT, NumPixelsPerCycle NPPC>
 void ConvolutionProcess(
     vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
     vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
     LineBuffer<typename DT<PIXEL_T_IN, NPPC>::T, W / NPPC, FILTER_SIZE,
                DT<PIXEL_T_IN, NPPC>::W / NPPC, unsigned(NPPC)> &LineBuffer,
-    unsigned &i, unsigned &j, Func Functor, const int kernelGenInput) {
+    unsigned &i, unsigned &j, const ConvolutionKernel<FILTER_SIZE,8> &KERNEL) {
 
     using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC>::T;
 
@@ -82,9 +81,6 @@ void ConvolutionProcess(
     // But of course this might require lots of computations which might make it
     // not worth doing.
     const unsigned DIVISOR = 256;
-
-    #pragma HLS memory replicate_rom variable(KERNEL.matrix) max_replicas(0)
-    static const ConvolutionKernel<FILTER_SIZE, 8> KERNEL(Functor, kernelGenInput);
 
     OutPixelWordT OutPixelWord;
 
@@ -176,6 +172,10 @@ void Convolution_2d(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
     static_assert(W % NPPC == 0,
                   "In GaussianBlur, the width of the frame has to be divisible "
                   "by the number of pixels per clock.");
+
+    #pragma HLS memory replicate_rom variable(KERNEL.matrix) max_replicas(0)
+    static const ConvolutionKernel<FILTER_SIZE, 8> KERNEL(Functor, kernelGenInput);
+    
     using InPixelWordT = typename DT<PIXEL_T_IN, NPPC>::T;
 
     const unsigned ImgHeight = InImg.get_height(), ImgWidth = InImg.get_width();
@@ -239,7 +239,7 @@ void Convolution_2d(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
          Count++) {
         auto InPixelWord = InImg.read(Count);
         LineBuffer.ShiftInPixel(InPixelWord);
-        ConvolutionProcess<FILTER_SIZE>(InImg, OutImg, LineBuffer, i, j, Functor, kernelGenInput);
+        ConvolutionProcess<FILTER_SIZE>(InImg, OutImg, LineBuffer, i, j, KERNEL);
     }
 
     // 3. Process only (flush out). The input to LineBuffer is 0.
@@ -247,7 +247,7 @@ void Convolution_2d(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
     for (unsigned Count = FrameSize;
          Count < FrameSize + LineBufferPixelWordFillCount; Count++) {
         LineBuffer.ShiftInPixel(0);
-        ConvolutionProcess<FILTER_SIZE>(InImg, OutImg, LineBuffer, i, j, Functor, kernelGenInput);
+        ConvolutionProcess<FILTER_SIZE>(InImg, OutImg, LineBuffer, i, j, KERNEL);
     }
 }
 
