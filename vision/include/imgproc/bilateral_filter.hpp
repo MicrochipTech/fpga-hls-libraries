@@ -70,7 +70,8 @@ void BilateralProcess (
     > &LineBuffer,
     unsigned &i, 
     unsigned &j,
-    const Gaussian<256,FILTER_SIZE> &G
+    const GaussianIntensityTable<256> &GI,
+    const GaussianSpaceTable<FILTER_SIZE> &GS
 ) {
     using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC>::T;
 
@@ -103,8 +104,8 @@ void BilateralProcess (
                 TmpPixelT(LineBuffer.AccessWindow(ArrayIdxY, ArrayIdxX, 0));
             ap_int<9> d = (WindowPix - centerPix);
             if (d<0) d = -d;
-            auto gi = G.getIntensity(d.to_uint64());
-            auto gs = G.getSpace(ArrayIdxY,ArrayIdxX);
+            auto gi = GI.getIntensity(d.to_uint64());
+            auto gs = GS.getSpace(ArrayIdxY,ArrayIdxX);
             auto w = gs * gi;
             Sum += WindowPix * w;
             Wp += w;
@@ -160,9 +161,13 @@ void BilateralFilter(
 
 
     constexpr unsigned RANGE = 1 << (DT<PIXEL_T, NPPC>::W / NPPC);
-    #pragma HLS memory replicate_rom variable(GAUSSIAN.GI.Table) max_replicas(0)
-    #pragma HLS memory impl variable(GAUSSIAN) pack(abi) byte_enable(true)
-    static const Gaussian<RANGE, FILTER_SIZE> GAUSSIAN(sigma_color, sigma_space);
+    #pragma HLS memory replicate_rom variable(GS.Table) max_replicas(0)
+    #pragma HLS memory impl variable(GS) pack(abi) byte_enable(true)
+    static const GaussianSpaceTable<FILTER_SIZE> GS(sigma_space);
+
+    #pragma HLS memory replicate_rom variable(GI.Table) max_replicas(0)
+    #pragma HLS memory impl variable(GI) pack(abi) byte_enable(true)
+    static const GaussianIntensityTable<RANGE> GI(sigma_color);
 
     using InPixelWordT = typename DT<PIXEL_T, NPPC>::T;
 
@@ -233,7 +238,7 @@ void BilateralFilter(
          Count++) {
         auto InPixelWord = InImg.read(Count);
         LineBuffer.ShiftInPixel(InPixelWord);
-        BilateralProcess<FILTER_SIZE>(InImg, OutImg, LineBuffer, i, j, GAUSSIAN);
+        BilateralProcess<FILTER_SIZE>(InImg, OutImg, LineBuffer, i, j, GI, GS);
     }
 
     // 3. Process only (flush out). The input to LineBuffer is 0.
@@ -242,8 +247,8 @@ void BilateralFilter(
     for (unsigned Count = FrameSize;
         Count < FrameSize + LineBufferPixelWordFillCount; Count++) {
         LineBuffer.ShiftInPixel(0);
-        BilateralProcess<FILTER_SIZE>(InImg, OutImg, LineBuffer, i, j, GAUSSIAN);
-    }
+        BilateralProcess<FILTER_SIZE>(InImg, OutImg, LineBuffer, i, j, GI, GS);
+        }
 }
 
 } // End of namespace vision.
