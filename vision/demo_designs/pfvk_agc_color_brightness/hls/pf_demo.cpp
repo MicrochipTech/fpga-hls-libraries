@@ -1,4 +1,3 @@
-#include "common/params.hpp"
 #include "vision.hpp"
 #include "hls/utils.hpp"
 #include <assert.h>
@@ -6,10 +5,23 @@
 
 using namespace hls;
 
+// For testing with cosim
+// #define SMALL
+
+#ifdef SMALL
+#warning "Runnning with SMALL image"
+#define WIDTH 100
+#define HEIGHT 56
+#define FILENAME "../../../media_files/toronto_100x56.bmp"
+#define GOLDEN_FILENAME "hls_out_golden_small.png"
+#define REF_SUM 1077558
+#else
 #define WIDTH 3840
 #define HEIGHT 2160
-// #define WIDTH 100
-// #define HEIGHT 56
+#define FILENAME "../../../media_files/toronto_4k.jpg"
+#define GOLDEN_FILENAME "hls_out_golden_large.png"
+#define REF_SUM 1590725037
+#endif
 
 using vision::NPPC_4;
 using vision::StorageType;
@@ -103,9 +115,7 @@ void VideoPipelineTop(
 
 //------------------------------------------------------------------------------
 int main() {
-    // Mat BGRInMat = cv::imread("../../../media_files/toronto_100x56.bmp", cv::IMREAD_COLOR);
-    Mat BGRInMat = cv::imread("../../../media_files/toronto_4k.jpg", cv::IMREAD_COLOR);
-
+    Mat BGRInMat = cv::imread(FILENAME, cv::IMREAD_COLOR);
     BGRImgT InImg;
     BayerImgT BayerInImg;
     BayerAxisVideoT InStream(NumPixelWords), DDRReadFIFO(NumPixelWords);
@@ -117,10 +127,10 @@ int main() {
     RGBAxisVideoT OutputStream(NumPixelWords);
     DDR_Write_wrapper(InStream, Buf, WIDTH, HEIGHT);
 
-    ap_uint<8> b_const = 32;
-    ap_uint<8> g_const = 32;
-    ap_uint<8> r_const = 32;
-    ap_uint<10> brightness = 0;
+    ap_uint<8> b_const = 62;
+    ap_uint<8> g_const = 42;
+    ap_uint<8> r_const = 52;
+    ap_uint<10> brightness = 46;
     ap_uint<1> enable_gamma = 1;
     unsigned sum = 0;
     VideoPipelineTop(
@@ -141,4 +151,12 @@ int main() {
     vision::AxisVideo2Img(OutputStream, OutImg);
     convertToCvMat(OutImg, HlsOutMat);
     cv::imwrite("hls_out.png", HlsOutMat);
+
+    // Check if the output image is identical to the reference.
+    auto similarity = cv::norm(
+        cv::imread("hls_out.png"), cv::imread(GOLDEN_FILENAME), cv::NORM_INF);
+    int error = (similarity != 0);
+    error += (sum != REF_SUM);
+    printf("%s\n", error ? "FAILED" : "PASSED" );
+    return error;
 }

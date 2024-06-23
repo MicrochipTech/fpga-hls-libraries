@@ -119,7 +119,7 @@ The `libero_flow.tcl` script will include the previously compiled SmartHLS modul
 ```bash
 cd libero
 rm -rf component vision_pipeline
-libero SCRIPT:libero_flow.tcl
+libero SCRIPT:libero_flow.tcl logfile:libero.log
 ```
 
 After Libero finished generating the bitstream (`./libero/VIDEO_KIT_TOP.job` file)
