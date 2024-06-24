@@ -15,11 +15,11 @@ else
     SHLS_CMD = $(shell which shls)
 endif
 
+SHLS_ROOT_DIR ?= $(patsubst %\bin\$(notdir $(SHLS_CMD)),%,$(SHLS_CMD))
 RISCV_TOOLCHAIN=$(SHLS_ROOT_DIR)/swtools/binutils/riscv-gnu-toolchain
 CC = $(RISCV_TOOLCHAIN)/bin/riscv64-unknown-linux-gnu-gcc
 BUILD_DIR = ./build
 HLS_PRJ_DIR = ./hls
-SHLS_ROOT_DIR ?= $(patsubst %\bin\$(notdir $(SHLS_CMD)),%,$(SHLS_CMD))
 TRANSFER_TYPE?=AXI_TARGET
 USE_DMA=true
 N_ELEM=6400
