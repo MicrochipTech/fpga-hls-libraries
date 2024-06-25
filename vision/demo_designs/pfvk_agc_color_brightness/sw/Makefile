@@ -1,10 +1,11 @@
 # Detect the operating system
 ifeq ($(OS),Windows_NT)
     detected_OS := Windows
-    RM = del /Q /F
-    MKDIR = mkdir
-    CP = copy
-    FIX_PATH = $(subst /,\,$1)
+    RM = powershell rm -ErrorAction SilentlyContinue -Force -Recurse
+    MKDIR = powershell New-Item -Type Directory -Force -Path
+    CP = powershell cp
+    # FIX_PATH = $(subst /,\,$1)
+    FIX_PATH = $1
 else
     detected_OS := $(shell uname -s)
     RM = rm -rf
@@ -19,7 +20,7 @@ ifeq ($(detected_OS),Windows)
     CXX = riscv64-unknown-elf-g++
     OBJCOPY = riscv64-unknown-elf-objcopy
     SIZE = riscv64-unknown-elf-size
-    SHLS_ROOT_DIR ?= $(patsubst %\bin\shls.bat,%,$(shell where shls))
+    SHLS_ROOT_DIR ?= $(patsubst %\bin\shls.bat,%,$(shell powershell "(Get-Command shls).Path"))
 else
     # Set to the appropriate tools for Linux or other OS
     CC = riscv64-unknown-elf-gcc
@@ -51,7 +52,7 @@ CPPFLAGS = $(COMMON_FLAGS) -std=c++11 -fpermissive
 LDFLAGS += $(COMMON_FLAGS) -T ./miv-rv32-ram.ld -nostartfiles -Xlinker
 LDFLAGS += --gc-sections -Wl,-Map,$(BUILD_DIR)/ref_sc_miv.map
 
-INCLUDES += -I./
+INCLUDES += -I.
 INCLUDES += -I./fpga_design_config
 INCLUDES += -I./imx334_corei2c 
 INCLUDES += -I$(MIV_PLATFORM) 
