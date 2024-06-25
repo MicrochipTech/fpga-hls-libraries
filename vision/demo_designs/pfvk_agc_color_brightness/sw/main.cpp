@@ -74,7 +74,7 @@ void gain_cal(uint32_t total_average, unsigned channel, uint16_t *gain) {
             *gain = max_gain;
     }
 
-    PRINTF("avg:%d, gain:%d\r\n", total_average, *gain);
+    // PRINTF("avg:%d, gain:%d\r\n", total_average, *gain);
     gain_setting(channel, *gain);
 }
 
@@ -112,7 +112,8 @@ int main( void ) {
     VideoPipelineTop_write_g_const(42);      // 42/32 ~ 1.3
     VideoPipelineTop_write_r_const(52);      // 52/32 ~ 1.6
     VideoPipelineTop_write_brightness(12);   // Just a bit brighter
-    VideoPipelineTop_write_enable_gamma(1);  // Enabled
+    int gamma_en = 1;
+    VideoPipelineTop_write_enable_gamma(gamma_en);  // Enabled
 
     // No color processing...
     // VideoPipelineTop_write_b_const(32);     // 32/32 = 1
@@ -134,6 +135,7 @@ int main( void ) {
         uint32_t avg = sum / (1920*1080*4*2);
 
         gain_cal(avg, 2, &gain);
+        PRINTF("avg:%d, gain:%d, gamma_en:%d\r\n", avg, gain, gamma_en);
     }
     return 0;
 }
