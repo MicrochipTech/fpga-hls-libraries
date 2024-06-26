@@ -72,6 +72,7 @@ download_core -vlnv "Actel:DirectCore:COREUART:${COREUART_version}" -location {w
 download_core -vlnv "Microsemi:SolutionCore:Image_Enhancement:${Image_Enhancement_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:COREAXI4INTERCONNECT:${COREAXI4INTERCONNECT_verion}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:CoreUARTapb:${CoreUARTapb_version}" -location {www.microchip-ip.com/repositories/DirectCore}
+download_core -vlnv "Actel:DirectCore:CoreTimer:${CoreTimer_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 
 #source the below tcl file to create the top level SmartDesign and generate it
 cd src
