@@ -107,7 +107,7 @@ For a description of the `DDR Writer`, `FrameBuffer`, `DeBayer`, `AxiMM2Img` and
 #### Compile the SmartHLS module
 
 ```bash
-cd hls 
+cd vision/demo_designs/pfvk_agc_color_brightness/hls
 shls hw 
 ```
 
@@ -117,9 +117,16 @@ To compile the libero project it is recommended to clean the previous implementa
 The `libero_flow.tcl` script will include the previously compiled SmartHLS module. 
 
 ```bash
-cd libero
+cd vision/demo_designs/pfvk_agc_color_brightness/libero
 rm -rf component vision_pipeline
 libero SCRIPT:libero_flow.tcl logfile:libero.log
+```
+
+If compiling on a Windows host then there is a Powershell script that can delete 
+the previous build and run libero from the command line:
+
+```Powershell
+PS> .\run_libero.ps1
 ```
 
 After Libero finished generating the bitstream (`./libero/VIDEO_KIT_TOP.job` file)
@@ -153,32 +160,60 @@ The design includes a precompiled software binary file (vision/demo_designs/pfvk
 bitstream and performs the automatic gain control and some initial settings for
 brightness, color adjustment and gamma correction.
 
-However, the code for the CPU can be modified, and then compiled with the following 
-command:
+However, the code for the CPU can be modified and there is no need to regenerate
+the bitstream, as long as the code does not affect HLS top-level function. The CPU
+code is located under:
 
-```
+```bash
 cd vision/demo_designs/pfvk_agc_color_brightness/sw
+```
+
+To compile on Linux:
+
+```bash
 make
 ```
 
-This will create a `sw/build` directory with all the .o, .el and .hex files. Then
-to load the .elf binary into the CPU's memory and execute it:
+To compile on Windows from a Powershell terminal:
 
-First start OpenOCD:
+```bash
+mingw32-make.exe
 ```
+
+NOTE. `mingw32-make.exe` is included with SmartHLS installer under the
+`SmartHLS\dependencies\mingw64\bin\` directory.
+
+This will create a `sw/build` directory with all the .o, .el and .hex files. Then
+to load the `main.elf` binary into the CPU's memory and execute it:
+
+First, in one terminal start OpenOCD:
+
+```bash
 openocd -f board/microsemi-riscv.cfg
 ```
 
-Then start the RISC-V gdb and run the gdb.txt script:
-```
+You can leave the openocd connection open to the board for successive compilations and 
+initializations.
+
+Then in another terminal start the RISC-V gdb and run the gdb.txt script:
+
+```bash
 riscv64-unknown-elf-gdb ./build/main.elf  -x gdb.txt
 ```
 
-## Know issue:
+This will load the .elf into CPU's memory, start the execution and quit.  
 
-Currently, there's a known issue where the code in the RV32 CPU will not start
-running after the bitstream is programmed. There are two options:
+NOTES: 
+
+* openocd and riscv64-unknown-elf-gdb are located under SoftConsole installation path.
+* As long as openocd is connected to the board via JTAG, you won't be able to
+program a bitstream to the FPGA using FPExpress. Terminate openocd before programming
+a new bitstream.
+
+## Know issues
+
+Currently, the code in the RV32 CPU will not start running after the bitstream 
+is programmed. There are two options:
 
 1. Power-cycle the board after programming the bitstream, or
 2. Use gdb and openocd to initialize the processor
-
