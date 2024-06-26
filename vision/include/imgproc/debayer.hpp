@@ -23,6 +23,7 @@
 
 #include "../common/common.hpp"
 #include "../common/line_buffer.hpp"
+#include "common/params.hpp"
 #include <cmath>
 #include <type_traits>
 
@@ -70,7 +71,8 @@ void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
     // the current pixel in image line
     ap_uint<13> i = 0, j = 0, l;
     unsigned k = 0;
-#pragma HLS loop pipeline
+    HLS_VISION_DEBAYER3X3_COUNT_LOOP:
+    #pragma HLS loop pipeline
     for (unsigned Count = 0; Count < FrameSize + LineBufferFillCount; Count++) {
 
         // No more reads after receiving the whole image, the extra iteration is
@@ -86,6 +88,7 @@ void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
         if (Count < LineBufferFillCount)
             continue;
 
+        HLS_VISION_DEBAYER3X3_K_LOOP:
         for (k = 0; k < NPPC; k++) {
             // DeBayer
 
@@ -110,7 +113,7 @@ void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
                 BoundaryHcVc = 4;
             }
 
-            // We use Hc (horizontal cound), Vc (vertical count), and VcHc to
+            // We use Hc (horizontal count), Vc (vertical count), and VcHc to
             // determine the color of the pixel we are processing (either red,
             // green or blue in the  bayer image). This depends on the bayer
             // format and location in the image.
@@ -355,6 +358,7 @@ void DeBayer_3x3(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
 }
 
 /**
+ * @function DeBayer
  * This function converts Bayer data (1 channel) to RGB data (3 channels).
  * The user can use BayerFormat argument to determine the incoming stream's
  * bayer format:
@@ -368,10 +372,9 @@ template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
           NumPixelsPerCycle NPPC = NPPC_1>
 void DeBayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
              vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
-             BayerFormat Format = BayerFormat::GBRG) {
-#pragma HLS memory partition argument(InImg) type(struct_fields)
-#pragma HLS memory partition argument(OutImg) type(struct_fields)
-
+             vision::BayerFormat Format) {
+    #pragma HLS memory partition argument(InImg) type(struct_fields)
+    #pragma HLS memory partition argument(OutImg) type(struct_fields)
     static_assert(DT<PIXEL_T_IN, NPPC>::NumChannels == 1 &&
                       DT<PIXEL_T_OUT, NPPC>::NumChannels == 3 &&
                       (NPPC == NPPC_1 || NPPC == NPPC_4),
@@ -387,66 +390,139 @@ void DeBayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
         InImg, OutImg, Format);
 }
 
-/**
- * Converts RGB to BayerFormat::RGGB.
- */
+/** 
+ * @function RGBBayer
+ * This function takes an RGB image and converts it to a specific Bayer format.
+*/
 template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
           StorageType STORAGE_IN = FIFO, StorageType STORAGE_OUT = FIFO,
           NumPixelsPerCycle NPPC = NPPC_1>
 void RGB2Bayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
-               vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg) {
+               vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
+               const vision::BayerFormat Format = vision::BayerFormat::RGGB) {
     static_assert(
         DT<PIXEL_T_IN, NPPC>::NumChannels == 3 &&
-            DT<PIXEL_T_OUT, NPPC>::NumChannels == 1 &&
-            (NPPC == NPPC_1 || NPPC == NPPC_4),
-        "RGB2Bayer only supports number of pixels per cycle of 1 or 4"
+        DT<PIXEL_T_OUT, NPPC>::NumChannels == 1 &&
+        (NPPC == NPPC_1 || NPPC == NPPC_4),
+        "Bayer only supports number of pixels per cycle of 1 or 4"
         "Input data should have 3 channels and output should be only 1"
         "channel.");
 
-    const unsigned ImgHeight = InImg.get_height(), ImgWidth = InImg.get_width();
-    OutImg.set_height(ImgHeight);
-    OutImg.set_width(ImgWidth);
-    const unsigned FrameSize = (ImgHeight * ImgWidth) / NPPC;
+    OutImg.set_height(InImg.get_height());
+    OutImg.set_width(InImg.get_width());
+    const unsigned InPixelWidth = DT<PIXEL_T_IN,NPPC>::W / NPPC;
+    const unsigned InChannelWidth = DT<PIXEL_T_IN,NPPC>::PerChannelPixelWidth;
+    const unsigned OutPixelWidth = DT<PIXEL_T_OUT,NPPC>::W / NPPC;
 
-    typename DT<PIXEL_T_IN, NPPC>::T RgbData;
-    typename DT<PIXEL_T_OUT, NPPC>::T BayerData;
+    TransformPixel_ij(InImg, OutImg, 
+        [&](ap_int<InPixelWidth> in, unsigned i, unsigned j) {
+        ap_int<OutPixelWidth> out;
+        auto Red    = in.byte(2,InChannelWidth);
+        auto Green  = in.byte(1,InChannelWidth);
+        auto Blue   = in.byte(0,InChannelWidth);
 
-    unsigned i = 0, j = 0;
-#pragma HLS loop pipeline
-    for (unsigned ImgIdx = 0; ImgIdx < FrameSize; ImgIdx++) {
-        RgbData = InImg.read(ImgIdx);
-
-        BayerData = 0;
-        for (unsigned k = 0; k < NPPC; k++) {
-            if (i % 2 == 0) {
-                if ((j * NPPC + k) % 2 == 0) {
-                    // red
-                    BayerData.byte(k) = RgbData.byte(3 * k);
+        switch(Format) {
+            case BayerFormat::RGGB: 
+                if (i % 2 == 0) {
+                    if (j % 2 == 0) out = Red; else out = Green;
                 } else {
-                    // green
-                    BayerData.byte(k) = RgbData.byte(3 * k + 1);
+                    if (j % 2 == 0) out = Green; else out = Blue;
                 }
-            } else {
-                if ((j * NPPC + k) % 2 == 0) {
-                    // green
-                    BayerData.byte(k) = RgbData.byte(3 * k + 1);
+                break;
+            case BayerFormat::GRBG:
+                if (i % 2 == 0) {
+                    if (j % 2 == 0) out = Green; else out = Red;
                 } else {
-                    // blue
-                    BayerData.byte(k) = RgbData.byte(3 * k + 2);
+                    if (j % 2 == 0) out = Blue; else out = Green;
                 }
-            }
+                break;
+            case BayerFormat::GBRG:
+                if (i % 2 == 0) {
+                    if (j % 2 == 0) out = Green; else out = Blue;
+                } else {
+                    if (j % 2 == 0) out = Red; else out = Green;
+                }
+                break;
+            case BayerFormat::BGGR:
+                if (i % 2 == 0) {
+                    if (j % 2 == 0) out = Blue; else out = Green;
+                } else {
+                    if (j % 2 == 0) out = Green; else out = Red;
+                }
+                break;
         }
-        OutImg.write(BayerData, ImgIdx);
+        return out;
+    });
+        
+}
 
-        // We're done with this pixel. Now update the coordinate to the next
-        // one.
-        if (j < ImgWidth / NPPC - 1) {
-            j++;
-        } else { // j == ImgWidth / NPPC - 1.
-            i++;
-            j = 0;
+/***
+ * @function BGRBayer
+ * This function takes a BGR image and converts it to a specific Bayer format 
+ * (BGGR by default).
+ * 
+ */
+template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
+          StorageType STORAGE_IN = FIFO, StorageType STORAGE_OUT = FIFO,
+          NumPixelsPerCycle NPPC = NPPC_1>
+void BGR2Bayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+               vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
+               const vision::BayerFormat Format = vision::BayerFormat::BGGR) {
+    static_assert(
+        DT<PIXEL_T_IN, NPPC>::NumChannels == 3 &&
+        DT<PIXEL_T_OUT, NPPC>::NumChannels == 1 &&
+        (NPPC == NPPC_1 || NPPC == NPPC_4),
+        "Bayer only supports number of pixels per cycle of 1 or 4"
+        "Input data should have 3 channels and output should be only 1"
+        "channel.");
+
+    OutImg.set_height(InImg.get_height());
+    OutImg.set_width(InImg.get_width());
+    const unsigned InPixelWidth = DT<PIXEL_T_IN,NPPC>::W / NPPC;
+    const unsigned InChannelWidth = DT<PIXEL_T_IN,NPPC>::PerChannelPixelWidth;
+    const unsigned OutPixelWidth = DT<PIXEL_T_OUT,NPPC>::W / NPPC;
+
+    TransformPixel_ij(InImg, OutImg, 
+        [&](ap_int<InPixelWidth> in, unsigned i, unsigned j) {
+        ap_int<OutPixelWidth> out;
+
+        // Input Image is assumed to be in BGR format
+        auto Blue   = in.byte(2,InChannelWidth);
+        auto Green  = in.byte(1,InChannelWidth);
+        auto Red    = in.byte(0,InChannelWidth);
+
+        switch(Format) {
+            case BayerFormat::RGGB: 
+                if (i % 2 == 0) {
+                    if (j % 2 == 0) out = Red; else out = Green;
+                } else {
+                    if (j % 2 == 0) out = Green; else out = Blue;
+                }
+                break;
+            case BayerFormat::GRBG:
+                if (i % 2 == 0) {
+                    if (j % 2 == 0) out = Green; else out = Red;
+                } else {
+                    if (j % 2 == 0) out = Blue; else out = Green;
+                }
+                break;
+            case BayerFormat::GBRG:
+                if (i % 2 == 0) {
+                    if (j % 2 == 0) out = Green; else out = Blue;
+                } else {
+                    if (j % 2 == 0) out = Red; else out = Green;
+                }
+                break;
+            case BayerFormat::BGGR:
+                if (i % 2 == 0) {
+                    if (j % 2 == 0) out = Blue; else out = Green;
+                } else {
+                    if (j % 2 == 0) out = Green; else out = Red;
+                }
+                break;
         }
-    }
+        return out;
+    });
 }
 
 } // End of namespace vision.

@@ -1,0 +1,18 @@
+set $target_riscv = 1
+set mem inaccessible-by-default off
+set arch riscv:rv32
+target extended-remote localhost:3333
+load
+
+# If you want to debug the application then use "run" instead of "start"
+# run
+
+# If you want to just start the application without waiting for main() to complete
+# then use "start"
+start 
+
+# Tell openocd to "shutdown". If this is used, then openocd will have to be 
+# restarted before calling gdb again.
+# monitor shutdown 
+
+quit
