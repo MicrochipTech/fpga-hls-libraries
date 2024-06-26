@@ -94,21 +94,21 @@ all: $(BUILD_DIR)/main.hex
 %.o: %.cpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(INCLUDES) -c $< -o $(BUILD_DIR)/$(@F)
 
+# The compiled main.elf file can be uploaded into the CPUs memory using openocd
+# and gdb
 $(BUILD_DIR)/main.elf: $(SRC_OBJ)
 	$(CXX) $(LDFLAGS) $(BUILD_OBJ) -o $(BUILD_DIR)/$(@F)
 
+# The generated .hex file is copied to the specific directory from which Libero will
+# take it to include it in the bitstream next time the .job file is generated. 
 $(BUILD_DIR)/main.hex: $(BUILD_DIR)/main.elf
 	$(OBJCOPY) -O ihex --change-section-lma *-0x80000000 $< $@
 	$(SIZE) --format=berkeley $<
+	$(CP) $(call FIX_PATH,$(BUILD_DIR)/main.hex) $(call FIX_PATH,../libero/src/cfg_and_mem_files/imx334_4lane_raw10_1188Mbps_AE.hex)
 
 # Create build directory
 $(BUILD_DIR):
 	$(MKDIR) $(call FIX_PATH,$@)
-
-# Copy the generated .hex file to the specific directory from which Libero will
-# take it to include it in the bitstream. 
-export_hex: $(BUILD_DIR)/main.hex
-	$(CP) $(call FIX_PATH,$(BUILD_DIR)/main.hex) $(call FIX_PATH,../libero/src/cfg_and_mem_files/imx334_4lane_raw10_1188Mbps_AE.hex)
 
 clean:
 	$(RM) $(call FIX_PATH,$(BUILD_DIR))
