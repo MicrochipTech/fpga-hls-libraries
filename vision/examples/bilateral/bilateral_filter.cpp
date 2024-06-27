@@ -22,17 +22,16 @@ using ImgT = vision::Img<
         vision::PixelType::HLS_8UC1,
         H, W, 
         vision::StorageType::FIFO, 
-        vision::NPPC_1>;
+        vision::NPPC_2>;
 
 void BilateralFilterWrapper(
     ImgT &ImgIn,
-    ImgT &ImgOut,
-    int border_type
+    ImgT &ImgOut
 ) {
   #pragma HLS function top
   const float sigmaColor = SIGMA_COLOR;
   const float sigmaSpace = SIGMA_SPACE;
-  BilateralFilter<FILTER_SIZE>(ImgIn, ImgOut, sigmaColor, sigmaSpace, border_type);
+  BilateralFilter<FILTER_SIZE>(ImgIn, ImgOut, sigmaColor, sigmaSpace);
 }
 
 //------------------------------------------------------------------------------
@@ -49,7 +48,7 @@ int main(int argc, char **argv) {
 
   ImgT ImgIn, ImgOut;
   convertFromCvMat(src, ImgIn);
-  BilateralFilterWrapper(ImgIn, ImgOut, 0);
+  BilateralFilterWrapper(ImgIn, ImgOut);
   
   Mat dst;
   convertToCvMat(ImgOut, dst);

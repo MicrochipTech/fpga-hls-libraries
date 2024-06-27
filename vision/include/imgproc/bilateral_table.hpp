@@ -26,7 +26,7 @@ template <unsigned RANGE> struct GaussianIntensityTable {
     };
 
     float __attribute__((always_inline)) Gaussian(int x, float sigma) {
-#pragma HLS function inline
+        #pragma HLS function inline
         return exp(-(pow(x, 2)) / (2 * pow(sigma, 2))) /
                (2 * M_PI * pow(sigma, 2));
     }
@@ -45,9 +45,7 @@ template <unsigned SIZE> struct GaussianSpaceTable {
     ap_int<8> Table[SIZE][SIZE];
     int SIZE_DIV = (SIZE - 1) / 2;
     GaussianSpaceTable(float sigma) {
-
         float factor = 256 * 1024;
-
         // #pragma unroll
         for (int i = 0; i < SIZE; i++) {
             #pragma unroll
@@ -58,7 +56,7 @@ template <unsigned SIZE> struct GaussianSpaceTable {
     };
 
     float __attribute__((always_inline)) Gaussian(int x, int y, float sigma) {
-#pragma HLS function inline
+        #pragma HLS function inline
         return exp(-(pow(x - SIZE_DIV, 2) + pow(y - SIZE_DIV, 2)) / (2 * pow(sigma, 2))) /
                (2 * M_PI * pow(sigma, 2));
     }
@@ -66,6 +64,7 @@ template <unsigned SIZE> struct GaussianSpaceTable {
     uint8_t getSpace(int i, int j) const { return Table[i][j]; }
 
     void printTables() const {
+        printf("\n----------[Space]-------------\n");
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 printf("[%d,%d]:%d\n", i, j, (uint8_t)getSpace(i, j));

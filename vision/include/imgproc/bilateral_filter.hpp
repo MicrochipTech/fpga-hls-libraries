@@ -26,26 +26,11 @@
 #include "../common/common.hpp"
 #include "../common/utils.hpp"
 #include "hls/ap_fixpt.hpp"
-// #include "hls_math.hpp"
 
-// #define HLS_VISION_DBG_CODE if(1)
 #define HLS_VISION_DBG_CODE if(0)
-
 
 namespace hls {
 namespace vision {
-
-// TODO. Declaring the Gaussian here works (used to work), but this should really be declared 
-//      inside BilateralFilter and use its template parameters.  
-// #pragma HLS memory replicate_rom variable(GAUSSIAN.GI.Table) max_replicas(0)
-// #pragma HLS memory impl variable(GAUSSIAN) pack(abi) byte_enable(true)
-// static const Gaussian<
-//     256,    // RANGE : TODO. This should be autocomputed as 2^(channel_width)
-//     5       // SIZE
-// > GAUSSIAN (
-//     12.0,   // SigmaIntensity
-//     16.0    // SigmaSpace
-// );
 
 template <
     unsigned FILTER_SIZE,
@@ -142,8 +127,7 @@ void BilateralFilter(
     Img<PIXEL_T, H, W, STORAGE_TYPE, NPPC> &InImg,
     Img<PIXEL_T, H, W, STORAGE_TYPE, NPPC> &OutImg,
     const float sigma_color,
-    const float sigma_space,
-    int border_type
+    const float sigma_space
 ) {
     #pragma HLS memory partition argument(InImg) type(struct_fields)
     #pragma HLS memory partition argument(OutImg) type(struct_fields)
