@@ -22,7 +22,7 @@ To use the latest version of the library, users should clone the library from Mi
     ```console
     > cd <DIRECTORY TO CLONE THE LIBRARY INTO>
     > git lfs install
-    > git clone https://github.com/MicrochipTech/fpga-hls-libraries.git
+    > git clone --recurse-submodules https://github.com/MicrochipTech/fpga-hls-libraries.git
     > git lfs pull
     ```
     
