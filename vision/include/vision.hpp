@@ -9,6 +9,8 @@
 #include "./common/utils.hpp"
 #include "./imgproc/canny.hpp"
 #include "./imgproc/debayer.hpp"
+#include "./imgproc/gamma_correction.hpp"
+#include "./imgproc/image_enhance.hpp"
 #include "./imgproc/format_conversions.hpp"
 #include "./imgproc/gaussian_blur.hpp"
 #include "./imgproc/hysteresis.hpp"
