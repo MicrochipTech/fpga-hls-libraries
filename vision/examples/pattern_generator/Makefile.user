@@ -14,7 +14,7 @@ ifndef GOLDEN_OUTPUT
     GOLDEN_OUTPUT=pattern_gen_golden.png
 endif
 
-PROGRAM_ARGUMENTS+=../../media_files/test_images/$(GOLDEN_OUTPUT)
+PROGRAM_ARGUMENTS+=$(SHLS_VISION_LIBRARY)/media_files/test_images/$(GOLDEN_OUTPUT)
 
 # Windows needs libraries on PATH
 USER_ENV_VARS += PATH=$(OPENCV_PATH)/lib$(HLS_PATH_SEP)$$PATH

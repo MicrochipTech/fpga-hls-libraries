@@ -1,5 +1,5 @@
-#include "math/examples/test_utils.hpp"
-#include "math/include/hls_math.hpp"
+#include "examples/test_utils.hpp"
+#include "include/hls_math.hpp"
 #include "hls/utils.hpp"
 #include "input_vals.hpp"
 //#include "hls/hls_alloc.h"

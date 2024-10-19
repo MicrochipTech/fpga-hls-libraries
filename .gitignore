@@ -1,0 +1,6 @@
+**/hls_output
+.vscode
+**/riscv_tests/master_example/discovery_kit/work
+**/riscv_tests/master_example/**/component
+**/riscv_tests/sin_performance/discovery_kit/work
+**/riscv_tests/sin_performance/**/component

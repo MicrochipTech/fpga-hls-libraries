@@ -1,33 +1,47 @@
 
 <!-- TOC -->
 
-- [Color conversion](#color-conversion-format_conversionshpp)
-    - [RGB <--> Grayscale](#rgb----grayscale)
-        - [RGB2GRAY()](#rgb2gray)
-        - [GRAY2RGB()](#gray2rgb)
-    - [Bayer <--> RGB](#bayer----rgb)
-        - [DeBayer()](#debayer)
-        - [RGB2Bayer()](#rgb2bayer)
+- [Color conversion (format\_conversions.hpp)](#color-conversion-format_conversionshpp)
+  - [RGB \<--\> Grayscale](#rgb----grayscale)
+    - [`RGB2GRAY()`](#rgb2gray)
+    - [`GRAY2RGB()`](#gray2rgb)
+  - [Bayer \<--\> RGB](#bayer----rgb)
+    - [`DeBayer()`](#debayer)
+    - [`RGB2Bayer()`](#rgb2bayer)
 - [Canny and related blocks](#canny-and-related-blocks)
-    - [Canny](#canny-cannyhpp)
-    - [Gaussian Blur](#gaussian-blur-gaussian_blurhpp)
-    - [Sobel](#sobel)
-        - [Sobel(InImg, OutImg)](#sobelinimg-outimg-sobelhpp)
-        - [Sobel(InImg, OutImg, OutDirection)](#sobelinimg-outimg-outdirection-sobel_directionhpp)
-    - [Non-Maximum Suppression](#non-maximum-suppression-nonmaximum_suppressionhpp)
-    - [Hysteresis Thresholding](#hysteresis-thresholding-hysteresishpp)
+  - [Canny (canny.hpp)](#canny-cannyhpp)
+  - [Gaussian Blur (gaussian\_blur.hpp)](#gaussian-blur-gaussian_blurhpp)
+  - [Sobel](#sobel)
+    - [`Sobel(InImg, OutImg)` (sobel.hpp)](#sobelinimg-outimg-sobelhpp)
+    - [Sobel(InImg, OutImg, OutDirection) (sobel\_direction.hpp)](#sobelinimg-outimg-outdirection-sobel_directionhpp)
+  - [Non-Maximum Suppression (nonmaximum\_suppression.hpp)](#non-maximum-suppression-nonmaximum_suppressionhpp)
+  - [Hysteresis Thresholding (hysteresis.hpp)](#hysteresis-thresholding-hysteresishpp)
+- [Gamma Correction (gamma\_correction.hpp)](#gamma-correction-gamma_correctionhpp)
+- [Convolution\_2D (convolution\_2d.hpp)](#convolution_2d-convolution_2dhpp)
+- [ImageEnhance (image\_enhance.hpp)](#imageenhance-image_enhancehpp)
 
 <!-- /TOC -->
 
 # Color conversion ([format_conversions.hpp](format_conversions.hpp))
+
 ## RGB <--> Grayscale
+
 ### `RGB2GRAY()`
 ```cpp
-template <bool NTSC = true, PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
-          unsigned H, unsigned W, StorageType STORAGE_IN = FIFO,
-          StorageType STORAGE_OUT = FIFO, NumPixelsPerCycle NPPC = NPPC_1>
-void RGB2GRAY(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
-              vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg)
+template <
+  bool NTSC = true, 
+  PixelType PIXEL_T_IN, 
+  PixelType PIXEL_T_OUT,
+  unsigned H, 
+  unsigned W, 
+  StorageType STORAGE_IN = FIFO,
+  StorageType STORAGE_OUT = FIFO, 
+  NumPixelsPerCycle NPPC = NPPC_1
+> 
+void RGB2GRAY(
+  vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg
+);
 ```
 This functions converts an input three-channel RGB `InImg` to an output single-channel grayscale `OutImg`.
 
@@ -48,11 +62,19 @@ vision::RGB2GRAY<false>(InImg, OutImg3); // Explicitly do not use the NTSC formu
 
 ### `GRAY2RGB()`
 ```cpp
-template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
-          StorageType STORAGE_IN = FIFO, StorageType STORAGE_OUT = FIFO,
-          NumPixelsPerCycle NPPC = NPPC_1>
-void GRAY2RGB(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
-              vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg)
+template <
+  PixelType PIXEL_T_IN, 
+  PixelType PIXEL_T_OUT, 
+  unsigned H, 
+  unsigned W,
+  StorageType STORAGE_IN = FIFO, 
+  StorageType STORAGE_OUT = FIFO,
+  NumPixelsPerCycle NPPC = NPPC_1
+> 
+void GRAY2RGB(
+  vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg
+);
 ```
 This function takes in an input single-channel grayscale `InImg`.
 The resulting output `OutImg` is still visually the same grayscale image but represented in RGB format.
@@ -71,12 +93,20 @@ vision::GRAY2RGB(InImg, OutImg);
 ## Bayer <--> RGB
 ### `DeBayer()`
 ```cpp
-template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
-          unsigned H, unsigned W, StorageType STORAGE_IN,
-          StorageType STORAGE_OUT, NumPixelsPerCycle NPPC = NPPC_1>
-void DeBayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
-             vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
-             ap_uint<2> BayerFormat = 0)
+template <
+  PixelType PIXEL_T_IN, 
+  PixelType PIXEL_T_OUT,
+  unsigned H, 
+  unsigned W,
+  StorageType STORAGE_IN,
+  StorageType STORAGE_OUT, 
+  NumPixelsPerCycle NPPC = NPPC_1
+> 
+void DeBayer(
+  vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
+  ap_uint<2> BayerFormat = 0
+);
 ```
 This function converts image data in Bayer format to RGB format. Bayer format is
 widely used in cameras (like the IMX 334 used in the [PolarFire Video Kit demo](../../demo_designs/PF_Video_kit/))
@@ -97,11 +127,19 @@ The image below shows how the first pixels look in each bayer format:
 
 ### `RGB2Bayer()`
 ```cpp
-template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
-          StorageType STORAGE_IN = FIFO, StorageType STORAGE_OUT = FIFO,
-          NumPixelsPerCycle NPPC = NPPC_1>
-void RGB2Bayer(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
-               vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg)
+template <
+  PixelType PIXEL_T_IN, 
+  PixelType PIXEL_T_OUT, 
+  unsigned H, 
+  unsigned W,
+  StorageType STORAGE_IN = FIFO, 
+  StorageType STORAGE_OUT = FIFO,
+  NumPixelsPerCycle NPPC = NPPC_1
+>
+void RGB2Bayer(
+  vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg
+);
 ```
 This function converts an image in RGB format to RGGB (`BayerFormat` 0 in DeBayer) bayer format.
 RGB2Bayer can be useful for simulating incoming camera data in your code, and can be compiled to hardware.
@@ -127,13 +165,21 @@ The following section will explain in more details the underlying algorithms of 
 
 ## Canny ([canny.hpp](canny.hpp))
 ```cpp
-template <unsigned GAUSSIAN_SIZE = 5, unsigned SOBEL_SIZE = 3,
-          vision::PixelType PIXEL_T_IN, vision::PixelType PIXEL_T_OUT,
-          unsigned H, unsigned W, StorageType STORAGE_IN = StorageType::FIFO,
-          StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC = NPPC_1>
-void Canny(Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
-           Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg, unsigned Thres)
+template <
+  unsigned GAUSSIAN_SIZE = 5, 
+  unsigned SOBEL_SIZE = 3,
+  vision::PixelType PIXEL_T_IN, 
+  vision::PixelType PIXEL_T_OUT,
+  unsigned H, 
+  unsigned W, 
+  StorageType STORAGE_IN = StorageType::FIFO,
+  StorageType STORAGE_OUT = StorageType::FIFO,
+  NumPixelsPerCycle NPPC = NPPC_1
+>
+void Canny (
+  Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+  Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg, unsigned Thres
+);
 ```
 This function finds edges in an image using the [Canny Edge Detection Algorithm](https://en.wikipedia.org/wiki/Canny_edge_detector).
 
@@ -166,12 +212,20 @@ This function calls four sub-functions that carry out the four stages of the Can
 
 ## Gaussian Blur ([gaussian_blur.hpp](gaussian_blur.hpp))
 ```cpp
-template <unsigned FILTER_SIZE = 5, PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
-          unsigned H, unsigned W, StorageType STORAGE_IN = StorageType::FIFO,
-          StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC = NPPC_1>
-void GaussianBlur(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
-                  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg)
+template <
+  unsigned FILTER_SIZE = 5, 
+  PixelType PIXEL_T_IN, 
+  PixelType PIXEL_T_OUT,
+  unsigned H, 
+  unsigned W, 
+  StorageType STORAGE_IN = StorageType::FIFO,
+  StorageType STORAGE_OUT = StorageType::FIFO,
+  NumPixelsPerCycle NPPC = NPPC_1
+>
+void GaussianBlur(
+  vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg
+);
 ```
 This functions blurs an image using a Gaussian filter. The output `OutImg` is the result of the convolution between the input `InImg` and the Gaussian filter.
 
@@ -205,12 +259,20 @@ $$
 ## Sobel
 ### `Sobel(InImg, OutImg)` ([sobel.hpp](sobel.hpp))
 ```cpp
-template <unsigned FILTER_SIZE = 3, PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
-          unsigned H, unsigned W, StorageType STORAGE_IN = StorageType::FIFO,
-          StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC = NPPC_1>
-void Sobel(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
-           vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg)
+template <
+  unsigned FILTER_SIZE = 3, 
+  PixelType PIXEL_T_IN, 
+  PixelType PIXEL_T_OUT,
+  unsigned H, 
+  unsigned W, 
+  StorageType STORAGE_IN = StorageType::FIFO,
+  StorageType STORAGE_OUT = StorageType::FIFO,
+  NumPixelsPerCycle NPPC = NPPC_1
+>
+void Sobel(
+  vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg
+);
 ```
 This function does edge detection by calculating the Sobel gradients of the input image's pixel intensity:
 - At each pixel position, calculate horizontal gradient <code>G<sub>x</sub></code> and vertical gradient <code>G<sub>y</sub></code> by doing the following convolutions:
@@ -232,7 +294,6 @@ Gy=\left[\begin{array}{cc}
 $$
 
 - Then, combine the magnitude of <code>G<sub>x</sub></code> and <code>G<sub>y</sub></code> to get the final output:
-  
 $$
 OutImg = |Gx| + |Gy|
 $$
@@ -243,7 +304,7 @@ $$
 
 **Template parameters:**
 - `FILTER_SIZE`: The size of the Sobel filter.
-  - Currently only supports a value of `3`.
+  - Currently only supports a value of `5`.
 - The other template parameters are automatically inferred from the input and output `Img` arguments.
 
 **Limitations:**
@@ -255,13 +316,21 @@ $$
 
 ### Sobel(InImg, OutImg, OutDirection) ([sobel_direction.hpp](sobel_direction.hpp))
 ```cpp
-template <unsigned FILTER_SIZE = 3, PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT,
-          unsigned H, unsigned W, StorageType STORAGE_IN = StorageType::FIFO,
-          StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC = NPPC_1>
-void Sobel(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
-           vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
-           vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutDirection)
+template <
+  unsigned FILTER_SIZE = 3, 
+  PixelType PIXEL_T_IN, 
+  PixelType PIXEL_T_OUT,
+  unsigned H, 
+  unsigned W, 
+  StorageType STORAGE_IN = StorageType::FIFO,
+  StorageType STORAGE_OUT = StorageType::FIFO,
+  NumPixelsPerCycle NPPC = NPPC_1
+>
+void Sobel(
+  vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
+  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutDirection
+);
 ```
 This function behaves exactly like the [`Sobel(InImg, OutImg)`](#sobelinimg-outimg-sobelhpp) above, but also outputs an extra `Img` object `OutDirection` that represents the gradient direction at each pixel position.
 
@@ -296,14 +365,20 @@ The main use for this function is to be run in [`canny()`](#canny-cannyhpp), whe
 
 ## Non-Maximum Suppression ([nonmaximum_suppression.hpp](nonmaximum_suppression.hpp))
 ```cpp
-template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
-          StorageType STORAGE_IN = StorageType::FIFO,
-          StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC = NPPC_1>
+template <
+  PixelType PIXEL_T_IN, 
+  PixelType PIXEL_T_OUT, 
+  unsigned H, 
+  unsigned W,
+  StorageType STORAGE_IN = StorageType::FIFO,
+  StorageType STORAGE_OUT = StorageType::FIFO,
+  NumPixelsPerCycle NPPC = NPPC_1
+>
 void NonMaximumSuppression(
     vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
     vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InDirection,
-    vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg)
+    vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg
+);
 ```
 This function makes the edges of the image thinner by looking at the gradient direction (which is perpendicular to the edge direction), and suppress the pixel to 0 if it is smaller than the two adjacent pixels in the gradient direction.
 
@@ -331,13 +406,20 @@ The following process is done to all pixels in the input image. The resulting ou
 
 ## Hysteresis Thresholding ([hysteresis.hpp](hysteresis.hpp))
 ```cpp
-template <PixelType PIXEL_T_IN, PixelType PIXEL_T_OUT, unsigned H, unsigned W,
-          StorageType STORAGE_IN = StorageType::FIFO,
-          StorageType STORAGE_OUT = StorageType::FIFO,
-          NumPixelsPerCycle NPPC = NPPC_1>
-void Hysteresis(vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
-                vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
-                unsigned Thres)
+template <
+  PixelType PIXEL_T_IN, 
+  PixelType PIXEL_T_OUT, 
+  unsigned H, 
+  unsigned W,
+  StorageType STORAGE_IN = StorageType::FIFO,
+  StorageType STORAGE_OUT = StorageType::FIFO,
+  NumPixelsPerCycle NPPC = NPPC_1
+>
+void Hysteresis(
+  vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
+  unsigned Thres
+);
 ```
 This function "sharpens" the image by suppressing weak edges and strengthening strong edges.
 
@@ -355,3 +437,190 @@ Otherwise, the pixel is strengthen to the maximum pixel value of 255 (white).
 **Limitations:**
 - Only support single-channel images.
 - Traditionally, Hysteresis Thresholding is done using double thresholds. Currently, the Vision library only supports single threshold.
+
+# Gamma Correction ([gamma_correction.hpp](gamma_correction.hpp))
+```cpp
+template <
+    PixelType PIXEL_T,
+    unsigned H,
+    unsigned W,
+    StorageType STORAGE_IN,
+    StorageType STORAGE_OUT,
+    NumPixelsPerCycle NPPC = NPPC_1
+> 
+void GammaCorrection (
+    vision::Img<PIXEL_T, H, W, STORAGE_IN, NPPC> &InImg,
+    vision::Img<PIXEL_T, H, W, STORAGE_OUT, NPPC> &OutImg,
+    const float gamma,
+    const ap_uint<1> enable = 1
+);
+```
+
+A camera sensor provides a proportional linear relationship between light 
+intensity and the digital value. However, a human eye perceives the images 
+as a logarithmic function of intensity instead of a linear function. 
+To compensate for this pixels can go through a gamma correction process by
+using the following equation:
+
+$PixelOut = pow(PixelIn, (1/gamma))$
+
+**Arguments:**
+- `InImg`: The input image to the function.
+- `OutImg`: The gamma-corrected output image.
+- `gamma`: Constant gamma value.
+
+**Template parameters:**
+- All template parameters are automatically inferred from the input and output `Img` arguments.
+
+**Limitations:**
+- The pixel channel width must be 8 bits.
+- The width of the image must be evenly divisible by the number of pixels per cycle (NPPC).
+  The gamma value must be a compile-time constant, it cannot be a run-time variable. 
+
+# Convolution_2D ([convolution_2d.hpp](convolution_2d.hpp))
+```cpp
+template <
+  unsigned KERNEL_SIZE, 
+  PixelType PIXEL_T_IN, 
+  PixelType PIXEL_T_OUT,
+  unsigned H, 
+  unsigned W, 
+  StorageType STORAGE_IN = StorageType::FIFO,
+  StorageType STORAGE_OUT = StorageType::FIFO,
+  NumPixelsPerCycle NPPC = NPPC_1,
+  typename Func
+> 
+void Convolution_2d (
+  vision::Img<PIXEL_T_IN, H, W, STORAGE_IN, NPPC> &InImg,
+  vision::Img<PIXEL_T_OUT, H, W, STORAGE_OUT, NPPC> &OutImg,
+  Func Functor
+);
+```
+This function performs a two-dimensional convolution by sliding a kernel window
+of [KERNEL_SIZE][KERNEL_SIZE] across the entire input image. The kernel must be 
+known at compile time. 
+
+For an example of how this function is used please see [gaussian_blur.hpp](gaussian_blur.hpp).
+
+**Arguments:**
+- `InImg`: The input image to the function.
+- `OutImg`: The output image convolved with the kernel.
+- `Functor`: A function that will be used to generate the 2D kernel at compile time. 
+  The function should have the following prototype:
+  ```cpp
+  constexpr int Functor(int i, int j) { ... }
+  ```
+  This Functor will be passed the `i` and `j` arguments representing the indices 
+  of the kernel window and it must return an integer value for that location. 
+  
+**Template parameters:**
+- All template parameters are automatically inferred from the input and output arguments.
+
+**Limitations:**
+- The KERNEL_SIZE must be 3, 5 or 7.
+- The kernel elements must be of type integer.
+- The Functor must be relatively simple. 
+- The pixel channel width must be 8 bits.
+- The width of the image must be evenly divisible by the number of pixels per cycle (NPPC).
+  The gamma value must be a compile-time constant, it cannot be a run-time variable. 
+
+# ImageEnhance ([image_enhance.hpp](image_enhance.hpp))
+```cpp
+template <
+    PixelType PIXEL_T,
+    unsigned H,
+    unsigned W,
+    StorageType STORAGE_IN,
+    StorageType STORAGE_OUT, 
+    NumPixelsPerCycle NPPC = NPPC_1>
+void ImageEnhance(
+    vision::Img<PIXEL_T, H, W, STORAGE_IN, NPPC> &InImg,
+    vision::Img<PIXEL_T, H, W, STORAGE_OUT, NPPC> &OutImg,
+    ap_uint<8> b_factor,
+    ap_uint<8> g_factor,
+    ap_uint<8> r_factor,
+    ap_int<10> brightness
+);
+```
+
+This function performs the following transformation to and image:
+  
+- $OutImg.r = brightness + (r\_factor / 32) * InImg.r$
+- $OutImg.g = brightness + (g\_factor / 32) * InImg.g$
+- $OutImg.b = brightness + (b\_factor / 32) * InImg.b$
+ 
+ The multiplying factors (`r_factor, g_factor, b_factor`) are 8-bit unsigned integers.
+ The division by 32 is to allow the effective factor to be less than 1 (factor < 32), 
+ exactly 1 (factor=32), or more than one (factor>32).
+ 
+**Arguments:**
+- `InImg`: The input image to the function.
+- `OutImg`: The output image convolved with the kernel.
+- `b_factor`: Blue multiplier
+- `g_factor`: Green channel multiplier
+- `r_factor`: Red channel multiplier
+- `brightness`: Common offset to increase (positive) or decrease (negative) the 
+  brightness (pixel value of every channel).
+
+**Template parameters:**
+- All template parameters are automatically inferred from the input and output arguments.
+
+**Limitations:**
+- Image_Enhance only supports number of pixels per cycle of 1 or 4.
+- Input image must have 3 channels for R, G, B.
+
+# BilateralFilter ([bilateral_filter.hpp](bilateral_filter.hpp))
+```cpp
+template <
+    unsigned FILTER_SIZE, 
+    PixelType PIXEL_T, 
+    unsigned H, 
+    unsigned W, 
+    StorageType STORAGE_TYPE,
+    NumPixelsPerCycle NPPC
+> 
+void BilateralFilter(
+    Img<PIXEL_T, H, W, STORAGE_TYPE, NPPC> &InImg,
+    Img<PIXEL_T, H, W, STORAGE_TYPE, NPPC> &OutImg,
+    const float sigma_color,
+    const float sigma_space
+);
+```
+
+A bilateral filter is an edge-preserving smoothing filter used in image processing. 
+It's designed to reduce noise in images while preserving important edge features. 
+The key characteristics of a bilateral filter are:
+
+- Non-linear: It considers both the spatial distance and intensity difference 
+between pixels. 
+- Edge-preserving: Unlike simple blurring filters, it can smooth an image while 
+keeping edges sharp.
+- Noise reduction: It's effective at reducing noise in images, especially Gaussian 
+noise.
+
+The bilateral filter works by replacing the intensity of each pixel with a weighted 
+average of intensity values from nearby pixels. The weighting is based on two main components:
+
+- Spatial kernel: This is similar to Gaussian blur, where closer pixels have more influence.
+The `sigma_space` argument is used to compute at compile-time the space kernel.  
+- Range kernel: This gives more weight to pixels with similar intensity to the target pixel.
+The `sigma_color` argument is used to compute at compile-time the intensity kernel. 
+
+By combining these two factors, the bilateral filter can smooth areas that are 
+close both in terms of spatial distance and pixel intensity, while preserving 
+edges where there are large intensity differences.
+ 
+**Arguments:**
+- `InImg`: The input image to the function.
+- `OutImg`: The filtered output image.
+- `sigma_color`: Constant value used to compute the color intensity kernel.
+- `sigma_space`: Constant value used to compute the space kernel.
+
+**Template parameters:**
+- FILTER_SIZE: dimensions of the Gaussian kernel.  
+- All other template parameters are automatically inferred from the input and output arguments.
+
+**Limitations:**
+- Only supports one-channel images (i.e. grayscale).
+- FILTER_SIZE must be five.
+- NPPC must be one.

@@ -14,7 +14,7 @@ ifndef INPUT_IMAGE
     INPUT_IMAGE+=toronto_1080p.bmp
 endif
 
-PROGRAM_ARGUMENTS+=../../../media_files/$(INPUT_IMAGE)
+PROGRAM_ARGUMENTS+=$(SHLS_VISION_LIBRARY)/media_files/$(INPUT_IMAGE)
 
 # Windows needs libraries on PATH
 USER_ENV_VARS = PATH=$(OPENCV_PATH)/lib$(HLS_PATH_SEP)$$PATH

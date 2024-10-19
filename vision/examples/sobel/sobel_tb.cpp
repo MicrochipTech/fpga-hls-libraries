@@ -41,7 +41,10 @@ int main(int argc, char* argv[]) {
     // Load image from file, using OpenCV's imread function.
     std::string INPUT_IMAGE=argv[1];
     Mat InMat = cv::imread(INPUT_IMAGE, cv::IMREAD_GRAYSCALE);
-
+    if (InMat.empty()) {
+        printf("Error loading the file: %s\n", INPUT_IMAGE.c_str());
+        exit(0);
+    }
     /*
      * Call the SmartHLS top-level function and the OpenCV reference function,
      * and compare the 2 results.
