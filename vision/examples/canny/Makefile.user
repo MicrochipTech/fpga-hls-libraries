@@ -1,7 +1,8 @@
-# SHLS_VISION_LIBRARY should be the path to the vision directory:
-SHLS_VISION_LIBRARY= ../..
-OPENCV_PATH = $(SHLS_VISION_LIBRARY)/precompiled_sw_libraries/opencv4.5.4-x86_64
-USER_CXX_FLAG += -I$(OPENCV_PATH)/include/opencv4 -I$(SHLS_VISION_LIBRARY)/include
+
+# Root directory path for the HLS libraries. Modify as necessary. 
+SHLS_LIBRARY_DIR =  ../../..
+OPENCV_PATH = $(SHLS_LIBRARY_DIR)/vision/precompiled_sw_libraries/opencv4.5.4-x86_64
+USER_CXX_FLAG += -I$(OPENCV_PATH)/include/opencv4 -I$(SHLS_LIBRARY_DIR)/vision/include
 USER_LINK_FLAG += -L$(OPENCV_PATH)/lib -lopencv_core -lopencv_imgcodecs -lopencv_imgproc
 
 #SMALL_TEST_FRAME=1 # for faster simulation.
@@ -16,7 +17,8 @@ ifndef INPUT_IMAGE
     GOLDEN_IMAGE+=canny_golden_1080p.png
 endif
 
-PROGRAM_ARGUMENTS+=../../media_files/$(INPUT_IMAGE) ../../media_files/test_images/$(GOLDEN_IMAGE)
+PROGRAM_ARGUMENTS+=$(SHLS_LIBRARY_DIR)/vision/media_files/$(INPUT_IMAGE)
+PROGRAM_ARGUMENTS+=$(SHLS_LIBRARY_DIR)/vision/media_files/test_images/$(GOLDEN_IMAGE)
 
 # Windows needs libraries on PATH
 USER_ENV_VARS += PATH=$(OPENCV_PATH)/lib$(HLS_PATH_SEP)$$PATH

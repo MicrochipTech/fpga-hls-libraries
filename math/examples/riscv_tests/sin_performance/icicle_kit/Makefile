@@ -1,16 +1,13 @@
+SRCS = ../sources/test.cpp  
 
-SRCS=../sources/test.cpp  
+# Root directory path for the HLS libraries. Modify as necessary. 
+SHLS_LIBRARY_DIR =  ../../../../..
 
-#TRANSFER_TYPE?=AXI_TARGET
-TRANSFER_TYPE?=AXI_INITIATOR
-USE_DMA=false
-N_ELEM=64000
-CACHED?=HLS_ALLOC_NONCACHED
-SHLS_MATH_LIBRARY=../../../../
+USER_CXX_FLAG += -I$(SHLS_LIBRARY_DIR) 
+USER_CXX_FLAG += -I$(SHLS_ROOT_DIR)/smarthls-library 
+USER_CXX_FLAG += -D__N_ELEM=12800
 
-USER_CXX_FLAG+=-I$(SHLS_MATH_LIBRARY) -I$(SHLS_ROOT_DIR)/smarthls-library -D__N_ELEM=$(N_ELEM) -D__CACHED=$(CACHED) -D$(TRANSFER_TYPE) -D__USE_DMA=$(USE_DMA) 
+NUM_LIBERO_PnR_PASSES=10
 
 LOCAL_CONFIG = -legup-config=config.tcl
-LEVEL = $(SHLS_ROOT_DIR)/examples
-
 

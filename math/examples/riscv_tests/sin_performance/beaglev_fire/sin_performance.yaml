@@ -1,0 +1,12 @@
+---
+HSS:
+    type: git
+    link: https://git.beagleboard.org/beaglev-fire/hart-software-services.git
+    branch: develop-beaglev-fire
+    board: bvf
+gateware:
+    top_level_name: shls_test
+    build-args: "M2_OPTION:NONE CAPE_OPTION:NONE SMARTHLS:../../../../../math/examples/riscv_tests/sin_performance/beaglev_fire"
+    type: sources
+    unique-design-version:
+

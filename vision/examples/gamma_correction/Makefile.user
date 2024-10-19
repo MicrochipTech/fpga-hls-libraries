@@ -1,0 +1,27 @@
+
+# Root directory path for the HLS libraries. Modify as necessary. 
+SHLS_LIBRARY_DIR =  ../../..
+OPENCV_PATH = $(SHLS_LIBRARY_DIR)/vision/precompiled_sw_libraries/opencv4.5.4-x86_64
+USER_CXX_FLAG += -I$(OPENCV_PATH)/include/opencv4 -I$(SHLS_LIBRARY_DIR)/vision/include
+USER_LINK_FLAG += -L$(OPENCV_PATH)/lib -lopencv_core -lopencv_imgcodecs -lopencv_imgproc
+
+# This line tests on a smaller image for faster co-simulation.
+FAST_COSIM=1
+
+ifdef FAST_COSIM
+    INPUT_IMAGE+=toronto_100x56.bmp
+    GOLDEN_OUTPUT+=gamma_corrected_golden_100x56.png 
+    USER_CXX_FLAG += -DFAST_COSIM
+endif
+ifndef INPUT_IMAGE
+    INPUT_IMAGE+=toronto_1080p.bmp
+    GOLDEN_OUTPUT+=gamma_corrected_golden_1920x1080.png
+endif
+
+PROGRAM_ARGUMENTS+=$(SHLS_LIBRARY_DIR)/vision/media_files/$(INPUT_IMAGE)
+PROGRAM_ARGUMENTS+=$(SHLS_LIBRARY_DIR)/vision/media_files/test_images/$(GOLDEN_OUTPUT)
+
+# Windows needs libraries on PATH
+USER_ENV_VARS += PATH=$(OPENCV_PATH)/lib$(HLS_PATH_SEP)$$PATH
+# Linux needs libraries on LD_LIBRARY_PATH
+USER_ENV_VARS += LD_LIBRARY_PATH=$(OPENCV_PATH)/lib
