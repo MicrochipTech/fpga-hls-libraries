@@ -1,0 +1,11 @@
+**/hls_output
+.vscode
+**/riscv_tests/master_example/discovery_kit/work
+**/riscv_tests/master_example/**/component
+**/riscv_tests/sin_performance/discovery_kit/work
+**/riscv_tests/sin_performance/**/component
+**/__pycache__
+**/math/**/master_example/build
+**/math/examples/**/*_reports
+vision/demo_designs/PF_Video_kit/libero/vision_pipeline
+vision/demo_designs/PF_Video_kit/libero/component

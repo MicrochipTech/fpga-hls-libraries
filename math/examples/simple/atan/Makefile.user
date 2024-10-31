@@ -1,2 +1,3 @@
-SHLS_MATH_LIBRARY = ../../../..
-USER_CXX_FLAG+=-I$(SHLS_MATH_LIBRARY)
+# Root directory path for the HLS libraries. Modify as necessary. 
+SHLS_LIBRARY_DIR =  ../../../..
+USER_CXX_FLAG+=-I$(SHLS_LIBRARY_DIR)

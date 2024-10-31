@@ -105,10 +105,10 @@ int main() {
   int RC = 0;
   create_dir("sqrt_reports");
 
-#ifdef EARLY_EXIT
+#ifdef COSIM_EARLY_EXIT
   // ---------------------------------------------------------------------
-  // This test will be used automatically when running cosimulation.
-  // SmartHLS defines EARLY_EXIT when running cosim.
+  // This test will be used automatically when running cosimulation, as
+  // SmartHLS defines COSIM_EARLY_EXIT when running cosim.
   // This test is quick, good to validate the generated verilog and see
   // the wave form
   // ---------------------------------------------------------------------

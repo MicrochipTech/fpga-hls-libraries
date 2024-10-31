@@ -1,11 +1,19 @@
 # SmartHLS Math Library
 
 <!-- TOC -->
-
+- [SmartHLS Math Library](#smarthls-math-library)
   - [Overview](#overview)
   - [Library Components](#library-components)
+  - [Functions](#functions)
+  - [gdb-pretty-printers](#gdb-pretty-printers)
+  - [Notes](#notes)
+    - [Documentation Notes](#documentation-notes)
+    - [Examples Notes](#examples-notes)
+      - [Simple Examples](#simple-examples)
+      - [RISC-V Examples](#risc-v-examples)
 
 <!-- /TOC -->
+
 ## Overview
 
 The SmartHLS math library provides HLS C++ library functions for algorithm prototyping of fixed point math applications.
@@ -24,7 +32,7 @@ Please see the readme files in sub-directories for more details.
 - [include](include/): The HLS C++ library.
 - [examples](examples/): Examples showcasing the usage of the HLS C++ library. See [examples notes](#examples-notes).
 - [utils](utils/): Utilities to make using the library easier.
-    
+
 ## Functions
 
 | Function                             | Description                                      | 
