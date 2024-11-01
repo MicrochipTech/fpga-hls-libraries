@@ -56,7 +56,7 @@ new_project \
     -adv_options {VOLTR:IND} 
 
 # Set IP core version variables
-source src/ip_core_versions.tcl
+source ../../../rtl/ip_core_versions.tcl
 
 #Download all the required cores to the vault (Camera and display components will download their required cores separately)
 download_core -vlnv "Actel:SystemBuilder:PF_DDR4:${PF_DDR4_version}" -location {www.microchip-ip.com/repositories/SgCore}
@@ -70,7 +70,7 @@ download_core -vlnv "Actel:SgCore:PF_INIT_MONITOR:${PF_INIT_MONITOR_version}" -l
 download_core -vlnv "Microsemi:MiV:MIV_RV32:${MIV_RV32_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:COREUART:${COREUART_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Microsemi:SolutionCore:Image_Enhancement:${Image_Enhancement_version}" -location {www.microchip-ip.com/repositories/DirectCore}
-download_core -vlnv "Actel:DirectCore:COREAXI4INTERCONNECT:${COREAXI4INTERCONNECT_verion}" -location {www.microchip-ip.com/repositories/DirectCore}
+download_core -vlnv "Actel:DirectCore:COREAXI4INTERCONNECT:${COREAXI4INTERCONNECT_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:CoreUARTapb:${CoreUARTapb_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:CoreTimer:${CoreTimer_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 

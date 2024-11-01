@@ -170,7 +170,7 @@ sd_instantiate_hdl_core -sd_name ${sd_name} -hdl_core_name {VideoPipelineTop_top
 sd_save_core_instance_config -sd_name ${sd_name} -instance_name {VideoPipelineTop_top_0}
 sd_update_instance -sd_name ${sd_name} -instance_name {VideoPipelineTop_top_0}
 sd_invert_pins -sd_name ${sd_name} -pin_names {VideoPipelineTop_top_0:reset}
-
+sd_connect_pin_to_port -sd_name ${sd_name} -pin_name {VideoPipelineTop_top_0:enable_invert} -port_name {switch0}
 sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {VideoPipelineTop_top_0:start} -value {VCC}
 sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {VideoPipelineTop_top_0:BayerFormat} -value {00}
 
