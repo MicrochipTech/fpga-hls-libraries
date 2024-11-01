@@ -1219,28 +1219,26 @@ set_io -port_name hdmi_clk  \
     -fixed true             \
     -DIRECTION INPUT
 
+set_io -port_name switch0  \
+    -pin_name AH22       \
+    -fixed true         \
+    -DIRECTION INPUT
 
-#set_io -port_name {switches_readdata[0]}  \
-    -pin_name AH22                        \
-    -fixed true                           \
+#set_io -port_name switch1  \
+    -pin_name AJ21 \
+    -fixed true    \
     -DIRECTION INPUT
 
 
-#set_io -port_name {switches_readdata[1]}  \
-    -pin_name AJ21                        \
-    -fixed true                           \
+#set_io -port_name switch2  \
+    -pin_name AG21 \
+    -fixed true    \
     -DIRECTION INPUT
 
 
-#set_io -port_name {switches_readdata[2]}  \
-    -pin_name AG21                        \
-    -fixed true                           \
-    -DIRECTION INPUT
-
-
-#set_io -port_name {switches_readdata[3]}  \
-    -pin_name AH21                        \
-    -fixed true                           \
+#set_io -port_name switch3  \
+    -pin_name AH21 \
+    -fixed true    \
     -DIRECTION INPUT
 
 #set_io -port_name toggle   \
