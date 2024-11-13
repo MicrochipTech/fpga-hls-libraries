@@ -11,6 +11,7 @@ using namespace hls;
 using namespace hls::dsp;
 
 #include "test_vector.h"
+#include "test_utils.hpp"
 
 struct fft_buff_t {
   uint16_t im;
@@ -82,8 +83,8 @@ void fft_wrapper(uint32_t *buf_in, uint32_t *buf_out) {
   #pragma HLS interface argument(buf_in) type(axi_target) num_elements(SIZE) dma(false)
   #pragma HLS interface argument(buf_out) type(axi_target) num_elements(SIZE) dma(false)
   #else
-	#pragma HLS interface argument(buf_in) type(axi_initiator) num_elements(SIZE) max_burst_len(SIZE) ptr_addr_interface(axi_target)
-    #pragma HLS interface argument(buf_out) type(axi_initiator) num_elements(SIZE) max_burst_len(SIZE) ptr_addr_interface(axi_target)
+  #pragma HLS interface argument(buf_in) type(axi_initiator) num_elements(SIZE) max_burst_len(SIZE) ptr_addr_interface(axi_target)
+  #pragma HLS interface argument(buf_out) type(axi_initiator) num_elements(SIZE) max_burst_len(SIZE) ptr_addr_interface(axi_target)
   #endif
 
     FIFO<fft_data_t> fifo_in(SIZE);
@@ -115,7 +116,10 @@ int main()
 
     uint32_t *buf_in_ptr = (uint32_t*)buf_in;
     uint32_t *buf_out_ptr = (uint32_t*)buf_out;
+
+    double fft_start = timestamp();
     fft_wrapper<FFT_SIZE>(buf_in_ptr, buf_out_ptr);
+    double fft_end = timestamp();
 
     // read from buf_out
     for (int i=0; i<FFT_SIZE; i++){
@@ -139,6 +143,9 @@ int main()
     
     hls_free(buf_in);
     hls_free(buf_out);
+
+    double fft_duration = fft_end - fft_start;
+    printf("Time: hls_fft: %lf s\n", fft_duration);
 
     if(!err) {
         printf("PASS\n");
