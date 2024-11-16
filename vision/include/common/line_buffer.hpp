@@ -89,16 +89,16 @@ class LineBuffer<PixelType, ImageWidth, WindowSize, BitWidth, NPPC, false> {
     //
     // The user algorithm should be processing the "receptive" fields for the 4
     // pixels in word e.  So calling
-    //   AccessWindow(x, y, 0) returns pixels in the receptive field for e0.
+    //   AccessWindow(y, x, 0) returns pixels in the receptive field for e0.
     //   - AccessWindow(0, 0, 0) gives a3
     //   - AccessWindow(1, 1, 0) gives e0
     //   - AccessWindow(2, 2, 0) gives h1
     //
-    //   AccessWindow(x, y, 2) returns pixels in the receptive field for e2.
-    //   - AccessWindow(2, 0, 2) gives b3
+    //   AccessWindow(y, x, 2) returns pixels in the receptive field for e2.
+    //   - AccessWindow(0, 2, 2) gives b3
     //
     // x, y coordinates in a window where the centroid is at the k-th pixel.
-    ap_uint<BitWidth> AccessWindow(unsigned x, unsigned y, unsigned k) {
+    ap_uint<BitWidth> AccessWindow(unsigned y, unsigned x, unsigned k) {
         // The radius of 3x3 is 1, radius of 5x5 is 2, radius of 7x7 is 3.
         const unsigned WindowRadius = (WindowSize - 1) / 2;
         // Map k into j & pixel_offset
@@ -109,20 +109,20 @@ class LineBuffer<PixelType, ImageWidth, WindowSize, BitWidth, NPPC, false> {
         // Say the window has WindowSize * NPPC columns, the column index of
         // the centroid pixel is:
         unsigned centroid_col = WindowRadius * NPPC + k;
-        // Now the corresponding pixel at y = 0 is (WindowSize - 1) / 2 pixels
+        // Now the corresponding pixel at i = 0 is (WindowSize - 1) / 2 pixels
         // to the left of the centroid.
-        unsigned col_idx = centroid_col - WindowRadius + y;
+        unsigned col_idx = centroid_col - WindowRadius + x;
 
         unsigned j = col_idx / NPPC;
         unsigned pixel_offset = col_idx - j * NPPC;
 
-        return window[x][j].byte(pixel_offset, BitWidth);
+        return window[y][j].byte(pixel_offset, BitWidth);
     }
 
     void print_window(unsigned k) {
-        for (int i = 0; i < WindowSize; i++) {
-            for (int j = 0; j < WindowSize; j++) {
-                printf("%x ", int(AccessWindow(i, j, k)));
+        for (int y = 0; y < WindowSize; y++) {
+            for (int x = 0; x < WindowSize; x++) {
+                printf("%x ", int(AccessWindow(y, x, k)));
             }
             printf("\n");
         }
