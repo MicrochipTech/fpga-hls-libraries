@@ -15,6 +15,7 @@
 #include "./imgproc/format_conversions.hpp"
 #include "./imgproc/gaussian_blur.hpp"
 #include "./imgproc/bilateral_filter.hpp"
+#include "./imgproc/bicubic_upscaler.hpp"
 #include "./imgproc/hysteresis.hpp"
 #include "./imgproc/histogram.hpp"
 #include "./imgproc/nonmaximum_suppression.hpp"
