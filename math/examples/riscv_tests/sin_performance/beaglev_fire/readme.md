@@ -82,10 +82,10 @@ You should install the following software:
    /usr/share/beagleboard/gateware/change-gateware.sh ~/bitstream
 
    ```
-3. Now, copy the RISC-V binary (`beaglev_fire.accel.elf` file) to your board:
+3. Now, copy the RISC-V binary (`sin_performance.accel.elf` file) to your board:
 
    ```console
-   scp ../../../math/examples/riscv_tests/sin_performance/beaglev_fire/hls_output/beaglev_fire.accel.elf beagle@192.168.0.173:
+   scp ../../../math/examples/riscv_tests/sin_performance/beaglev_fire/hls_output/sin_performance.accel.elf beagle@192.168.0.173:
    ```
 
 4. To run the executable, you will need to be running as `sudo`. Go into your board and run the binary you just copied over as sudo.
