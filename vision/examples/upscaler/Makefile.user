@@ -2,8 +2,8 @@
 SHLS_LIBRARY_DIR =  ../../..
 
 # INPUT_IMAGE=test_pattern_1920x1200.png
-# INPUT_IMAGE=test_pattern2_1920x1200.png
-INPUT_IMAGE=toronto_100x56.bmp
+INPUT_IMAGE=test_pattern2_1920x1200.png
+# INPUT_IMAGE=toronto_100x56.bmp
 # INPUT_IMAGE=unique_gradient_100x56.png
 # INPUT_IMAGE=counter_gradient_100x56.png
 # INPUT_IMAGE=unique_gradient_12x8.png

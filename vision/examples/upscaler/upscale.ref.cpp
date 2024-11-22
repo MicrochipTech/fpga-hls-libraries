@@ -11,21 +11,21 @@ using vision::StorageType;
 // constexpr unsigned OUT_WIDTH = 133;
 // constexpr unsigned OUT_HEIGHT = 80;
 
-constexpr unsigned IN_WIDTH = 100;
-constexpr unsigned IN_HEIGHT = 56;
+// constexpr unsigned IN_WIDTH = 100;
+// constexpr unsigned IN_HEIGHT = 56;
 // constexpr unsigned OUT_WIDTH = (IN_WIDTH);
 // constexpr unsigned OUT_HEIGHT = (IN_HEIGHT);
-constexpr unsigned OUT_WIDTH = (2*IN_WIDTH);
-constexpr unsigned OUT_HEIGHT = (2*IN_HEIGHT);
+// constexpr unsigned OUT_WIDTH = (2*IN_WIDTH);
+// constexpr unsigned OUT_HEIGHT = (2*IN_HEIGHT);
 
 
 // Input dimensions WUXGA
-// constexpr unsigned IN_WIDTH = 1920;
-// constexpr unsigned IN_HEIGHT = 1200;
+constexpr unsigned IN_WIDTH = 1920;
+constexpr unsigned IN_HEIGHT = 1200;
 
 // Output dimensions WQXGA
-// constexpr unsigned OUT_WIDTH = 2560;
-// constexpr unsigned OUT_HEIGHT = 1600;
+constexpr unsigned OUT_WIDTH = 2560;
+constexpr unsigned OUT_HEIGHT = 1600;
 
 using InputImgT =
     Img<PixelType::HLS_8UC3, IN_HEIGHT, IN_WIDTH, StorageType::FRAME_BUFFER, vision::NPPC_1>;
@@ -115,7 +115,7 @@ void bicubicWrapper (
                     sum_g += weight * pixel.byte(1,ChannelWidth);  // Green channel 
                     sum_b += weight * pixel.byte(2,ChannelWidth);  // Blue channel
                     weight_sum += weight;        // Track total weight for normalization
-                    printf("sum_r: %f, sum_g: %f, sum_b: %f, weight: %f, weight_sum: %f\n", sum_r, sum_g, sum_b, weight, weight_sum); std::fflush(stdout);
+                    hls_dbg_printf("sum_r: %f, sum_g: %f, sum_b: %f, weight: %f, weight_sum: %f\n", sum_r, sum_g, sum_b, weight, weight_sum); std::fflush(stdout);
                 }
             }
 

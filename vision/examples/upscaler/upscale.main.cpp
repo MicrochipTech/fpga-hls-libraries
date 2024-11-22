@@ -11,21 +11,21 @@ using vision::StorageType;
 // constexpr unsigned OUT_WIDTH = 133;
 // constexpr unsigned OUT_HEIGHT = 80;
 
-constexpr unsigned IN_WIDTH = 100;
-constexpr unsigned IN_HEIGHT = 56;
+// constexpr unsigned IN_WIDTH = 12;
+// constexpr unsigned IN_HEIGHT = 8;
 // constexpr unsigned OUT_WIDTH = (IN_WIDTH);
 // constexpr unsigned OUT_HEIGHT = (IN_HEIGHT);
-constexpr unsigned OUT_WIDTH = (2*IN_WIDTH);
-constexpr unsigned OUT_HEIGHT = (2*IN_HEIGHT);
+// constexpr unsigned OUT_WIDTH = (2*IN_WIDTH);
+// constexpr unsigned OUT_HEIGHT = (2*IN_HEIGHT);
 
 
 // Input dimensions WUXGA
-// constexpr unsigned IN_WIDTH = 1920;
-// constexpr unsigned IN_HEIGHT = 1200;
+constexpr unsigned IN_WIDTH = 1920;
+constexpr unsigned IN_HEIGHT = 1200;
 
 // Output dimensions WQXGA
-// constexpr unsigned OUT_WIDTH = 2560;
-// constexpr unsigned OUT_HEIGHT = 1600;
+constexpr unsigned OUT_WIDTH = 2560;
+constexpr unsigned OUT_HEIGHT = 1600;
 
 // constexpr unsigned OUT_WIDTH = IN_WIDTH;
 // constexpr unsigned OUT_HEIGHT = IN_HEIGHT;

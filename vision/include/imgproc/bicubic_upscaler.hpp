@@ -36,34 +36,18 @@ namespace vision {
 #define HLS_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define HLS_MIN(a, b) ((a) < (b) ? (a) : (b))
 
-#define FP_WIDTH 20
-#define FP_INT_WIDTH 10
+#define BICUBIC_FP_WIDTH 32
+#define BICUBIC_FP_INT_WIDTH 16
 
+#define WIN_SZ 4
 // x <= 1.0        : 1.0 - 2.0*x^2 + x^3
 // 1.0 < x < 2.0   : 4.0 - 8.0*x + 5.0*x^2 - x^3
 // x >= 2.0        : 0.0
-// float cubic_weight(float x) {
-//     float abs_x = std::abs(x);
-//     float ret = 0.0f;
-//     if (abs_x <= 1.0f) {
-//         ret = 1.0f - 2.0f * abs_x * abs_x + abs_x * abs_x * abs_x;
-//     } else if (abs_x < 2.0f) {
-//         ret = 4.0f - 8.0f * abs_x + 5.0f * abs_x * abs_x - abs_x * abs_x * abs_x;
-//     } else {
-//         ret = 0.0f;
-//     }
-//     // printf("x:%f, dim: %d, ret: %f, kx: %f, ky: %f\n", x, dim, ret, kx, ky);
-//     printf("x:%f, ret: %f\n", x, ret);
-//     return ret;
-// };
 
-using fp_t = hls::ap_fixpt<FP_WIDTH, FP_INT_WIDTH>;
-// using fp_t = float;
+using fp_t = hls::ap_fixpt<BICUBIC_FP_WIDTH, BICUBIC_FP_INT_WIDTH>;
 
 fp_t cubic_weight(fp_t x) {
-    // fp_t x_fixed(x);
-    fp_t abs_x = hls::math::abs<FP_WIDTH, FP_INT_WIDTH>(x);
-    // fp_t abs_x = std::abs(x);
+    fp_t abs_x = hls::math::abs<BICUBIC_FP_WIDTH, BICUBIC_FP_INT_WIDTH>(x);
     fp_t ret = 0.0;
     if (abs_x <= fp_t(1.0)) {
         ret = fp_t(1.0) - fp_t(2.0) * abs_x * abs_x + abs_x * abs_x * abs_x;
@@ -72,31 +56,9 @@ fp_t cubic_weight(fp_t x) {
     } else {
         ret = fp_t(0.0);
     }
-    // printf("x:%f, dim: %d, ret: %f, kx: %f, ky: %f\n", x, dim, ret, kx, ky);
-    // printf("%c: x:%f, abs_x: %f, ret: %f\n", c, x.to_double(), abs_x.to_double(), ret.to_double()); std::fflush(stdout);
     return ret;
 };
 
-
-// struct BicubicTable {
-//     float Table[16];
-//     BicubicTable() {
-//         HLS_BICUBIC_TABLE_LOOP:
-//         for (int i = 0; i < 16; i++) {
-//             Table[i] = cubic_weight(i);
-//         }
-//     };
-
-
-//     float getWeight(int i) const { return Table[i]; }
-
-//     void printTables() const {
-//         printf("\n----------[Weights]-------------\n");
-//         for (int i = 0; i < 16; i++) {
-//             printf("[%d]:%f\n", i, getWeight(i));
-//         }
-//     }
-// };
 
 //------------------------------------------------------------------------------
 template <
@@ -110,13 +72,12 @@ template <
     StorageType STORAGE_IN,
     StorageType STORAGE_OUT, 
     NumPixelsPerCycle NPPC
-> int BicubicProcess (
+> void BicubicProcess (
     vision::Img<PIXEL_T_IN, IN_H, IN_W, STORAGE_IN, NPPC> &InImg,
     vision::Img<PIXEL_T_OUT, OUT_H, OUT_W, STORAGE_OUT, NPPC> &OutImg,
-    typename DT<PIXEL_T_IN, NPPC>::T LB[FILTER_SIZE][IN_W],
+    typename DT<PIXEL_T_IN, NPPC>::T win[WIN_SZ][WIN_SZ],
     unsigned &x,
-    unsigned &y,
-    int &prev_y
+    unsigned &y
 ) {
     using OutPixelWordT = typename DT<PIXEL_T_OUT, NPPC>::T;
 
@@ -128,8 +89,6 @@ template <
 
     using TmpPixelT = ap_uint<PixelWidth>;
 
-    int ret = 0;    
-
     // Scale factors
     const fp_t scale_x = static_cast<float>(OUT_W) / IN_W;
     const fp_t scale_y = static_cast<float>(OUT_H) / IN_H;
@@ -140,19 +99,10 @@ template <
     fp_t in_y = fp_t(y) / scale_y;
 
     // Get integer part
-    // int ix = static_cast<int>(in_x);
-    // int iy = static_cast<int>(in_y);
-
     int ix = static_cast<int>((float)in_x.to_double());
     int iy = static_cast<int>((float)in_y.to_double());
 
     // hls_dbg_printf("iy: %d, ix: %d, prev_y: %d, in_x: %f, in_y: %f\n", iy, ix, prev_y, in_x.to_double(), in_y.to_double());
-
-    if(prev_y != iy) {
-        ret = 1;
-    } else {
-        ret = 0;
-    }
 
     fp_t sum_r = 0.0, sum_g = 0.0, sum_b = 0.0;
     fp_t weight_sum = 0.0;
@@ -171,11 +121,8 @@ template <
             fp_t weight = cubic_weight(dx) * cubic_weight(dy);
             // printf("weight: %f\n", weight.to_double()); std::fflush(stdout);
             
-            unsigned int sample_y = HLS_MIN(HLS_MAX(iy + ky, 0), HLS_MIN(iy + ky, (int)(InImgHeight-1))) % FILTER_SIZE;
-            unsigned int sample_x = HLS_MIN(HLS_MAX(ix + kx, 0), (int)(InImgWidth - 1));
-            
             // hls_dbg_printf("p[y=%d,x=%d]:", sample_y, sample_x); std::fflush(stdout);
-            auto pixel = LB[sample_y][sample_x];
+            auto pixel = win[ky+1][kx+1];
             // hls_dbg_printf("0x%x\n", pixel.to_uint64()); std::fflush(stdout);
 
             sum_r = sum_r + (weight * (unsigned)pixel.byte(0,InChannelWidth));
@@ -193,20 +140,6 @@ template <
     OutPixelWord.byte(2,OutChannelWidth) = static_cast<unsigned char>(HLS_MIN(HLS_MAX(fp_t(sum_b / weight_sum), fp_t(0.0)), fp_t(255.0)));
     OutImg.write(OutPixelWord, y * (OUT_W / NPPC) + x);
     hls_dbg_printf("p: 0x%x, w: %f, r: %f, g: %f, b: %f\n", OutPixelWord.to_uint64(), weight_sum.to_double(), sum_r.to_double(), sum_g.to_double(), sum_b.to_double()); // std::fflush(stdout);
-
-    if (x == OUT_W - 1) {
-        prev_y = iy;
-    }
-
-    // We're done with this pixel. Now update the coordinate to the next one.
-    // if (x < (OUT_W / NPPC) - 1) {
-    //     x++;
-
-    // } else { // x == OUT_W - 1.
-    //     y++;
-    //     x = 0;
-    // }
-    return ret;
 }
 
 template <
@@ -255,6 +188,9 @@ void BicubicUpscaler(
 
     #pragma HLS memory partition variable(LB) type(complete) dim(1)
     InPixelWordT LB[FILTER_SIZE][W_IN];
+    
+    #pragma HLS memory partition variable(win) type(complete)
+    InPixelWordT win[WIN_SZ][WIN_SZ];
 
     unsigned LineBufferPixelWordFillCount = 3*W_IN;
 
@@ -277,6 +213,11 @@ void BicubicUpscaler(
 
 */
 
+    // Scale factors
+    const fp_t scale_x = static_cast<float>(OutWidth) / InWidth;
+    const fp_t scale_y = static_cast<float>(OutHeight) / InHeight;
+    // printf("scale_x: %f, scale_y: %f\n", scale_x.to_double(), scale_y.to_double());
+
     HLS_VISION_BICUBIC_UPSCALER_FILL_BUFFER_LOOP1:
     for (wy = 0; wy < 3; wy++) {
         HLS_VISION_BICUBIC_UPSCALER_FILL_BUFFER_LOOP2:
@@ -284,6 +225,9 @@ void BicubicUpscaler(
         for (wx = 0; wx < W_IN; wx++) {
             auto InPixelWord = InImg.read();
             LB[wy][wx] = InPixelWord;
+            if (wx < WIN_SZ) {
+                win[wy][wx] = InPixelWord;
+            }
         }
     }
     wx = 0;
@@ -291,15 +235,49 @@ void BicubicUpscaler(
     unsigned Count = LineBufferPixelWordFillCount;
 
     int prev_y = -1;
+    int RdNextRow = 0;
 
-    HLS_VISION_BICUBIC_UPSCALER_LOOPY:
     for (y=0; y<OutHeight; y++) {
-        HLS_VISION_BICUBIC_UPSCALER_LOOPX:
         #pragma HLS loop pipeline
         for (x=0; x<OutWidth; x++) {
 
-            auto RdNextRow = BicubicProcess<FILTER_SIZE>(InImg, OutImg, LB, x, y, prev_y);
+            // Find corresponding input coordinates
+            fp_t in_x = fp_t(x) / scale_x;
+            fp_t in_y = fp_t(y) / scale_y;
 
+            // Get integer part
+            int ix = static_cast<int>((float)in_x.to_double());
+            int iy = static_cast<int>((float)in_y.to_double());
+
+
+            // Shift the window to the left
+            for (int i = 0; i < WIN_SZ; ++i) {
+                for (int j = 0; j < WIN_SZ-1; ++j) {
+                    win[i][j] = win[i][j+1];
+                }
+            }
+
+            // Fill the rightmost column of the window
+            LOOP_LB:
+            #pragma HLS loop unroll
+            for (int ky = -1; ky <= 2; ky++) {
+                unsigned sample_y = (iy + ky < 0) ? 0 : HLS_MIN(iy + ky, (H_IN-1)) % FILTER_SIZE;
+                unsigned sample_x = HLS_MIN(ix + 3, (W_IN - 1));
+                win[ky+1][3] = LB[sample_y][sample_x];
+            }
+
+            // Process the window
+            BicubicProcess<FILTER_SIZE>(InImg, OutImg, win, x, y);
+
+            // Do we need to read another row ?
+            RdNextRow = (prev_y != iy) ? 1 : 0;
+            
+            // Update the previous row index
+            if (x == OutWidth - 1) {
+                prev_y = iy;
+            }
+
+            // Fill the line buffer
             if (wx < InWidth && Count < InFrameSize && RdNextRow) {
                 auto p = InImg.read();
                 Count++;
@@ -312,6 +290,14 @@ void BicubicUpscaler(
             }
         }
         wx = 0;
+
+        // Shift the window down
+        for (int i = 0; i < WIN_SZ-1; i++) {
+            #pragma HLS loop pipeline
+            for (int j = 0; j < WIN_SZ; j++) {
+                win[i][j] = win[i+1][j];
+            }
+        }
     }
 }
 
