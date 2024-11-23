@@ -237,9 +237,9 @@ void BicubicUpscaler(
     int prev_y = -1;
     int RdNextRow = 0;
 
-    for (y=0; y<OutHeight; y++) {
+    for (y=0; y < H_OUT; y++) {
         #pragma HLS loop pipeline
-        for (x=0; x<OutWidth; x++) {
+        for (x=0; x < W_OUT; x++) {
 
             // Find corresponding input coordinates
             fp_t in_x = fp_t(x) / scale_x;
@@ -259,11 +259,19 @@ void BicubicUpscaler(
 
             // Fill the rightmost column of the window
             LOOP_LB:
-            #pragma HLS loop unroll
-            for (int ky = -1; ky <= 2; ky++) {
-                unsigned sample_y = (iy + ky < 0) ? 0 : HLS_MIN(iy + ky, (H_IN-1)) % FILTER_SIZE;
+            for (int ky = 0; ky < FILTER_SIZE; ky++) {
+                // unsigned sample_y = (iy + ky < 0) ? 0 : HLS_MIN(iy + ky, (H_IN-1)) % FILTER_SIZE;
+                unsigned sample_y = iy + ky - 1;
+                
+                // Clip the index to 0 or the height of the image
+                if (sample_y < 0) {
+                    sample_y = 0;
+                } else if (sample_y >= H_IN) {
+                    sample_y = H_IN-1;
+                }
+
                 unsigned sample_x = HLS_MIN(ix + 3, (W_IN - 1));
-                win[ky+1][3] = LB[sample_y][sample_x];
+                win[ky][3] = LB[sample_y % FILTER_SIZE][sample_x];
             }
 
             // Process the window
