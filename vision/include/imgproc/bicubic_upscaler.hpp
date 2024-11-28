@@ -28,7 +28,6 @@
 #include "hls/utils.h"
 #include "hls_math.hpp"
 
-
 namespace hls {
 namespace vision {
 
@@ -129,7 +128,10 @@ template <
             sum_g = sum_g + (weight * (unsigned)pixel.byte(1,InChannelWidth));
             sum_b = sum_b + (weight * (unsigned)pixel.byte(2,InChannelWidth));
             weight_sum = weight_sum + weight; // Track total weight for normalization
-            // printf("sum_r: %f, sum_g: %f, sum_b: %f, weight: %f, weight_sum: %f\n", sum_r.to_double(), sum_g.to_double(), sum_b.to_double(), weight.to_double(), weight_sum.to_double()); std::fflush(stdout);
+            // printf("sum_r: %f, sum_g: %f, sum_b: %f, weight: %f, weight_sum: %f\n", 
+            //     sum_r.to_double(), sum_g.to_double(), sum_b.to_double(), 
+            //     weight.to_double(), weight_sum.to_double()); 
+            // std::fflush(stdout);
         }
     }
 
@@ -141,6 +143,7 @@ template <
     OutImg.write(OutPixelWord, y * (OUT_W / NPPC) + x);
     hls_dbg_printf("p: 0x%x, w: %f, r: %f, g: %f, b: %f\n", OutPixelWord.to_uint64(), weight_sum.to_double(), sum_r.to_double(), sum_g.to_double(), sum_b.to_double()); // std::fflush(stdout);
 }
+
 
 template <
     PixelType PIXEL_T, 
@@ -195,7 +198,7 @@ void BicubicUpscaler(
     unsigned LineBufferPixelWordFillCount = 3*W_IN;
 
     unsigned y = 0, x = 0;
-    int wy = 0, wx = 0;
+    unsigned wy = 0, wx = 0;
 
 
 /*
@@ -225,9 +228,9 @@ void BicubicUpscaler(
         for (wx = 0; wx < W_IN; wx++) {
             auto InPixelWord = InImg.read();
             LB[wy][wx] = InPixelWord;
-            if (wx < WIN_SZ) {
-                win[wy][wx] = InPixelWord;
-            }
+            // if (wx < WIN_SZ) {
+            //     win[wy][wx] = InPixelWord;
+            // }
         }
     }
     wx = 0;
@@ -235,7 +238,6 @@ void BicubicUpscaler(
     unsigned Count = LineBufferPixelWordFillCount;
 
     int prev_y = -1;
-    int RdNextRow = 0;
 
     for (y=0; y < H_OUT; y++) {
         #pragma HLS loop pipeline
@@ -249,7 +251,6 @@ void BicubicUpscaler(
             int ix = static_cast<int>((float)in_x.to_double());
             int iy = static_cast<int>((float)in_y.to_double());
 
-
             // Shift the window to the left
             for (int i = 0; i < WIN_SZ; ++i) {
                 for (int j = 0; j < WIN_SZ-1; ++j) {
@@ -257,12 +258,18 @@ void BicubicUpscaler(
                 }
             }
 
+            // concatenated selected row { LB[FILTER_SIZE-1][row], ... LB[1][row], LB[0][row] }
+            ap_uint<InPixelWidth * FILTER_SIZE> LB_row;
+
+            unsigned sample_x = HLS_MIN(ix + 3, (W_IN - 1));
+            for ( int _i=0; _i < FILTER_SIZE; _i++ )
+                LB_row.byte(_i, InPixelWidth) = LB[_i][sample_x];
+
             // Fill the rightmost column of the window
             LOOP_LB:
-            for (int ky = 0; ky < FILTER_SIZE; ky++) {
-                // unsigned sample_y = (iy + ky < 0) ? 0 : HLS_MIN(iy + ky, (H_IN-1)) % FILTER_SIZE;
+            for (int ky = 0; ky < WIN_SZ; ky++) {
                 unsigned sample_y = iy + ky - 1;
-                
+
                 // Clip the index to 0 or the height of the image
                 if (sample_y < 0) {
                     sample_y = 0;
@@ -270,20 +277,15 @@ void BicubicUpscaler(
                     sample_y = H_IN-1;
                 }
 
-                unsigned sample_x = HLS_MIN(ix + 3, (W_IN - 1));
-                win[ky][3] = LB[sample_y % FILTER_SIZE][sample_x];
+                win[ky][3] = LB_row.byte(sample_y % FILTER_SIZE, InPixelWidth);
+
             }
 
             // Process the window
             BicubicProcess<FILTER_SIZE>(InImg, OutImg, win, x, y);
 
             // Do we need to read another row ?
-            RdNextRow = (prev_y != iy) ? 1 : 0;
-            
-            // Update the previous row index
-            if (x == OutWidth - 1) {
-                prev_y = iy;
-            }
+            int RdNextRow = (prev_y != iy) ? 1 : 0;
 
             // Fill the line buffer
             if (wx < InWidth && Count < InFrameSize && RdNextRow) {
@@ -295,6 +297,11 @@ void BicubicUpscaler(
                 if (wx == W_IN) {
                     wy = (wy + 1) % FILTER_SIZE;
                 }
+            }
+
+            // Update the previous row index if we're done with the current one
+            if (x == OutWidth - 1) {
+                prev_y = iy;
             }
         }
         wx = 0;
