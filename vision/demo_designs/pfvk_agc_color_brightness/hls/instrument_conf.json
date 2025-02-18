@@ -1,0 +1,18 @@
+{
+    "modules": {
+        "VideoPipelineTop": {
+            "log_level": "2",
+            "fifo_log_level": "2"
+        }
+    },
+    "dashboard": {
+        "max_iterations": -1,   
+        "show_markers": 1,
+        "monitoring_mode": 0,
+        "waveform_period": "5"
+    },
+    "iice_options": {
+        "sample_buffer_depth": 1024,
+        "iice_name": ""
+    }
+}

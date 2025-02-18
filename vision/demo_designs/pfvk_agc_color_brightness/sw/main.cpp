@@ -1,5 +1,5 @@
 #include "common.h"
-#include "hls_accelerator_driver.h"
+#include "pf_demo_accelerator_driver.h"
 
 #ifdef USE_UART
 UART_instance_t gUart;
@@ -108,10 +108,20 @@ int main( void ) {
     // Set color and brightness factors.  
     // Each channel in every pixel is divided by 32 in the ImageEnhance HLS module.
     // Therefore, a factor of 32 means no scaling for that channel. 
-    VideoPipelineTop_write_b_const(62);      // 62/32 ~ 1.9
-    VideoPipelineTop_write_g_const(42);      // 42/32 ~ 1.3
-    VideoPipelineTop_write_r_const(52);      // 52/32 ~ 1.6
-    VideoPipelineTop_write_brightness(12);   // Just a bit brighter
+    uint16_t b_const = 62;
+    uint16_t g_const = 42;
+    uint16_t r_const = 52;
+
+    // uint16_t b_const = 992;
+    // uint16_t g_const = 672;
+    // uint16_t r_const = 832;
+    VideoPipelineTop_write_b_const(b_const);      // 62/512 ~ 1.9
+    VideoPipelineTop_write_g_const(g_const);      // 42/512 ~ 1.3
+    VideoPipelineTop_write_r_const(r_const);      // 52/512 ~ 1.6
+    
+    uint16_t brightness = 12;
+    VideoPipelineTop_write_brightness(brightness);   // Just a bit brighter
+    
     int gamma_en = 1;
     VideoPipelineTop_write_enable_gamma(gamma_en);  // Enabled
 
@@ -125,6 +135,12 @@ int main( void ) {
 
     uint16_t gain = 80; // initial cam gain
 
+    // read back the parameters
+    b_const = VideoPipelineTop_read_b_const();
+    g_const = VideoPipelineTop_read_g_const();
+    r_const = VideoPipelineTop_read_r_const();
+    brightness = VideoPipelineTop_read_brightness();
+
     while(1) {
         msdelay(100);
 
@@ -132,10 +148,12 @@ int main( void ) {
         // extra 2 factor added in the HLS module
         uint32_t sum;
         VideoPipelineTop_memcpy_read_sum((void*)(&sum), sizeof(sum));
+
         uint32_t avg = sum / (1920*1080*4*2);
 
         gain_cal(avg, 2, &gain);
-        PRINTF("avg:%d, gain:%d, gamma_en:%d\r\n", avg, gain, gamma_en);
+        PRINTF(">> avg:%d, gain:%d, b:%d, g:%d, r:%d, brightness:%d, gamma_en:%d\r\n", 
+            avg, gain, b_const, g_const, r_const, brightness, gamma_en);
     }
     return 0;
 }

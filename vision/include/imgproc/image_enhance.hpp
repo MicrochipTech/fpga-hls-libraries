@@ -78,9 +78,9 @@ template <
 void ImageEnhance(
     vision::Img<PIXEL_T, H, W, STORAGE_IN, NPPC> &InImg,
     vision::Img<PIXEL_T, H, W, STORAGE_OUT, NPPC> &OutImg,
-    ap_uint<8> b_const,
-    ap_uint<8> g_const,
-    ap_uint<8> r_const,
+    ap_uint<16> b_const,
+    ap_uint<16> g_const,
+    ap_uint<16> r_const,
     ap_int<10>  brightness
 ) {
     #pragma HLS memory partition argument(InImg) type(struct_fields)
@@ -96,9 +96,9 @@ void ImageEnhance(
         "Input data should have only be 3 channels.");
 
     // 
-    ap_ufixpt<8,3, AP_RND, AP_SAT> b_mult = b_const / 32.0;
-    ap_ufixpt<8,3, AP_RND, AP_SAT> g_mult = g_const / 32.0;
-    ap_ufixpt<8,3, AP_RND, AP_SAT> r_mult = r_const / 32.0;
+    ap_ufixpt<12,3, AP_RND, AP_SAT> b_mult = b_const / 512.0;
+    ap_ufixpt<12,3, AP_RND, AP_SAT> g_mult = g_const / 512.0;
+    ap_ufixpt<12,3, AP_RND, AP_SAT> r_mult = r_const / 512.0;
 
     TransformPixel(InImg, OutImg, [&](ap_int<PixelWidth> in){
         using fixpt_t = ap_ufixpt<ChannelWidth, ChannelWidth, AP_TRN, AP_SAT>;

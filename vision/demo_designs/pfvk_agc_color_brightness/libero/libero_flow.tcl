@@ -1,3 +1,6 @@
+puts "TCL_BEGIN: [info script]"
+
+
 proc update_snvm_to_spi_ram_cfg { ramcfg } {
     set fd [open $ramcfg r]
     set newFilename "[file rootname $ramcfg].new.cfg"
@@ -29,6 +32,25 @@ proc update_snvm_to_spi_ram_cfg { ramcfg } {
     }
     return $use_spi
 }
+
+if { $::argc > 0 } {
+    set i 1
+    foreach arg $::argv {
+        if {[string match "*:*" $arg]} {
+            set var [string range $arg 0 [string first ":" $arg]-1]
+            set val [string range $arg [string first ":" $arg]+1 end]
+            puts "Setting parameter $var to $val"
+            set $var "$val"
+        } else {
+            set $arg 1
+            puts "set $arg to 1"
+        }
+        incr i
+    }
+} else {
+    puts "no command line argument passed"
+}
+
 #Libero project creation
 new_project \
     -location {./vision_pipeline} \
@@ -56,23 +78,34 @@ new_project \
     -adv_options {VOLTR:IND} 
 
 # Set IP core version variables
-source src/ip_core_versions.tcl
+source ../../../rtl/ip_core_versions.tcl
 
 #Download all the required cores to the vault (Camera and display components will download their required cores separately)
-download_core -vlnv "Actel:SystemBuilder:PF_DDR4:${PF_DDR4_version}" -location {www.microchip-ip.com/repositories/SgCore}
-download_core -vlnv "Actel:SystemBuilder:PF_SRAM_AHBL_AXI:${PF_SRAM_AHBL_AXI_version}" -location {www.microchip-ip.com/repositories/SgCore}
 download_core -vlnv "Actel:DirectCore:COREI2C:${COREI2C_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:CoreAPB3:${CoreAPB3_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:CoreGPIO:${CoreGPIO_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:COREJTAGDEBUG:${COREJTAGDEBUG_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:CoreAHBLite:${CoreAHBLite_version}" -location {www.microchip-ip.com/repositories/DirectCore}
-download_core -vlnv "Actel:SgCore:PF_INIT_MONITOR:${PF_INIT_MONITOR_version}" -location {www.microchip-ip.com/repositories/SgCore}
-download_core -vlnv "Microsemi:MiV:MIV_RV32:${MIV_RV32_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:COREUART:${COREUART_version}" -location {www.microchip-ip.com/repositories/DirectCore}
-download_core -vlnv "Microsemi:SolutionCore:Image_Enhancement:${Image_Enhancement_version}" -location {www.microchip-ip.com/repositories/DirectCore}
-download_core -vlnv "Actel:DirectCore:COREAXI4INTERCONNECT:${COREAXI4INTERCONNECT_verion}" -location {www.microchip-ip.com/repositories/DirectCore}
+download_core -vlnv "Actel:DirectCore:COREAXI4INTERCONNECT:${COREAXI4INTERCONNECT_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:CoreUARTapb:${CoreUARTapb_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:CoreTimer:${CoreTimer_version}" -location {www.microchip-ip.com/repositories/DirectCore}
+download_core -vlnv "Actel:DirectCore:CORERESET_PF:${CORERESET_PF_version}" -location {www.microchip-ip.com/repositories/DirectCore}
+download_core -vlnv "Actel:DirectCore:CORERXIODBITALIGN:${CORERXIODBITALIGN_version}" -location {www.microchip-ip.com/repositories/DirectCore}
+download_core -vlnv "Actel:DirectCore:COREAHBTOAPB3:${COREAHBTOAPB3_version}" -location {www.microchip-ip.com/repositories/DirectCore}
+download_core -vlnv "Microsemi:MiV:MIV_RV32:${MIV_RV32_version}" -location {www.microchip-ip.com/repositories/DirectCore}
+download_core -vlnv "Microsemi:SolutionCore:Image_Enhancement:${Image_Enhancement_version}" -location {www.microchip-ip.com/repositories/DirectCore}
+download_core -vlnv "Microsemi:SolutionCore:mipicsi2rxdecoderPF:${mipicsi2rxdecoderPF_version}" -location {www.microchip-ip.com/repositories/DirectCore}
+download_core -vlnv "Microsemi:SolutionCore:HDMI_RX:${HDMI_RX_version}" -location {www.microchip-ip.com/repositories/DirectCore}
+download_core -vlnv "Microsemi:SolutionCore:HDMI_TX:${HDMI_TX_version}" -location {www.microchip-ip.com/repositories/DirectCore}
+download_core -vlnv "Actel:SystemBuilder:PF_DDR4:${PF_DDR4_version}" -location {www.microchip-ip.com/repositories/SgCore}
+download_core -vlnv "Actel:SystemBuilder:PF_SRAM_AHBL_AXI:${PF_SRAM_AHBL_AXI_version}" -location {www.microchip-ip.com/repositories/SgCore}
+download_core -vlnv "Actel:SystemBuilder:PF_IOD_GENERIC_RX:${PF_IOD_GENERIC_RX_version}" -location {www.microchip-ip.com/repositories/SgCore}
+download_core -vlnv "Actel:SystemBuilder:PF_XCVR_ERM:${PF_XCVR_ERM_version}" -location {www.microchip-ip.com/repositories/SgCore}
+download_core -vlnv "Actel:SgCore:PF_INIT_MONITOR:${PF_INIT_MONITOR_version}" -location {www.microchip-ip.com/repositories/SgCore}
+download_core -vlnv "Actel:SgCore:PF_CCC:${PF_CCC_version}" -location {www.microchip-ip.com/repositories/SgCore}
+download_core -vlnv "Actel:SgCore:PF_TX_PLL:${PF_TX_PLL_version}" -location {www.microchip-ip.com/repositories/SgCore}
+download_core -vlnv "Actel:SgCore:PF_XCVR_REF_CLK:${PF_XCVR_REF_CLK_version}" -location {www.microchip-ip.com/repositories/SgCore}
 
 #source the below tcl file to create the top level SmartDesign and generate it
 cd src
@@ -164,7 +197,7 @@ run_tool -name {SYNTHESIZE}
 
 # set IDENTIFY 1
 if {[info exists IDENTIFY]} {
-    puts "Running IDENTIFY"
+    puts "Running IDENTIFY..."
     source ./instrument.tcl
     run_tool -name {SYNTHESIZE}
 }
@@ -314,3 +347,5 @@ export_prog_job \
          -sanitize_snvm 0 
 
 save_project
+
+puts "TCL_END: [info script]"

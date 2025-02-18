@@ -6,7 +6,7 @@
 using namespace hls;
 
 // For testing with cosim
-// #define SMALL
+#define SMALL
 
 #ifdef SMALL
 #warning "Runnning with SMALL image"
@@ -75,26 +75,36 @@ void Sum(BGRImgT &InImg, BGRImgT &OutImg, unsigned &sum ) {
 }
 
 //------------------------------------------------------------------------------
+void Invert(BGRImgT &InImg, BGRImgT &OutImg, const ap_uint<1> enable) {
+    #pragma HLS memory partition argument(InImg) type(struct_fields)
+    #pragma HLS memory partition argument(OutImg) type(struct_fields)
+    const unsigned PixelWidth = vision::DT<HLS_8UC3, NPPC_4>::W / NPPC_4;
+    TransformPixel_enable(InImg, OutImg, enable,
+        [](ap_uint<PixelWidth> in){ return ~in; }
+    );
+}
+
+//------------------------------------------------------------------------------
 void DDR_Write_wrapper(BayerAxisVideoT &VideoIn, uint64_t *Buf, int HRes, int VRes) {
-    #pragma HLS function top
+    // #pragma HLS function top
     #pragma HLS interface argument(Buf) type(axi_initiator) num_elements(NumAxiWords) max_burst_len(256)
     vision::AxisVideo2AxiMM<AxiWordWidth, uint64_t, HEIGHT, WIDTH>(VideoIn, Buf, HRes, VRes);
 }
 
 //------------------------------------------------------------------------------
 void VideoPipelineTop(
-    uint64_t *Buf, 
+    BayerAxisVideoT &VideoIn,
     RGBAxisVideoT &VideoOut, 
     ap_uint<8> enable_gamma,
-    ap_uint<8> b_const,
-    ap_uint<8> g_const,
-    ap_uint<8> r_const,
+    ap_uint<1> enable_invert,
+    ap_uint<16> b_const,
+    ap_uint<16> g_const,
+    ap_uint<16> r_const,
     ap_uint<16> brightness,
     unsigned &sum,
     vision::BayerFormat BayerFormat) {
     #pragma HLS function top
     #pragma HLS function dataflow
-    #pragma HLS interface argument(Buf) type(axi_initiator) num_elements(NumAxiWords) max_burst_len(256)
     #pragma HLS interface argument(enable_gamma) type(axi_target)
     #pragma HLS interface argument(b_const)      type(axi_target)
     #pragma HLS interface argument(g_const)      type(axi_target)
@@ -103,14 +113,15 @@ void VideoPipelineTop(
     #pragma HLS interface argument(sum)          type(axi_target)
 
     BayerImgT BayerImg;
-    BGRImgT BGRImg, GammaCorrected, AfterSumImg, AfterGrayImg, ImgEnhanced;
+    BGRImgT BGRImg, GammaCorrected, ImageInverted, AfterSumImg, AfterGrayImg, ImgEnhanced;
 
-    vision::AxiMM2Img<AxiWordWidth>(Buf, BayerImg);
+    AxisVideo2Img(VideoIn, BayerImg);
     vision::DeBayer(BayerImg, BGRImg, BayerFormat);
     Sum(BGRImg, AfterSumImg, sum);
     vision::ImageEnhance(AfterSumImg, ImgEnhanced, b_const, g_const, r_const, brightness);
     vision::GammaCorrection(ImgEnhanced, GammaCorrected, enable_gamma);
-    vision::Img2AxisVideo(GammaCorrected, VideoOut);
+    Invert(GammaCorrected, ImageInverted, enable_invert);
+    vision::Img2AxisVideo(ImageInverted, VideoOut);
 }
 
 //------------------------------------------------------------------------------
@@ -118,25 +129,27 @@ int main() {
     Mat BGRInMat = cv::imread(FILENAME, cv::IMREAD_COLOR);
     BGRImgT InImg;
     BayerImgT BayerInImg;
-    BayerAxisVideoT InStream(NumPixelWords), DDRReadFIFO(NumPixelWords);
+    BayerAxisVideoT InStream(NumPixelWords);
     convertFromCvMat(BGRInMat, InImg);
     vision::BGR2Bayer(InImg, BayerInImg, vision::BayerFormat::BGGR);
     vision::Img2AxisVideo(BayerInImg, InStream);
-
-    static uint64_t Buf[NumPixelWords];
     RGBAxisVideoT OutputStream(NumPixelWords);
-    DDR_Write_wrapper(InStream, Buf, WIDTH, HEIGHT);
 
-    ap_uint<8> b_const = 62;
-    ap_uint<8> g_const = 42;
-    ap_uint<8> r_const = 52;
+    ap_uint<16> b_const = 992;
+    ap_uint<16> g_const = 672;
+    ap_uint<16> r_const = 832;
+    // ap_uint<8> b_const = 62;
+    // ap_uint<8> g_const = 42;
+    // ap_uint<8> r_const = 52;
     ap_uint<10> brightness = 46;
     ap_uint<1> enable_gamma = 1;
+    ap_uint<1> enable_invert = 0;
     unsigned sum = 0;
-    VideoPipelineTop(
-        Buf, 
+     VideoPipelineTop(
+        InStream, 
         OutputStream, 
         enable_gamma, 
+        enable_invert, 
         b_const, 
         g_const, 
         r_const, 

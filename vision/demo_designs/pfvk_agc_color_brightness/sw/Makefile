@@ -1,32 +1,16 @@
 # Detect the operating system
 ifeq ($(OS),Windows_NT)
-    detected_OS := Windows
-    RM = powershell rm -ErrorAction SilentlyContinue -Force -Recurse
+    RM = powershell rm -ErrorAction Ignore -Force -Recurse
     MKDIR = powershell New-Item -Type Directory -Force -Path
     CP = powershell cp
     # FIX_PATH = $(subst /,\,$1)
     FIX_PATH = $1
+    SHLS_ROOT_DIR ?= $(patsubst %\bin\shls.bat,%,$(shell powershell "(Get-Command shls).Path"))
 else
-    detected_OS := $(shell uname -s)
     RM = rm -rf
     MKDIR = mkdir -p
     CP = cp
     FIX_PATH = $1
-endif
-
-# Set the tools based on the detected operating system
-ifeq ($(detected_OS),Windows)
-    CC = riscv64-unknown-elf-gcc
-    CXX = riscv64-unknown-elf-g++
-    OBJCOPY = riscv64-unknown-elf-objcopy
-    SIZE = riscv64-unknown-elf-size
-    SHLS_ROOT_DIR ?= $(patsubst %\bin\shls.bat,%,$(shell powershell "(Get-Command shls).Path"))
-else
-    # Set to the appropriate tools for Linux or other OS
-    CC = riscv64-unknown-elf-gcc
-    CXX = riscv64-unknown-elf-g++
-    OBJCOPY = riscv64-unknown-elf-objcopy
-    SIZE = riscv64-unknown-elf-size
     SHLS_ROOT_DIR ?= $(patsubst %/bin/shls,%,$(shell which shls))
 endif
 
@@ -111,4 +95,4 @@ $(BUILD_DIR):
 	$(MKDIR) $(call FIX_PATH,$@)
 
 clean:
-	$(RM) $(call FIX_PATH,$(BUILD_DIR))
+	@if [ -d "$(BUILD_DIR)" ]; then $(RM) $(call FIX_PATH,$(BUILD_DIR)); fi
