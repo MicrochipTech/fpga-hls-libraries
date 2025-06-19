@@ -19,6 +19,7 @@
 - [Gamma Correction (gamma\_correction.hpp)](#gamma-correction-gamma_correctionhpp)
 - [Convolution\_2D (convolution\_2d.hpp)](#convolution_2d-convolution_2dhpp)
 - [ImageEnhance (image\_enhance.hpp)](#imageenhance-image_enhancehpp)
+- [CLAHE (clahe.hpp)](#clahe-clahehpp)
 
 <!-- /TOC -->
 
@@ -624,3 +625,53 @@ edges where there are large intensity differences.
 - Only supports one-channel images (i.e. grayscale).
 - FILTER_SIZE must be five.
 - NPPC must be one.
+
+
+# Clahe ([clahe.hpp](clahe.hpp))
+```cpp
+template <
+    int HIST_SIZE = 256,
+    vision::PixelType PIXEL_T,
+    int H,
+    int W,
+    vision::StorageType STORAGE,
+    vision::NumPixelsPerCycle NPPC,
+    int TILE_H,
+    int TILE_W,
+    int CLIP_LIMIT
+>
+void clahe(
+    Img<PIXEL_T, H, W, STORAGE, NPPC> &InImg,
+    Img<PIXEL_T, H, W, STORAGE, NPPC> &OutImg
+);
+```
+
+This function implements Contrast-Limited Adaptive Histogram Equalization (CLAHE) technique to:
+- improve local contrast
+- suppress noise amplification
+
+The function performs the following step in streaming fashion only for maximizing throughput:
+
+1. Tiling: divide the input image into a regular grid of small rectangular regions.
+2. Histogram equalization: builds the pixel-intensity histogram and computes its
+   cumulative distribution function (CDF) for each tile image.
+3. Contrast limiting: clip each histogram bin to a predefined maximum value (i.e. clip limit)
+4. Remapping & bilinear interpolation: Each pixel is remapped through its tile’s CDF to obtain
+   a new intensity. Smooth transitions are achieved by bilinearly interpolating every pixel location.
+
+**Arguments:**
+- `InImg`: The input image to the function
+- `OutImg`: The output image
+
+**Template parameters:**
+- Apart `HIST_SIZE` and `CLIP_LIMIT` all template parameters are automatically inferred from the input and output arguments.
+- `HIST_SIZE`: the histogram bin size, default to 256.
+- `CLIP_LIMIT`: the maximum contrast limiting value. The function uses a clip limit of 2 to align with `cv::CLAHE`
+
+**Limitations:**
+The current implementation of hls::vision::clahe( ) has the following characteristics:
+
+- supports only one channel
+- supports only NPPC = 1
+- support only 8 bits per channel
+- support only FIFO as the underlying image storage type

@@ -68,7 +68,7 @@ void TransformPixel(
 
     HLS_VISION_TRANSFORMPIXEL_LOOP:
     #pragma HLS loop pipeline
-    for (unsigned i=0, j=0, k = 0; k < NumPixelWords; k++) {
+    for (unsigned k = 0; k < NumPixelWords; k++) {
         typename DT<PIXEL_T_I, NPPC>::T ImgdataIn = ImgIn.read(k);
         typename DT<PIXEL_T_O, NPPC>::T ImgdataOut;
         // There may be multiple pixels per cycle.

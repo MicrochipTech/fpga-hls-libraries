@@ -17,6 +17,7 @@
 #include "./imgproc/bilateral_filter.hpp"
 #include "./imgproc/hysteresis.hpp"
 #include "./imgproc/histogram.hpp"
+#include "./imgproc/clahe.hpp"
 #include "./imgproc/nonmaximum_suppression.hpp"
 #include "./imgproc/sobel.hpp"
 #include "./imgproc/sobel_direction.hpp"
