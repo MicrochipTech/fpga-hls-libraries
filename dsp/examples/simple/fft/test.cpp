@@ -130,9 +130,9 @@ int test(const uint16_t* testResGoldRe, const uint16_t* testResGoldIm,
         int golden_im_int = ((ap_int<16>)testResGoldIm[i]).to_int64();        
         
         // calculate the diff in the real part
-        int re_diff = abs(golden_re_int - buf_out[i].re);
+        int re_diff = abs(golden_re_int - (int)buf_out[i].re);
         // calculate the diff in the imaginary part
-        int im_diff = abs(golden_im_int - buf_out[i].im);
+        int im_diff = abs(golden_im_int - (int)buf_out[i].im);
 
         if (re_diff > VAL_MISMATCH_THRESHOLD) {
             std::cout << "Mismatch: outRe[" << i << "] expected != actual: " << golden_re_int << " != " << buf_out[i].re.to_int64() << std::endl;

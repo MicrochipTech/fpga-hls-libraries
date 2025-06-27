@@ -93,27 +93,13 @@ The example used to gather the following graph and resource report can be found 
 
 ## Error Graph
 
-![exp_D32_I8_S-10.000000_L-2.000000_N16](<../graphs/exp_D32_I8_S-10.000000_L-2.000000_N16_graph.png>)
-
 ![exp_D32_I16_S-2.000000_L3.000000_N16](<../graphs/exp_D32_I16_S-2.000000_L3.000000_N16_graph.png>)
+
+![exp_D32_I8_S-10.000000_L-2.000000_N16](<../graphs/exp_D32_I8_S-10.000000_L-2.000000_N16_graph.png>)
 
 ## Resource Usage
 
 Using MPF300
-
-
-Input Plot Range: [-10.00, -2.00]
-Using N_ITER = 16
-
-Using W = 32, IW = 8, Q_M = AP_TRN, O_M = AP_WRAP
-
-
-
-| Name       | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Avg Error |   Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
-|------------|----------------------------------|-----------------------------|-------------|-------------|--------|--------|--------|---------|---------|-----------------------|
-| exp_taylor | 38 / 39 / 38.00                  | 1 / 2 / 1.00                |       0     |     3e-06   |   2906 |   4215 |     35 |       0 |      12 | 322.789 MHz           |
-| exp_cordic | 55 / 56 / 55.00                  | 1 / 2 / 1.00                |       8e-06 |     1.7e-05 |   3360 |   7290 |     10 |       0 |       8 | 386.548 MHz           |
-| exp_cmath  | 253 / 253 / 253.00               | 19 / 19 / 19.00             |       0     |     0       |   8230 |  14574 |      9 |       4 |       0 | 338.868 MHz           |
 
 
 Input Plot Range: [-2.00, 3.00]
@@ -125,9 +111,23 @@ Using W = 32, IW = 16, Q_M = AP_TRN, O_M = AP_WRAP
 
 | Name       | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Avg Error |   Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
 |------------|----------------------------------|-----------------------------|-------------|-------------|--------|--------|--------|---------|---------|-----------------------|
-| exp_taylor | 36 / 37 / 36.00                  | 1 / 2 / 1.00                |    7.9e-05  |    0.000664 |   2309 |   3290 |     26 |       0 |       8 | 365.230 MHz           |
-| exp_cordic | 55 / 56 / 55.00                  | 1 / 2 / 1.00                |    0.000339 |    0.003017 |   3221 |   7169 |     10 |       0 |       8 | 378.072 MHz           |
-| exp_cmath  | 253 / 253 / 253.00               | 19 / 19 / 19.00             |    0        |    0        |   8230 |  14574 |      9 |       4 |       0 | 317.158 MHz           |
+| exp_taylor | 36 / 37 / 36.00                  | 1 / 2 / 1.00                |    7.9e-05  |    0.000664 |   2307 |   3228 |     26 |       0 |       8 | 350.754 MHz           |
+| exp_cordic | 58 / 59 / 58.00                  | 1 / 2 / 1.00                |    0.000339 |    0.003017 |   3442 |   7658 |     10 |       0 |       9 | 376.223 MHz           |
+| exp_cmath  | 253 / 253 / 253.00               | 19 / 19 / 19.00             |    0        |    0        |   8168 |  14026 |      9 |       4 |       0 | 360.101 MHz           |
+
+
+Input Plot Range: [-10.00, -2.00]
+Using N_ITER = 16
+
+Using W = 32, IW = 8, Q_M = AP_TRN, O_M = AP_WRAP
+
+
+
+| Name       | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Avg Error |   Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
+|------------|----------------------------------|-----------------------------|-------------|-------------|--------|--------|--------|---------|---------|-----------------------|
+| exp_taylor | 38 / 39 / 38.00                  | 1 / 2 / 1.00                |       0     |     3e-06   |   2907 |   4154 |     35 |       0 |      12 | 351.741 MHz           |
+| exp_cordic | 58 / 59 / 58.00                  | 1 / 2 / 1.00                |       8e-06 |     1.7e-05 |   3523 |   7646 |     10 |       0 |      10 | 378.931 MHz           |
+| exp_cmath  | 253 / 253 / 253.00               | 19 / 19 / 19.00             |       0     |     0       |   8168 |  14026 |      9 |       4 |       0 | 349.773 MHz           |
 
 Notes:
 - Targeted FMax was 400MHz.

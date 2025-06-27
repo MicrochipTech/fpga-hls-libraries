@@ -15,11 +15,11 @@ Open the terminal, and enter the following:
 ```console
 cd <CLONED_LIBRARIES_DIRECTORY>/vision/precompiled_sw_libraries
 
-curl -L https://github.com/MicrochipTech/fpga-hls-libraries/releases/download/v2024.2/opencv4.5.4-x86_64-linux.tar.gz -o opencv4.5.4-x86_64-linux.tar.gz
+curl -L https://github.com/MicrochipTech/fpga-hls-libraries/releases/download/v2025.1/opencv4.5.4-x86_64-linux.tar.gz -o opencv4.5.4-x86_64-linux.tar.gz
 tar -xzvf opencv4.5.4-x86_64-linux.tar.gz
 mv opencv4.5.4-x86_64-linux opencv4.5.4-x86_64
 
-curl -L https://github.com/MicrochipTech/fpga-hls-libraries/releases/download/v2024.2/ffmpeg4.4-x86_64-linux.tar.gz -o ffmpeg4.4-x86_64-linux.tar.gz
+curl -L https://github.com/MicrochipTech/fpga-hls-libraries/releases/download/v2025.1/ffmpeg4.4-x86_64-linux.tar.gz -o ffmpeg4.4-x86_64-linux.tar.gz
 tar -xzvf ffmpeg4.4-x86_64-linux.tar.gz
 mv ffmpeg4.4-x86_64-linux ffmpeg4.4-x86_64
 ```
@@ -31,11 +31,11 @@ Open Powershell, and enter the following:
 ```console
 cd <CLONED_LIBRARIES_DIRECTORY>/vision/precompiled_sw_libraries
 
-Invoke-WebRequest https://github.com/MicrochipTech/fpga-hls-libraries/releases/download/v2024.2/opencv4.5.4-x86_64-win.tar.gz -OutFile opencv4.5.4-x86_64-win.tar.gz
+Invoke-WebRequest https://github.com/MicrochipTech/fpga-hls-libraries/releases/download/v2025.1/opencv4.5.4-x86_64-win.tar.gz -OutFile opencv4.5.4-x86_64-win.tar.gz
 tar -xzvf opencv4.5.4-x86_64-win.tar.gz
 move opencv4.5.4-x86_64-win opencv4.5.4-x86_64
 
-Invoke-WebRequest https://github.com/MicrochipTech/fpga-hls-libraries/releases/download/v2024.2/ffmpeg4.4-x86_64-win.tar.gz -OutFile ffmpeg4.4-x86_64-win.tar.gz
+Invoke-WebRequest https://github.com/MicrochipTech/fpga-hls-libraries/releases/download/v2025.1/ffmpeg4.4-x86_64-win.tar.gz -OutFile ffmpeg4.4-x86_64-win.tar.gz
 tar -xzvf ffmpeg4.4-x86_64-win.tar.gz
 move ffmpeg4.4-x86_64-win ffmpeg4.4-x86_64
 ```
