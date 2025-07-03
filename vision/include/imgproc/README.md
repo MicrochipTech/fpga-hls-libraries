@@ -19,6 +19,9 @@
 - [Gamma Correction (gamma\_correction.hpp)](#gamma-correction-gamma_correctionhpp)
 - [Convolution\_2D (convolution\_2d.hpp)](#convolution_2d-convolution_2dhpp)
 - [ImageEnhance (image\_enhance.hpp)](#imageenhance-image_enhancehpp)
+- [Histogram Equalization (equalized\_histogram.hpp)](#histogram-equalization-equalized_histogramhpp)
+- [Crop Image (crop\_image.hpp)](#cropimage-crop_imagehpp)
+- [BilinearFilter (bilinear\_filter.hpp)](#bilinearfilter-bilinear_filterhpp)
 
 <!-- /TOC -->
 
@@ -609,7 +612,7 @@ The `sigma_color` argument is used to compute at compile-time the intensity kern
 By combining these two factors, the bilateral filter can smooth areas that are 
 close both in terms of spatial distance and pixel intensity, while preserving 
 edges where there are large intensity differences.
- 
+
 **Arguments:**
 - `InImg`: The input image to the function.
 - `OutImg`: The filtered output image.
@@ -624,3 +627,115 @@ edges where there are large intensity differences.
 - Only supports one-channel images (i.e. grayscale).
 - FILTER_SIZE must be five.
 - NPPC must be one.
+
+# Histogram Equalization ([equalized_histogram.hpp](equalized_histogram.hpp))
+```cpp
+template <
+    int HIST_SIZE = 256,
+    PixelType PIXEL_T,
+    int H,
+    int W,
+    StorageType STORAGE_TYPE,
+    NumPixelsPerCycle NPPC
+> void EqualizedHistogram (
+    Img<PIXEL_T, H, W, STORAGE_TYPE, NPPC> &InImg,
+    Img<PIXEL_T, H, W, STORAGE_TYPE, NPPC> &OutImg
+);
+```
+Histogram equalization is a contrast enhancement technique used in image processing. It improves the global contrast of an image by redistributing pixel intensities so that they span the full range more evenly.
+
+The function performs the following steps to equalize a histogram:
+
+1. Histogram Calculation: count how many times each intensity (0–255 for 8-bit) appears in the image
+2. Compute the Cumulative Distribution Function (CDF)
+3. Map Old Pixel Values to New Ones: each pixel intensity is replaced with its CDF-based mapped value, which stretches out frequently occurring values and compresses less frequent ones.
+
+The result of the processing is that darker regions become brighter and vice versa, helping details emerge.
+
+**Arguments:**
+- `InImg`: The input image to the function.
+- `OutImg`: The processed output image.
+
+**Template parameters:**
+- HIST_SIZE: the size of a histogram, default to 256.
+- All other template parameters are automatically inferred from the input and output arguments.
+
+**Limitations:**
+The current implementation of `hls::vision::EqualizedHistogram( )` has the following characteristics:
+
+# CropImage ([crop_image.hpp](crop_image.hpp))
+```cpp
+template <
+    PixelType PIXEL_T,              // Pixel Type
+    int H_SRC,                      // Source Image Height
+    int W_SRC,                      // Source Image Width
+    int H_DST,                      // Destination Image Height
+    int W_DST,                      // Destination Image Width
+    StorageType STORAGE,            // Storage Type
+    NumPixelsPerCycle NPPC          // Pixels Per Cycle
+>
+void CropImg(
+    Img<PIXEL_T, H_SRC, W_SRC, STORAGE, NPPC> &InImg,
+    Img<PIXEL_T, H_DST, W_DST, STORAGE, NPPC> &OutImg,
+    int rowBound,
+    int colBound,
+    int start
+);
+```
+
+This function crops an axis-aligned sub-window from a source image into a destination image.
+Specifically, the function copies a rectangular Region-Of-Interest (ROI) from a streamed source image (`InImg`) into a destination image (`OutImg`). 
+
+This function supports both FRAME_BUFFER and FIFO as the underlying image storage type.
+ 
+**Arguments:**
+- `InImg`: Source image object to crop from.
+- `OutImg`: Destination image object that receives the cropped region.
+- `rowBound`: Row offset of the top-left corner of the crop window in the source image.
+- `colBound`: Column offset of the top-left corner of the crop window in the source image.
+- `start`: Absolute offset applied to both row and column of the source image
+
+# BilinearFilter ([bilinear_filter.hpp](bilinear_filter.hpp))
+```cpp
+template <
+    StorageType STORAGE_TYPE,
+    NumPixelsPerCycle NPPC,
+    PixelType PIXEL,
+    int H_DST,
+    int W_DST,
+    int H_SRC,
+    int W_SRC
+>
+void BilinearFilter(
+    Img<PIXEL, H_SRC, W_SRC, STORAGE_TYPE, NPPC> &InImg,
+    Img<PIXEL, H_DST, W_DST, STORAGE_TYPE, NPPC> &OutImg
+);
+```
+
+A bilinear filter (or bilinear interpolation) is a way to estimate the value of a
+point on a regular 2D grid (e.g. an image) by taking a weighted average of its
+four nearest neighbors.
+
+A bilinear filter resizes or warps an image by treating each output pixel as a
+point landing between four input pixels. It first finds that point’s surrounding
+“grid square” in the source image, then blends those four corner values in two
+stages—horizontally, then vertically—using weights proportional to how close the
+point is to each corner. The result is a smooth, visually continuous estimate of
+what the true color would be at that sub‐pixel location.
+
+**Arguments:**
+- `InImg`: The input image to the function.
+- `OutImg`: The filtered output image.
+
+
+**Template parameters:**
+All template parameters are automatically inferred from the input and output arguments.
+
+**Limitations:**
+
+The current implementation has the following characteristics:
+
+- supports only one channel
+- supports only NPPC = 1
+- support only 8 bits per channel
+- support both FRAME_BUFFER and FIFO as the underlying image storage type

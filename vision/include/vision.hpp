@@ -14,13 +14,16 @@
 #include "./imgproc/image_enhance.hpp"
 #include "./imgproc/format_conversions.hpp"
 #include "./imgproc/gaussian_blur.hpp"
+#include "./imgproc/bilinear_filter.hpp"
 #include "./imgproc/bilateral_filter.hpp"
 #include "./imgproc/hysteresis.hpp"
 #include "./imgproc/histogram.hpp"
+#include "./imgproc/equalized_histogram.hpp"
 #include "./imgproc/nonmaximum_suppression.hpp"
 #include "./imgproc/sobel.hpp"
 #include "./imgproc/sobel_direction.hpp"
 #include "./interface/axi_mm_intf.hpp"
 #include "./interface/axis_video.hpp"
+#include "./imgproc/crop_image.hpp"
 
 #endif

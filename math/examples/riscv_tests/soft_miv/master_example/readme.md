@@ -10,6 +10,21 @@ drivers necessary for running on the Mi-V soft processor.
 We have also included the [fpga_config dir/fpga_hls_config.hpp](fpga_config_dir/fpga_hls_config.hpp) file, which specifies the base addresses we use in our MiV reference design.
 If you use are using a different reference design, make sure to change [fpga_config dir/fpga_hls_config.hpp](fpga_config_dir/fpga_hls_config.hpp) accordingly.
 
+*Note:* If you are using SmartHLS 2025.1, you will have to change line 115 of `[INSTALL DIRECTORY HERE]/Libero_So
+C_2025.1/SmartHLS/SmartHLS/reference_designs/MiV_SoC/ref_design/MiV_SoC_libero.tcl` from:
+
+```
+set PF_INIT_MONITOR_version               2.0.307
+```
+
+to
+
+```
+set PF_INIT_MONITOR_version               2.0.308
+```
+
+This is a known issue, and will be fixed in the next release of Libero.
+
 ### Compilation Flow
 To compile, we use the scripts [compile_and_run.sh](compile_and_run.sh) and [compile.sh](compile.sh) included in the example. 
 

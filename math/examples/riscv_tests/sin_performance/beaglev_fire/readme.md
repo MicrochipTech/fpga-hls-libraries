@@ -48,7 +48,7 @@ You should install the following software:
    beagleboard compilation flow:
 
    ```bash
-   export LIBERO_INSTALL_DIR=/path/to/Libero_SoC_v2024.2
+   export LIBERO_INSTALL_DIR=/path/to/Libero_SoC_2025.1
    export FPGENPROG=$LIBERO_INSTALL_DIR/Libero/bin64/fpgenprog
    export SC_INSTALL_DIR=/path/to/SoftConsole-v2022.2-RISC-V-747
    export LD_LIBRARY_PATH=/usr/lib/i386-linux-gnu:$LD_LIBRARY_PATH
@@ -62,7 +62,7 @@ You should install the following software:
 
    ```bash
    cd support/beaglev-fire/gateware
-   python build-bitstream.py ../../../math/examples/riscv_tests/sin_performance/beaglev_fire/sin_performance.yaml
+   python build-bitstream.py ../../../math/examples/riscv_tests/sin_performance/sin_performance.yaml
    ```
 
    This `.yaml` configuration file makes it so that SmartHLS's open-source library, [fpga-hls-libraries](https://github.com/MicrochipTech/fpga-hls-libraries), will be cloned byt the python script in order to get the design files before starting to run the Libero flow. Then, as part of the project generation step, it will:

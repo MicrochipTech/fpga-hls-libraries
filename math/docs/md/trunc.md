@@ -71,8 +71,8 @@ Using W = 32, IW = 16, Q_M = AP_TRN, O_M = AP_WRAP
 
 | Name        | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Avg Error |   Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
 |-------------|----------------------------------|-----------------------------|-------------|-------------|--------|--------|--------|---------|---------|-----------------------|
-| trunc_hls   | 3 / 4 / 3.06                     | 1 / 2 / 1.06                |           0 |           0 |     99 |     69 |      0 |       0 |       0 | 788.022 MHz           |
-| trunc_cmath | 15 / 16 / 15.06                  | 1 / 2 / 1.06                |           0 |           0 |   2367 |   4751 |      0 |       0 |       0 | 415.110 MHz           |
+| trunc_hls   | 3 / 4 / 3.06                     | 1 / 2 / 1.06                |           0 |           0 |     99 |     69 |      0 |       0 |       0 | 773.395 MHz           |
+| trunc_cmath | 15 / 16 / 15.06                  | 1 / 2 / 1.06                |           0 |           0 |   2357 |   4596 |      0 |       0 |       0 | 392.003 MHz           |
 
 Notes:
 - Targeted FMax was 400MHz.
