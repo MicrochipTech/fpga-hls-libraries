@@ -9,8 +9,8 @@ using namespace hls::vision;
 //=====================================================================
 //  Macros
 //=====================================================================
-#define WIDTH               160
-#define HEIGHT              120
+#define WIDTH               320
+#define HEIGHT              240
 #define PIXEL_TYPE          PixelType::HLS_8UC1
 #define HIST_SIZE           256
 // Use FRAME_BUFFER for data comming from memory over AXI.  Otherwise use FIFO 

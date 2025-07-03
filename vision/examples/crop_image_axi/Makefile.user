@@ -1,12 +1,12 @@
 # Root directory path for the HLS libraries. Modify as necessary. 
 SHLS_LIBRARY_DIR =  ../../..
 
-INPUT_IMAGE = xray_160x120.png
+INPUT_IMAGE = toronto_320x240.jpg
 
 #-------------------------------------------------------------------------------
 # For X86_64 compilation
 #-------------------------------------------------------------------------------
-PROGRAM_ARGUMENTS += $(INPUT_IMAGE)
+PROGRAM_ARGUMENTS += $(SHLS_LIBRARY_DIR)/vision/media_files/$(INPUT_IMAGE)
 OPENCV_PATH = $(SHLS_LIBRARY_DIR)/vision/precompiled_sw_libraries/opencv4.5.4-x86_64
 USER_CXX_FLAG += -I$(OPENCV_PATH)/include/opencv4 -I$(SHLS_LIBRARY_DIR)/vision/include -I$(SHLS_LIBRARY_DIR)/math/include -O3
 USER_LINK_FLAG += -L$(OPENCV_PATH)/lib -lopencv_core -lopencv_imgcodecs -lopencv_imgproc

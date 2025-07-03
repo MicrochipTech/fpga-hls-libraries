@@ -1,4 +1,4 @@
-// ©2024 Microchip Technology Inc. and its subsidiaries
+// ©2025 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -168,7 +168,6 @@ void cordic_hyp(ap_fixpt<W_IN, IW_IN> &angle, ap_fixpt<W_IN, IW_IN> &x,
 
   // Safe-guard in case specified size is too big for table
   // TABLE_SIZE is defined in cordic_angle_table.hpp
-  const int loop_bounds = n_iter + n_iter/4;
   ap_fixpt<W_IN, IW_IN> new_x(x);
   ap_fixpt<W_IN, IW_IN> new_y(y);
   ap_ufixpt<1, 1> ZERO(0);

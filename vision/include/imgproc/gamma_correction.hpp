@@ -1,4 +1,4 @@
-// ©2024 Microchip Technology Inc. and its subsidiaries
+// ©2025 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -79,7 +79,6 @@ template <
     static_assert(DT<PIXEL_T, NPPC>::PerChannelPixelWidth == 8,
         "GammaCorrection only supports ChannelWidth = 8");
 
-    using PixelWordT = typename DT<PIXEL_T, NPPC>::T;
     const unsigned ChannelWidth = DT<PIXEL_T, NPPC>::PerChannelPixelWidth;
     const unsigned PixelWidth = DT<PIXEL_T, NPPC>::W / NPPC;
     const unsigned NumChannels = DT<PIXEL_T, NPPC>::NumChannels;

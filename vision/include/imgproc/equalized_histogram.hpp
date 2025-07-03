@@ -1,4 +1,4 @@
-// ©2024 Microchip Technology Inc. and its subsidiaries
+// ©2025 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -67,38 +67,44 @@ namespace vision {
  ******************************************************************************/
 template <
     int HIST_SIZE = 256,
-    PixelType PIXEL_T,
-    int H,
-    int W,
-    StorageType STORAGE_TYPE,
+    PixelType     PIXEL_T,
+    int           H,
+    int           W,
+    StorageType   STORAGE_TYPE,
     NumPixelsPerCycle NPPC
-> void EqualizedHistogram (
+>
+void EqualizedHistogram(
     Img<PIXEL_T, H, W, STORAGE_TYPE, NPPC> &InImg,
-    Img<PIXEL_T, H, W, STORAGE_TYPE, NPPC> &OutImg
-) {
+    Img<PIXEL_T, H, W, STORAGE_TYPE, NPPC> &OutImg)
+{
+
     static_assert(DT<PIXEL_T, NPPC>::NumChannels == 1,
-        "EqualizedHistogram function only supports one channel");
-    static_assert(NPPC == 1,
-        "EqualizedHistogram function only supports one pixel per cycle (NPPC = 1).");
+                  "Supports single-channel images only");
+    static_assert(NPPC == 1,          "NPPC must be 1");
     static_assert(DT<PIXEL_T, NPPC>::W == 8,
-        "EqualizedHistogram function only supports 8 bits per channel");
+                  "Equalization is fixed to 8-bit pixels");
 
     using PixelWordT = ap_uint<DT<PIXEL_T, NPPC>::W>;
-    constexpr int total_pixels = H * W;
-    #pragma HLS memory partition variable(cdf) type(complete)
-    uint32_t cdf[HIST_SIZE];
+    /* ------------------------------------------------------------------ */
+    /* 1.  Local storage                                                  */
+    /* ------------------------------------------------------------------ */
+    constexpr int TOTAL_PIXELS = H * W;
+
     #pragma HLS memory partition variable(histogram) type(complete)
-    uint32_t histogram[HIST_SIZE];
-    PixelWordT imgData[total_pixels];
-    #pragma HLS memory partition variable(equalizedHistogram) type(complete)
-    uint32_t equalizedHistogram[HIST_SIZE];
-    int min_cdf = -1;
+    uint32_t histogram         [HIST_SIZE];
+    #pragma HLS memory partition variable(cdf_lut) type(complete)
+    uint32_t cdf_lut           [HIST_SIZE];
+
+    PixelWordT img_buffer[TOTAL_PIXELS];   // keeps original order for write-back
 
     using PixelWordT = ap_uint<DT<PIXEL_T, NPPC>::W>;
     static uint32_t h_tmp[HIST_SIZE];
     uint32_t PrevPix = 0;
     uint32_t PrevVal = 0;
 
+    /* ------------------------------------------------------------------ */
+    /* 2.  Build the histogram                                            */
+    /* ------------------------------------------------------------------ */
     #pragma HLS loop pipeline
     for (int i = 0; i < HIST_SIZE; ++i) {
         histogram[i] = 0;
@@ -118,7 +124,7 @@ template <
     #pragma HLS loop dependence variable(h_tmp) type(inter) direction(RAW) dependent(false)
     for(int p=0; p < H * W; p++) {
         PixelWordT curPix = InImg.read(p);  // Read the current pixel
-        imgData[p] = curPix;
+        img_buffer[p] = curPix;
         uint32_t curVal = h_tmp[curPix];
         if (curPix == PrevPix)
             curVal = PrevVal;
@@ -135,41 +141,61 @@ template <
         h_tmp[p] = 0;
     }
 
-    // Compute cumulative distribution function (CDF)
-    cdf[0] = histogram[0];
-    uint32_t min_cdf_mask = (min_cdf == -1); // Mask is 1 if min_cdf is uninitialized, else 0
+    /* ------------------------------------------------------------------ */
+    /* 3.  Build CDF and LUT in one pass (integer math)                   */
+    /* ------------------------------------------------------------------ */
+    uint32_t cdf       = 0;
+    uint32_t min_cdf   = 0;
+    bool     min_seen  = false;
+    const uint32_t NUMERATOR_SCALE = HIST_SIZE - 1;
 
-    HLS_VISION_CDF_LOOP:
+CDF_LUT_BUILD:
     #pragma HLS loop pipeline
-    for (int i = 1; i < HIST_SIZE; i++) {
-        cdf[i] = cdf[i - 1] + histogram[i];
-        min_cdf = min_cdf_mask * cdf[i] + (1 - min_cdf_mask) * min_cdf; // Store first nonzero CDF
-        min_cdf_mask &= (cdf[i] == 0); // Mask remains 1 until first nonzero value is found
+    for (int i = 0; i < HIST_SIZE; ++i) {
+        cdf += histogram[i];
+
+        if (!min_seen && cdf != 0) {
+            min_cdf  = cdf;
+            min_seen = true;
+        }
+
+        /*-----------------------------------------------------------------------------
+        * Histogram–equalisation LUT entry
+        *
+        *   g(i) = round( ( CDF(i) - CDF_min ) * (L - 1)
+        *                -------------------------------- )
+        *                (   N        - CDF_min )
+        *
+        * where
+        *   i          : current grey level (0‥255)
+        *   CDF(i)     : cumulative histogram up to level i
+        *   CDF_min    : first non-zero CDF value
+        *   N          : total number of pixels  (H × W)
+        *   L          : number of grey levels   (256 → L − 1 = 255)
+        *
+        * Integer implementation details
+        * --------------------------------
+        *   num = max(CDF(i) - CDF_min, 0)                     // numerator
+        *   val = num * (L - 1)                                // 64-bit product
+        *   den = N - CDF_min                                  // denominator
+        *   g(i) = (den == 0) ? 0                              // degenerate image
+        *          : floor( (val + den/2) / den )              // rounded division
+        *---------------------------------------------------------------------------*/
+        uint32_t num = (cdf > min_cdf) ? (cdf - min_cdf) : 0;
+        // A 64-bit accumulator (val) guarantees the product cannot overflow when num ≈ H * W.
+        uint64_t val = (uint64_t)num * NUMERATOR_SCALE;
+        uint32_t den = TOTAL_PIXELS - min_cdf;
+        // Integer division with rounding to the nearest integer
+        cdf_lut[i]   = (den ? (val + (den >> 1)) / den : 0); // +½ for rounding
     }
 
-    // Normalize CDF
-    hls::ap_ufixpt<32,16> dividend = H * W - min_cdf;
-    hls::ap_ufixpt<2,1> offset = 0.5;
-    hls::ap_ufixpt<32,16> factor = (HIST_SIZE - 1) / dividend;
-    HLS_VISION_LUT_LOOP:
+    /* ------------------------------------------------------------------ */
+    /* 4.  Map every input pixel through the LUT                          */
+    /* ------------------------------------------------------------------ */
+WRITE_BACK:
     #pragma HLS loop pipeline
-    for (int i = 0; i < HIST_SIZE; ++i)
-    {
-        // Compute equalized histogram directly
-        hls::ap_ufixpt<40,32, AP_TRN, AP_SAT> divisor = cdf[i] - min_cdf;
-        hls::ap_ufixpt<17,9, AP_TRN, AP_SAT> tmp = divisor * factor;
-        equalizedHistogram[i] = tmp + offset;
-        // Ensure values remain in the valid range [0, HIST_SIZE-1]
-        if (equalizedHistogram[i] > HIST_SIZE-1) equalizedHistogram[i] = HIST_SIZE - 1;
-        if (equalizedHistogram[i] < 0) equalizedHistogram[i] = 0;
-    }
-
-    // Apply the equalized histogram to the input image
-    HLS_VISION_APPLY_HISTOGRAM_EQU_LOOP:
-    #pragma HLS loop pipeline II(1)
-    for (int i = 0; i < total_pixels; i++) {
-        // Read and apply to the current pixel
-        OutImg.write(equalizedHistogram[imgData[i]], i);
+    for (int p = 0; p < TOTAL_PIXELS; ++p) {
+        OutImg.write(cdf_lut[img_buffer[p]], p);
     }
 }
 

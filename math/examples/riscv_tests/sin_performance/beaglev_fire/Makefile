@@ -1,3 +1,4 @@
+NAME = sin_performance
 SRCS = ../sources/test.cpp  
 
 # Root directory path for the HLS libraries. Modify as necessary. 

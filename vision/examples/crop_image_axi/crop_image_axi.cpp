@@ -14,8 +14,8 @@ using namespace hls::vision;
 //=====================================================================
 //  Macros
 //=====================================================================
-#define WIDTH                               160
-#define HEIGHT                              120
+#define WIDTH                               320
+#define HEIGHT                              240
 #define TILE_SIZE                           64
 #define PIXEL_TYPE                          PixelType::HLS_8UC1
 #define NumPixels                           (WIDTH * HEIGHT)
