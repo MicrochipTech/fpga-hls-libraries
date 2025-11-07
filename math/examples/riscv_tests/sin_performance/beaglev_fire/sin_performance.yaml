@@ -2,11 +2,15 @@
 HSS:
     type: git
     link: https://github.com/polarfire-soc/hart-software-services.git
-    branch: master
-    commit: v2025.03
+    branch: next
+    commit: af4f81a657c92601b0de2f52b89a3f97bbf4a2b3
+    make_clean: 0
 gateware:
-    top_level_name: shls_test
-    build-args: "M2_OPTION:NONE CAPE_OPTION:NONE SMARTHLS:../../../../../math/examples/riscv_tests/sin_performance/beaglev_fire"
     type: sources
-    unique-design-version:
-
+    build-args: "CAPE_OPTION:DEFAULT
+                   M2_OPTION:NONE
+             MIPI_CSI_OPTION:DEFAULT
+               SYZYGY_OPTION:DEFAULT
+                  APU_OPTION:SMARTHLS
+                      SHLS_0:../../../../../math/examples/riscv_tests/sin_performance/beaglev_fire"
+    unique-design-version: 7.0.0

@@ -11,7 +11,7 @@ using namespace hls;
 using namespace hls::dsp;
 
 #include "test_vector.h"
-#include "test_utils.hpp"
+#include "../../../test_utils.hpp"
 
 struct fft_buff_t {
   uint16_t im;
