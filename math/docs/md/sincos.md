@@ -16,8 +16,8 @@
 
 ### Function `sincos`
 ~~~lua
-template <unsigned int W_OUT, int IW_OUT, int N_ITERATIONS, unsigned int W_IN, int IW_IN>
-void sincos(ap_fixpt<W_IN, IW_IN> desired_angle, ap_fixpt<W_OUT, IW_OUT> sin, ap_fixpt<W_OUT, IW_OUT> cos)
+template <int N_ITERATIONS, unsigned int W_IN, int IW_IN, unsigned int W_OUT, int IW_OUT>
+void sincos(ap_fixpt<W_IN, IW_IN> desired_angle, ap_fixpt<W_OUT, IW_OUT>& sin, ap_fixpt<W_OUT, IW_OUT>& cos) {
 ~~~
 
 CORDIC implementation of sincos.

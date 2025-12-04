@@ -35,9 +35,9 @@ namespace math{
  * @function sincos
  * CORDIC implementation of sincos.
  *
+ * @template {int} N_ITERATIONS number of CORDIC iterations
  * @template {unsigned int} W_OUT width of the output
  * @template {int} IW_OUT width of integer portion of the output
- * @template {int} N_ITERATIONS number of CORDIC iterations
  * @template {unsigned int} W_IN width of the input (automatically inferred)
  * @template {int} IW_IN width of integer portion of the input (automatically inferred)
  *
