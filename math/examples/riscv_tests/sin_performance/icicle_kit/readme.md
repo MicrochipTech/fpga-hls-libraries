@@ -1,11 +1,11 @@
 ## sin_performance
 
 This example is meant to show the performance improvements gained when using the sin_lut function over the cmath sin function on the 
-[Icicle Kit](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-1F9BA312-87A9-43F0-A66E-B83D805E3F02.html). The design should be compiled using the 
-[SoC Flow](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-7324A022-0DE8-45E9-9FF0-E06D6CC7AD40.html). 
+[Icicle Kit](https://onlinedocs.microchip.com/v2/keyword-lookup?keyword=hls_iciclekit&redirect=true&version=latest). The design should be compiled using the 
+[SoC Flow](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-17/Chunk684686268.html#GUID-11C25EF4-411A-4B35-8AF6-D02BE3ED4E8D). 
 
 
-The source files for this design are located in [../sources/sin_performance](../sources/sin_performance). You can configure the [data transfer method](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-212067DF-C1B6-4C22-ADDD-3C306CE990E5.html) by changing the `TRANSFER_TYPE` and `USE_DMA` variables in the [Makefile](Makefile):  
+The source files for this design are located in [../sources/sin_performance](../sources/sin_performance). You can configure the [data transfer method](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-17/Chunk684686268.html#GUID-212067DF-C1B6-4C22-ADDD-3C306CE990E5) by changing the `TRANSFER_TYPE` and `USE_DMA` variables in the [Makefile](Makefile):  
 
 * `TRANSFER_TYPE=AXI_TARGET` and `USE_DMA=true`: use the DMA to transfer data in and out of the accelerator’s on-chip memory buffer. 
 
@@ -28,7 +28,7 @@ You will need the following hardware:
 
 ## Board Setup
 
-Before running this SmartHLS example, the board needs to be prepared by performing the setup tasks in the [user guide](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-1F9BA312-87A9-43F0-A66E-B83D805E3F02.html).
+Before running this SmartHLS example, the board needs to be prepared by performing the setup tasks in the [user guide](https://onlinedocs.microchip.com/v2/keyword-lookup?keyword=hls_iciclekit&redirect=true&version=latest).
 
 If you have already set up the Discovery Kit, skip to [Compiling the SmartHLS Module and Libero Project](#compiling-the-smarthls-module-and-libero-project).
 
@@ -70,6 +70,6 @@ Get-Command libero
 
 4. Once the previous command finished, run `shls -a soc_accel_proj_run` to compile the RISC-V binary, copy it to BOARD_IP on the network, and then run the binary on the Icicle kit.
 
-For more information on the SmartHLS CLI, see [the user guide](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-12/GUID-9355FB9A-5134-49FB-8F37-525A043B736E.html?hl=command%2Cline%2Cinterface#GUID-9355FB9A-5134-49FB-8F37-525A043B736E__GUID-365A16D5-A05F-44BB-A940-4FE8D9EC74A8).
+For more information on the SmartHLS CLI, see [the user guide](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-17/Chunk684686268.html#GUID-9355FB9A-5134-49FB-8F37-525A043B736E).
 
 

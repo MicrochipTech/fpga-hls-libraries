@@ -7,4 +7,4 @@ SHLS_LIBRARY = ../../../../..
 
 USER_CXX_FLAG += -I$(SHLS_LIBRARY)
 
-LOCAL_CONFIG = -legup-config=config.tcl
+LOCAL_CONFIG = -shls-config=config.tcl

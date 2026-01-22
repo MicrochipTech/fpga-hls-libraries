@@ -1,4 +1,4 @@
-// ©2022 Microchip Technology Inc. and its subsidiaries
+//  ©2026 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -77,17 +77,17 @@ int test(double start_at, double limit, double delta, double base, unsigned int 
     if (W == XL_W && IW == XL_IW){
       ap_fixpt<XL_W, XL_IW> x_fixpt = x;
       ap_fixpt<XL_W, XL_IW> b_fixpt = base;
-      actual = pow_hls_XL_wrapper(b_fixpt, x_fixpt, error).pow.to_double();
+      actual = (double)pow_hls_XL_wrapper(b_fixpt, x_fixpt, error).pow;
     }
     else if (W == M_W && IW == M_IW){
       ap_fixpt<M_W, M_IW> x_fixpt = x;
       ap_fixpt<M_W, M_IW> b_fixpt = base;
-      actual = pow_hls_M_wrapper(b_fixpt, x_fixpt, error).pow.to_double();
+      actual = (double)pow_hls_M_wrapper(b_fixpt, x_fixpt, error).pow;
     }
     else if (W == S_W && IW == S_IW){
       ap_fixpt<S_W, S_IW> x_fixpt = x;
       ap_fixpt<S_W, S_IW> b_fixpt = base;
-      actual = pow_hls_S_wrapper(b_fixpt, x_fixpt, error).pow.to_double();
+      actual = (double)pow_hls_S_wrapper(b_fixpt, x_fixpt, error).pow;
     }
 
     double diff = fabs(expect - actual);

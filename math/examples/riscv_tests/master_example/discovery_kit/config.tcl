@@ -1,8 +1,8 @@
-source $env(SHLS_ROOT_DIR)/examples/legup.tcl
+source $env(SHLS_ROOT_DIR)/examples/shls.tcl
 set_project PolarFireSoC MPFS095T-1FCSG325E Icicle_SoC
 
 # Set other parameters and constraints here
-# Refer to the user guide for more information: https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-3636C6BE-3977-4267-A5DF-A514D1A46BE3.html
+# Refer to the user guide for more information: https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-17/Chunk1566049232.html#Chunk1566049232
 set_parameter CLOCK_PERIOD 5
 set_parameter MINIMIZE_MATH_BLOCKS 1
 

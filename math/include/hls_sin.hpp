@@ -1,4 +1,4 @@
-// ©2025 Microchip Technology Inc. and its subsidiaries
+// ©2026 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -91,19 +91,19 @@ ap_fixpt<W_OUT, IW_OUT> sin_taylor(ap_fixpt<W_IN, IW_IN> x) {
   const ap_fixpt<W_OUT, IW_OUT> HALF_PI(M_PI_2);
 
 DBG_CODE{
-  printf("x = %f\n", x.to_double());
+  printf("x = %f\n", (double)x);
 }
 
   // x %= 2PI
 DBG_CODE{
-  printf("x in rad = %f\n", x.to_double());
+  printf("x in rad = %f\n", (double)x);
 }
   ap_fixpt<W_IN, W_IN> div = x / TWO_PI;
   ap_fixpt<W_IN, IW_IN> div2 = TWO_PI * div;
   x = x - div2;
 
 DBG_CODE{
-  printf("principle x = %f\n", x.to_double());
+  printf("principle x = %f\n", (double)x);
 }
 
   if (x < 0)
@@ -163,7 +163,7 @@ ap_fixpt<W_OUT, IW_OUT> sin_lut(ap_fixpt<W_IN, IW_IN> x) {
   while (x > TWO_PI)
     x = x - TWO_PI;
 
-  DBG_CODE{ printf("x = %f\n", x.to_double()); }
+  DBG_CODE{ printf("x = %f\n", (double)x); }
 
   DBG_CODE {
 	  if (DECIM < (W_IN - IW_IN)) printf("Because DECIM is less than input fractional bits (i.e. DECIM < W_IN - IW_IN), precision will be lost.\nPlease either re-generate sin_lut tables with a larger DECIM, or decrease number of input fractional bits.\n");
@@ -188,7 +188,7 @@ ap_fixpt<W_OUT, IW_OUT> sin_lut(ap_fixpt<W_IN, IW_IN> x) {
   }
 
   DBG_CODE{
-    printf("first_quad_x = %f\n", first_quad_x.to_double());
+    printf("first_quad_x = %f\n", (double)first_quad_x);
   }
 
 
@@ -223,8 +223,8 @@ ap_fixpt<W_OUT, IW_OUT> sin_lut(ap_fixpt<W_IN, IW_IN> x) {
   T cos_fb = cos_fb_lut[fb];
 
   DBG_CODE{
-    printf("sin_fa = %f, sin_fb = %f\n", sin_fa.to_double(), sin_fb.to_double());
-    printf("cos_fa = %f, cos_fb = %f\n", cos_fa.to_double(), cos_fb.to_double());
+    printf("sin_fa = %f, sin_fb = %f\n", (double)sin_fa, (double)sin_fb);
+    printf("cos_fa = %f, cos_fb = %f\n", (double)cos_fa, (double)cos_fb);
   }
 
   T sin_result = sin_fa * cos_fb;
@@ -232,7 +232,7 @@ ap_fixpt<W_OUT, IW_OUT> sin_lut(ap_fixpt<W_IN, IW_IN> x) {
   sin_result = sign * sin_result;
 
   DBG_CODE{
-    printf("result = %f\n", sin_result.to_double());
+    printf("result = %f\n", (double)sin_result);
   }
   return(sin_result) ;
 

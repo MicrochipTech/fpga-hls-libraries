@@ -1,4 +1,4 @@
 SRCS=pow_test.cpp  
-LOCAL_CONFIG = -legup-config=config.tcl
+LOCAL_CONFIG = -shls-config=config.tcl
 
 include Makefile.user

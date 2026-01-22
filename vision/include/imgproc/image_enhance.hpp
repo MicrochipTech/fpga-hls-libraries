@@ -1,4 +1,4 @@
-// ©2025 Microchip Technology Inc. and its subsidiaries
+// ©2026 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -112,9 +112,9 @@ void ImageEnhance(
         //     "r_mult:%f, g_mult:%f, b_mult:%f, "
         //     "ri:%f, gi:%f, bi:%f, "
         //     "ro:%f, go:%f, bo:%f\n", 
-        //     brightness.to_uint64(), r_mult.to_double(), g_mult.to_double(), b_mult.to_double(),
-        //     r.to_double(), g.to_double(), b.to_double(),
-        //     rout.to_double(), gout.to_double(), bout.to_double());
+        //     brightness.to_uint64(), (double)r_mult, (double)g_mult, (double)b_mult,
+        //     (double)r, (double)g, (double)b,
+        //     (double)rout, (double)gout, (double)bout);
 
         ap_int<PixelWidth> out;
         out.byte(2, ChannelWidth) = bout.raw_bits();

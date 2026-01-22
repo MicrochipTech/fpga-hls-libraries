@@ -1,4 +1,4 @@
-// ©2025 Microchip Technology Inc. and its subsidiaries
+// ©2026 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -65,7 +65,7 @@ ap_fixpt<W_OUT, IW_OUT> log2_lut(ap_ufixpt<W_IN, IW_IN> x, int& error = DEFAULT_
   // Find j:
   int n = W_IN - 1;
   int j = IW_IN, done = 0;
-  DBG_CODE{ printf("x = %f\n", x.to_double());}
+  DBG_CODE{ printf("x = %f\n", (double)x);}
 
    auto xi = x;
   for (unsigned int i = 0; i < n; i ++){
@@ -74,7 +74,7 @@ ap_fixpt<W_OUT, IW_OUT> log2_lut(ap_ufixpt<W_IN, IW_IN> x, int& error = DEFAULT_
                 xi <<= 1;
                 j --;
         }
- DBG_CODE{ printf("x = %f, j = %d\n", xi.to_double(), j);}
+ DBG_CODE{ printf("x = %f, j = %d\n", (double)xi, j);}
   }
 
   ap_fixpt<W_IN, 1> x_normal;
@@ -92,10 +92,10 @@ ap_fixpt<W_OUT, IW_OUT> log2_lut(ap_ufixpt<W_IN, IW_IN> x, int& error = DEFAULT_
            x_normal = x2;
            y = y - logTable[i];
         }
-   DBG_CODE{printf("tab_i = %f, x = %f, y = %f\n", ((ap_fixpt<31,0>)logTable[i]).to_double(), x_normal.to_double(), y.to_double());}
+   DBG_CODE{printf("tab_i = %f, x = %f, y = %f\n", (double)((ap_fixpt<31,0>)logTable[i]), (double)x_normal, (double)y);}
   }
   y = y + j;
-  DBG_CODE{printf("y + j = %f\n", y.to_double());}
+  DBG_CODE{printf("y + j = %f\n", (double)y);}
   return y;
 }
 
@@ -134,7 +134,7 @@ ap_fixpt<W_OUT, IW_OUT> log2_cordic(ap_ufixpt<W_IN, IW_IN> x, int& error = DEFAU
   // Find j:
   const int n = W_IN - 1;
   int j = IW_IN, done = 0;
-  DBG_CODE{ printf("x = %f\n", x.to_double());}
+  DBG_CODE{ printf("x = %f\n", (double)x);}
 
   auto xi = x;
 #pragma HLS loop unroll factor(W_IN - 1)
@@ -144,7 +144,7 @@ ap_fixpt<W_OUT, IW_OUT> log2_cordic(ap_ufixpt<W_IN, IW_IN> x, int& error = DEFAU
                 xi <<= 1;
                 j --;
         }
- DBG_CODE{ printf("x = %f, j = %d\n", xi.to_double(), j);}
+ DBG_CODE{ printf("x = %f, j = %d\n", (double)xi, j);}
   }
 
   ap_fixpt<W_IN, 1> x_normal;
@@ -161,7 +161,7 @@ ap_fixpt<W_OUT, IW_OUT> log2_cordic(ap_ufixpt<W_IN, IW_IN> x, int& error = DEFAU
   z = z * CONV;
 
   z = z + j;
-  DBG_CODE{printf("z + j = %f\n", z.to_double());}
+  DBG_CODE{printf("z + j = %f\n", (double)z);}
   return z;
 }
 } // namespace math

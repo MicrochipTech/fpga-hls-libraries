@@ -48,7 +48,7 @@ You should install the following software:
    beagleboard compilation flow:
 
    ```bash
-   export LIBERO_INSTALL_DIR=/path/to/Libero_SoC_2025.1
+   export LIBERO_INSTALL_DIR=/path/to/Libero_SoC_2025.2
    export FPGENPROG=$LIBERO_INSTALL_DIR/Libero/bin64/fpgenprog
    export SC_INSTALL_DIR=/path/to/SoftConsole-v2022.2-RISC-V-747
    export LD_LIBRARY_PATH=/usr/lib/i386-linux-gnu:$LD_LIBRARY_PATH
@@ -79,7 +79,7 @@ You should install the following software:
 
    ssh beagle@192.168.0.173
    sudo su root
-   /usr/share/beagleboard/gateware/change-gateware.sh ~/bitstream
+   /usr/share/beagleboard/gateware/change-gateware.sh /home/beagle/bitstream
 
    ```
 3. Now, copy the RISC-V binary (`sin_performance.accel.elf` file) to your board:

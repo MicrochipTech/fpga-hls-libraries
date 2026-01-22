@@ -1,4 +1,4 @@
-// ©2025 Microchip Technology Inc. and its subsidiaries
+// ©2026 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -35,9 +35,9 @@ namespace math{
  * @function sincos
  * CORDIC implementation of sincos.
  *
- * @template {int} N_ITERATIONS number of CORDIC iterations
  * @template {unsigned int} W_OUT width of the output
  * @template {int} IW_OUT width of integer portion of the output
+ * @template {int} N_ITERATIONS number of CORDIC iterations
  * @template {unsigned int} W_IN width of the input (automatically inferred)
  * @template {int} IW_IN width of integer portion of the input (automatically inferred)
  *
@@ -72,8 +72,8 @@ void sincos(ap_fixpt<W_IN, IW_IN> desired_angle, ap_fixpt<W_OUT, IW_OUT>& sin, a
 
   DBG_CODE{
   printf("quad = %llu\n", q.to_uint64());
-  printf("BEFORE ROTATE = %f\n", desired_angle.to_double());
-  printf("DESIRED ANGLE = %f\n", r.to_double());
+  printf("BEFORE ROTATE = %f\n", (double)desired_angle);
+  printf("DESIRED ANGLE = %f\n", (double)r);
   }
 
   //  r -> 0
@@ -96,8 +96,8 @@ void sincos(ap_fixpt<W_IN, IW_IN> desired_angle, ap_fixpt<W_OUT, IW_OUT>& sin, a
   if (sign)
     sin = -sin;
 
-//   printf("ANGLE: %f: COS = %f, SIN = %f\n\n", desired_angle.to_double(),
-//   x.to_double(), y.to_double());
+//   printf("ANGLE: %f: COS = %f, SIN = %f\n\n", (double)desired_angle,
+//   (double)x, (double)y);
 }
 }
 }

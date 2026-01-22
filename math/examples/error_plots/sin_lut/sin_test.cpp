@@ -8,17 +8,17 @@
 double wrapper_lut_16(double x){
 #pragma HLS function top pipeline
   ap_fixpt<W_16, IW_16> x_fixpt = x;
-  return hls::math::sin_lut<W_16, IW_16>(x_fixpt).to_double();
+  return (double)hls::math::sin_lut<W_16, IW_16>(x_fixpt);
 }
 double wrapper_lut_24(double x){
 #pragma HLS function top pipeline
   ap_fixpt<W_24, IW_24> x_fixpt = x;
-  return hls::math::sin_lut<W_24, IW_24>(x_fixpt).to_double();
+  return (double)hls::math::sin_lut<W_24, IW_24>(x_fixpt);
 }
 double wrapper_lut_28(double x){
 #pragma HLS function top pipeline
   ap_fixpt<W_28, IW_28> x_fixpt = x;
-  return hls::math::sin_lut<W_28, IW_28>(x_fixpt).to_double();
+  return (double)hls::math::sin_lut<W_28, IW_28>(x_fixpt);
 }
 
 

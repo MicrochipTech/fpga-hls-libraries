@@ -11,19 +11,19 @@ template <unsigned int W, int IW>
 double wrapper_cordic_16(double x){
 #pragma HLS function top pipeline
   ap_fixpt<W_16, IW_16> x_fixpt = x;
-  return hls::math::sin_cordic<W_16, IW_16, N_ITERATIONS>(x_fixpt).to_double();
+  return (double)hls::math::sin_cordic<W_16, IW_16, N_ITERATIONS>(x_fixpt);
 }
 template <unsigned int W, int IW>
 double wrapper_cordic_24(double x){
 #pragma HLS function top pipeline
   ap_fixpt<W_24, IW_24> x_fixpt = x;
-  return hls::math::sin_cordic<W_24, IW_24, N_ITERATIONS>(x_fixpt).to_double();
+  return (double)hls::math::sin_cordic<W_24, IW_24, N_ITERATIONS>(x_fixpt);
 }
 template <unsigned int W, int IW>
 double wrapper_cordic_28(double x){
 #pragma HLS function top pipeline
   ap_fixpt<W_28, IW_28> x_fixpt = x;
-  return hls::math::sin_cordic<W_28, IW_28, N_ITERATIONS>(x_fixpt).to_double();
+  return (double)hls::math::sin_cordic<W_28, IW_28, N_ITERATIONS>(x_fixpt);
 }
 
 

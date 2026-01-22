@@ -1,5 +1,5 @@
 SRCS=log_test.cpp  
-LOCAL_CONFIG = -legup-config=config.tcl
+LOCAL_CONFIG = -shls-config=config.tcl
 
 
 
