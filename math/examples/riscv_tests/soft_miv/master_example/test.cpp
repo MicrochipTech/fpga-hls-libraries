@@ -1,4 +1,4 @@
-// ©2022 Microchip Technology Inc. and its subsidiaries
+//  ©2026 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -46,43 +46,43 @@ void test(float fp, float vals[N_FUNCS]) {
 
   fixpt_t base = 3;
 
-  vals[0] = sin_taylor<W, IW>(x).to_double();
-  vals[1] = sin_lut<W, IW>(x).to_double();
-  vals[2] = sin_cordic<W, IW, 16>(x).to_double();
+  vals[0] = (double)sin_taylor<W, IW>(x);
+  vals[1] = (double)sin_lut<W, IW>(x);
+  vals[2] = (double)sin_cordic<W, IW, 16>(x);
 
-  vals[3] = cos_taylor<W, IW>(x).to_double();
-  vals[4] = cos_lut<W, IW>(x).to_double();
-  vals[5] = cos_cordic<W, IW, 16>(x).to_double();
+  vals[3] = (double)cos_taylor<W, IW>(x);
+  vals[4] = (double)cos_lut<W, IW>(x);
+  vals[5] = (double)cos_cordic<W, IW, 16>(x);
 
-  vals[6] = tan_taylor<W, IW>(x).to_double();
-  vals[7] = tan_lut<W, IW>(x).to_double();
-  vals[8] = tan_cordic<W, IW, N_ITER>(x).to_double();
+  vals[6] = (double)tan_taylor<W, IW>(x);
+  vals[7] = (double)tan_lut<W, IW>(x);
+  vals[8] = (double)tan_cordic<W, IW, N_ITER>(x);
 
-  vals[9] = sqrt<W, IW, N_ITER>((ufixpt_t)x).to_double();
+  vals[9] = (double)sqrt<W, IW, N_ITER>((ufixpt_t)x);
 
-  vals[10] = atan_rational<W, IW>(x).to_double();
-  vals[11] = atan_cordic<W, IW, N_ITER>(x).to_double();
+  vals[10] = (double)atan_rational<W, IW>(x);
+  vals[11] = (double)atan_cordic<W, IW, N_ITER>(x);
 
-  vals[12] = exp_taylor<W, IW>(x).to_double();
-  vals[13] = exp_cordic<W, IW, N_ITER>(x).to_double();
+  vals[12] = (double)exp_taylor<W, IW>(x);
+  vals[13] = (double)exp_cordic<W, IW, N_ITER>(x);
 
-  vals[14] = ln_lut<W, IW>((ufixpt_t)x).to_double();
-  vals[15] = ln_cordic<W, IW, N_ITER>((ufixpt_t)x).to_double();
+  vals[14] = (double)ln_lut<W, IW>((ufixpt_t)x);
+  vals[15] = (double)ln_cordic<W, IW, N_ITER>((ufixpt_t)x);
 
-  vals[16] = log<W, IW>((ufixpt_t)x, (ufixpt_t)base).to_double();
-  vals[17] = pow<W, IW>(base, x).to_double();
+  vals[16] = (double)log<W, IW>((ufixpt_t)x, (ufixpt_t)base);
+  vals[17] = (double)pow<W, IW>(base, x);
 
-  vals[18] = ceil<W, IW>(x).to_double();
-  vals[19] = floor<W, IW>(x).to_double();
-  vals[20] = round<W, IW>(x).to_double();
-  vals[21] = abs<W, IW>(x).to_double();
-  vals[22] = trunc<W, IW>(x).to_double();
+  vals[18] = (double)ceil<W, IW>(x);
+  vals[19] = (double)floor<W, IW>(x);
+  vals[20] = (double)round<W, IW>(x);
+  vals[21] = (double)abs<W, IW>(x);
+  vals[22] = (double)trunc<W, IW>(x);
 
-  vals[23] = asin_cordic<W, IW, N_ITER>(x).to_double();
-  vals[24] = acos_cordic<W, IW, N_ITER>(x).to_double();
+  vals[23] = (double)asin_cordic<W, IW, N_ITER>(x);
+  vals[24] = (double)acos_cordic<W, IW, N_ITER>(x);
 
-  vals[25] = log2_lut<W, IW>((ufixpt_t)x).to_double();
-  vals[26] = log2_cordic<W, IW, N_ITER>((ufixpt_t)x).to_double();
+  vals[25] = (double)log2_lut<W, IW>((ufixpt_t)x);
+  vals[26] = (double)log2_cordic<W, IW, N_ITER>((ufixpt_t)x);
 
 
 }

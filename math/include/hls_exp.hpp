@@ -1,4 +1,4 @@
-// ©2025 Microchip Technology Inc. and its subsidiaries
+// ©2026 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -70,10 +70,10 @@ ap_fixpt<W_OUT, IW_OUT> exp_taylor(ap_fixpt<W_IN, IW_IN> fp) {
   ap_fixpt<W_OUT, IW_OUT> result = frac + 1;
 
   DBG_CODE{
-    double x = rem.to_double();
+    double x = (double)rem;
     double d = 1 + x/6;
     printf("START: %f\n", x);
-    printf("Term 6: actual %f, expected %f\n", result.to_double(), d);
+    printf("Term 6: actual %f, expected %f\n", (double)result, d);
   }
 
   // Term 5: x/5 -> 1.6x/8
@@ -82,9 +82,9 @@ ap_fixpt<W_OUT, IW_OUT> exp_taylor(ap_fixpt<W_IN, IW_IN> fp) {
   result = result * frac;
   result = result + 1;
   DBG_CODE{
-    double x = rem.to_double();
+    double x = (double)rem;
     double d = (x/5);
-    printf("Term 5: actual %f, expected %f\n", frac.to_double(), d);
+    printf("Term 5: actual %f, expected %f\n", (double)frac, d);
   }
 
   // Term 4: x/4 -> x/4
@@ -92,9 +92,9 @@ ap_fixpt<W_OUT, IW_OUT> exp_taylor(ap_fixpt<W_IN, IW_IN> fp) {
   result = result * frac;
   result = result + 1;
   DBG_CODE{
-    double x = rem.to_double();
+    double x = (double)rem;
     double d = (x/4);
-    printf("Term 4: actual %f, expected %f\n", frac.to_double(), d);
+    printf("Term 4: actual %f, expected %f\n", (double)frac, d);
   }
 
   // Term 3: x/3 -> 2.6667/8
@@ -102,9 +102,9 @@ ap_fixpt<W_OUT, IW_OUT> exp_taylor(ap_fixpt<W_IN, IW_IN> fp) {
   result = result * frac;
   result = result + 1;
   DBG_CODE{
-    double x = rem.to_double();
+    double x = (double)rem;
     double d = (x/3);
-    printf("Term 3: actual %f, expected %f\n", frac.to_double(), d);
+    printf("Term 3: actual %f, expected %f\n", (double)frac, d);
   }
 
   // Term 2: x/2 -> x/2:
@@ -113,9 +113,9 @@ ap_fixpt<W_OUT, IW_OUT> exp_taylor(ap_fixpt<W_IN, IW_IN> fp) {
   result = result + 1;
 
   DBG_CODE{
-    double x = rem.to_double();
+    double x = (double)rem;
     double d = (x/2);
-    printf("Term 2: actual %f, expected %f\n", frac.to_double(), d);
+    printf("Term 2: actual %f, expected %f\n", (double)frac, d);
   }
 
   // Term 1: x
@@ -128,7 +128,7 @@ ap_fixpt<W_OUT, IW_OUT> exp_taylor(ap_fixpt<W_IN, IW_IN> fp) {
   if (fp < 0) e_to_q_I = ONE >> q_I;
   else e_to_q_I = ONE << q_I;
   DBG_CODE{
-    printf("SCALING %f\n", e_to_q_I.to_double());
+    printf("SCALING %f\n", (double)e_to_q_I);
   }
 
   result = result * e_to_q_I;
@@ -174,13 +174,13 @@ ap_fixpt<W_OUT, IW_OUT> exp_cordic(ap_fixpt<W_IN, IW_IN> fp) {
   ap_fixpt<W_IN, IW_IN> x(1.20749613601);
   ap_fixpt<W_IN, IW_IN> y(1.20749613601);
  
-  DBG_CODE{ printf("START %f\n", rem.to_double()); }
+  DBG_CODE{ printf("START %f\n", (double)rem); }
   cordic_hyp<N_ITERATIONS, ROTATING>(rem, x, y);
 
   // Hold results of small part first
   ap_fixpt<W_OUT, IW_OUT> result = x;
 
-  DBG_CODE { printf("before mult = %f\n", result.to_double()); }
+  DBG_CODE { printf("before mult = %f\n", (double)result); }
 
   ap_fixpt<W_OUT, IW_OUT> e_to_q_I;
   ap_fixpt<W_OUT, IW_OUT> ONE(1);
@@ -189,7 +189,7 @@ ap_fixpt<W_OUT, IW_OUT> exp_cordic(ap_fixpt<W_IN, IW_IN> fp) {
 
   result = result * e_to_q_I;
 
-  DBG_CODE { printf("cordic result = %f\n\n", result.to_double()); }
+  DBG_CODE { printf("cordic result = %f\n\n", (double)result); }
  return result;
 }
 } // namespace math

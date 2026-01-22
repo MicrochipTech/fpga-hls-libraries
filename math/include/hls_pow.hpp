@@ -1,4 +1,4 @@
-// ©2025 Microchip Technology Inc. and its subsidiaries
+// ©2026 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -85,11 +85,11 @@ ap_fixpt<W_OUT, IW_OUT> pow(ap_fixpt<W_IN, IW_IN> base,
 
   // base^exp = result -> e^(exp * ln(base)) = result
   ap_fixpt<W_OUT, IW_OUT> ln_base = ln_lut<W_OUT, IW_OUT>(u_base);
-  DBG_CODE {printf("LN_BASE: %f\n", ln_base.to_double());}
+  DBG_CODE {printf("LN_BASE: %f\n", (double)ln_base);}
   ap_fixpt<W_OUT, IW_OUT> temp = ln_base * pow;
-  DBG_CODE {printf("MULT: %f\n", temp.to_double());}
+  DBG_CODE {printf("MULT: %f\n", (double)temp);}
   result = exp_taylor<W_OUT, IW_OUT>(temp);
-  DBG_CODE {printf("exp: %f\n\n", result.to_double());}
+  DBG_CODE {printf("exp: %f\n\n", (double)result);}
 
   if (n)
     result = -result;

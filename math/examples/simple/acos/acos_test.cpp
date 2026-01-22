@@ -1,4 +1,4 @@
-// ©2022 Microchip Technology Inc. and its subsidiaries
+//  ©2026 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -63,7 +63,7 @@ int test(double start_at, double limit, double delta, unsigned int W, int IW, in
     double actual, expect;
     expect = acos_cmath_wrapper(x);
 
-    actual = acos_cordic_S_wrapper(x_fixpt, error).acos.to_double();
+    actual = (double)acos_cordic_S_wrapper(x_fixpt, error).acos;
     diff = fabs(expect - actual);
     if (diff > max_diff) max_diff = diff;
     avg_diff += diff;

@@ -1,4 +1,4 @@
-// ©2022 Microchip Technology Inc. and its subsidiaries
+//  ©2026 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -74,8 +74,8 @@ int test(double start_at, double limit, double delta, unsigned int W, int IW, in
     sincos_cmath_wrapper(x, expect_sin, expect_cos);
     sincos_struct_M r = sincos_cordic_M_wrapper(x_fixpt, actual_sin, actual_cos);
     
-    diff_cos = fabs(*expect_cos - r.cos.to_double());
-    diff_sin = fabs(*expect_sin - r.sin.to_double());
+    diff_cos = fabs(*expect_cos - (double)r.cos);
+    diff_sin = fabs(*expect_sin - (double)r.sin);
 
     if (diff_sin > max_diff_sin) max_diff_sin = diff_sin;
     if (diff_cos > max_diff_cos) max_diff_cos = diff_cos;
@@ -85,7 +85,7 @@ int test(double start_at, double limit, double delta, unsigned int W, int IW, in
 
     count++;
 
-    fprintf(fp, "%f,%lf,%lf,%lf,%lf,%lf,%lf\n", x, *expect_sin, *expect_cos, r.sin.to_double(),r.cos.to_double(), diff_sin, diff_cos);
+    fprintf(fp, "%f,%lf,%lf,%lf,%lf,%lf,%lf\n", x, *expect_sin, *expect_cos, (double)r.sin, (double)r.cos, diff_sin, diff_cos);
   }
   avg_diff_cos /= count;
   avg_diff_sin /= count;

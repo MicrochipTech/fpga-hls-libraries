@@ -1,4 +1,4 @@
-// ©2025 Microchip Technology Inc. and its subsidiaries
+// ©2026 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -92,7 +92,7 @@ ap_ufixpt<W, IW> sqrt(ap_ufixpt<W_IN, IW_IN> val) {
   ap_ufixpt<W_IN, IW_IN> m = fixpt_ceil<W_IN, IW_IN>(lg2 / 2.0);
 
   DBG_CODE{
-	printf("x = %f\nintPart = %d\nnpow2 = %d\nlg2 = %d\nm = %f\n", val.to_double(), intPart, npow2, lg2, m.to_double());
+	printf("x = %f\nintPart = %d\nnpow2 = %d\nlg2 = %d\nm = %f\n", (double)val, intPart, npow2, lg2, (double)m);
   }
 
   // Variable "A" will be normalized < 1, therefore we're only keeping 1 bit
@@ -109,8 +109,8 @@ ap_ufixpt<W, IW> sqrt(ap_ufixpt<W_IN, IW_IN> val) {
 
   ap_ufixpt<W + 1, 1> x = 0, c = 0;
   DBG_CODE {
-    std::cout << "A:" << A.to_double() << ", val:" << val.to_double()
-              << ", m:" << m.to_double() << std::endl;
+    std::cout << "A:" << (double)A << ", val:" << (double)val
+              << ", m:" << (double)m << std::endl;
   }
 
   // #pragma HLS loop pipeline
@@ -127,8 +127,8 @@ ap_ufixpt<W, IW> sqrt(ap_ufixpt<W_IN, IW_IN> val) {
     }
     c += c1;
     DBG_CODE {
-      std::cout << "k:" << k << "\tc:" << c.to_double()
-                << "\tx:" << x.to_double() << std::endl;
+      std::cout << "k:" << k << "\tc:" << (double)c
+                << "\tx:" << (double)x << std::endl;
     }
   }
 

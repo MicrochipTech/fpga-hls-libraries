@@ -1,4 +1,4 @@
-// ©2025 Microchip Technology Inc. and its subsidiaries
+// ©2026 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -67,17 +67,17 @@ void cordic(ap_fixpt<W_IN, IW_IN> &angle, ap_fixpt<W_IN, IW_IN> &x,
       new_x += d_y;
       new_y -= d_x;
       angle += cordicTable[i];
-//      DBG_CODE { printf("PLUS %f, NEW ANGLE = %f\n", cordicTable[i].to_double(), angle.to_double());}
+//      DBG_CODE { printf("PLUS %f, NEW ANGLE = %f\n", (double)cordicTable[i], (double)angle);}
     } else { // CW
       new_x -= d_y;
       new_y += d_x;
       angle -= cordicTable[i];
-     // DBG_CODE { printf("MINUS %f, NEW ANGLE = %f\n", cordicTable[i].to_double(), angle.to_double());}
+     // DBG_CODE { printf("MINUS %f, NEW ANGLE = %f\n", (double)cordicTable[i], (double)angle);}
     }
 
     x = new_x;
     y = new_y;
-   // DBG_CODE { printf("NEW X = %f, NEW Y = %f\n\n", x.to_double(), y.to_double());}
+   // DBG_CODE { printf("NEW X = %f, NEW Y = %f\n\n", (double)x, (double)y);}
   }
 }
 
@@ -121,17 +121,17 @@ void cordic(ap_fixpt<W_IN, IW_IN> &angle, ap_fixpt<W_IN, IW_IN> &x,
       new_x += y >> i;
       new_y -= x >> i;
       angle = angle + cordicTable[i];
-//      DBG_CODE { printf("PLUS %f, NEW ANGLE = %f\n", t.cordic_tab[i].to_double(), angle.to_double());}
+//      DBG_CODE { printf("PLUS %f, NEW ANGLE = %f\n", (double)t.cordic_tab[i], (double)angle);}
     } else { // CW
       new_x -= y >> i;
       new_y += x >> i;
       angle = angle - cordicTable[i];
-  //    DBG_CODE { printf("MINUS %f, NEW ANGLE = %f\n", t.cordic_tab[i].to_double(), angle.to_double());}
+  //    DBG_CODE { printf("MINUS %f, NEW ANGLE = %f\n", (double)t.cordic_tab[i], (double)angle);}
     }
 
     x = new_x;
     y = new_y;
-    DBG_CODE { printf("NEW X = %f, NEW Y = %f\n\n", x.to_double(), y.to_double());}
+    DBG_CODE { printf("NEW X = %f, NEW Y = %f\n\n", (double)x, (double)y);}
   }
 }
 
@@ -182,13 +182,13 @@ void cordic_hyp(ap_fixpt<W_IN, IW_IN> &angle, ap_fixpt<W_IN, IW_IN> &x,
       new_y -= x >> i;
       angle = angle + cordicHypTable[i];
 
-//      DBG_CODE {printf("MINUS %f, NEW ANGLE = %f\n", t.cordic_tab[i].to_double(), angle.to_double()); }
+//      DBG_CODE {printf("MINUS %f, NEW ANGLE = %f\n", (double)t.cordic_tab[i], (double)angle); }
     } else { 
       new_x += y >> i;
       new_y += x >> i;
       angle = angle - cordicHypTable[i];
 
-  //    DBG_CODE {printf("PLUS %f, NEW ANGLE = %f\n", t.cordic_tab[i].to_double(), angle.to_double());}
+  //    DBG_CODE {printf("PLUS %f, NEW ANGLE = %f\n", (double)t.cordic_tab[i], (double)angle);}
     }
     if (i == j){
       j = 3 * i + 1;
@@ -197,7 +197,7 @@ void cordic_hyp(ap_fixpt<W_IN, IW_IN> &angle, ap_fixpt<W_IN, IW_IN> &x,
  
     x = new_x;
     y = new_y;
-    DBG_CODE {printf("NEW X = %f, NEW Y = %f\n\n", x.to_double(), y.to_double());}
+    DBG_CODE {printf("NEW X = %f, NEW Y = %f\n\n", (double)x, (double)y);}
   }
  
 }

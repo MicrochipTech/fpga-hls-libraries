@@ -3,14 +3,27 @@ HSS:
     type: git
     link: https://github.com/polarfire-soc/hart-software-services.git
     branch: next
-    commit: af4f81a657c92601b0de2f52b89a3f97bbf4a2b3
+    commit: 39f7a507f14c1155bf06234d29ce75ac2a76ffe1
+    patches:
+        common:
+            - 0000-Make-Guard-against-parallelism.patch
+            - 0001-Disable-annoying-debug-message.patch
+            - 0002-Bring-back-old-DESIGNVER-formatting.patch
+        variants:
+            default:
+                - 0003-IOMUX-SPI-1-drives-pins-30-32-and-33.patch
     make_clean: 0
+MSS:
+    type: git
+    local: sources/FPGA-design/mss.bundle
+    branch: default
 gateware:
+    top_level_name: shls_test
     type: sources
     build-args: "CAPE_OPTION:DEFAULT
                    M2_OPTION:NONE
              MIPI_CSI_OPTION:DEFAULT
                SYZYGY_OPTION:DEFAULT
                   APU_OPTION:SMARTHLS
-                      SHLS_0:../../../../../math/examples/riscv_tests/sin_performance/beaglev_fire"
+                      SHLS_0:../../../../math/examples/riscv_tests/sin_performance/beaglev_fire"
     unique-design-version: 7.0.0

@@ -1,4 +1,4 @@
-// ©2022 Microchip Technology Inc. and its subsidiaries
+//  ©2026 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -53,7 +53,7 @@ int test(double start_at, double limit, double delta, unsigned int W, int IW, in
 
     double expect, actual;
     expect = floor_cmath_wrapper(x);
-    actual = floor_hls_M_wrapper(x_fixpt).to_double();
+    actual = (double)floor_hls_M_wrapper(x_fixpt);
     double diff = fabs(expect - actual);
     if (diff > max_diff)
       max_diff = diff;

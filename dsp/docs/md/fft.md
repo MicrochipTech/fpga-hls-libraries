@@ -74,7 +74,7 @@ Size:256_Radix:2_forward_inplace
 
 | Name        | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Real Avg Error |   Real Max Error |   Imaginary Avg Error |   Imaginary Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
 |-------------|----------------------------------|-----------------------------|------------------|------------------|-----------------------|-----------------------|--------|--------|--------|---------|---------|-----------------------|
-| inplace_fft | 2,718 / 2,718 / 2,718.00         | 2,718 / 2,718 / 2,718.00    |          1.15234 |                4 |                1.0625 |                     4 |   2168 |   2195 |      6 |       4 |       0 | 253.807 MHz           |
+| inplace_fft | 2,717 / 2,717 / 2,717.00         | 2,718 / 2,718 / 2,718.00    |          1.15234 |                4 |                1.0625 |                     4 |   2251 |   2287 |      6 |       4 |       0 | 272.035 MHz           |
 
 Notes:
 - Targeted FMax was 400MHz.

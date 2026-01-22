@@ -16,8 +16,8 @@
 
 ### Function `sincos`
 ~~~lua
-template <int N_ITERATIONS, unsigned int W_IN, int IW_IN, unsigned int W_OUT, int IW_OUT>
-void sincos(ap_fixpt<W_IN, IW_IN> desired_angle, ap_fixpt<W_OUT, IW_OUT>& sin, ap_fixpt<W_OUT, IW_OUT>& cos) {
+template <unsigned int W_OUT, int IW_OUT, int N_ITERATIONS, unsigned int W_IN, int IW_IN>
+void sincos(ap_fixpt<W_IN, IW_IN> desired_angle, ap_fixpt<W_OUT, IW_OUT> sin, ap_fixpt<W_OUT, IW_OUT> cos)
 ~~~
 
 CORDIC implementation of sincos.
@@ -73,8 +73,8 @@ Using W = 32, IW = 16, Q_M = AP_TRN, O_M = AP_WRAP
 
 | Name          | Latency [cycles] (min/max/avg)   | II [cycles] (min/max/avg)   |   Avg Error |   Max Error |   LUTs |   DFFs |   DSPs |   LSRAM |   uSRAM | Estimated Frequency   |
 |---------------|----------------------------------|-----------------------------|-------------|-------------|--------|--------|--------|---------|---------|-----------------------|
-| sincos_cmath  | 304 / 596 / 539.38               | 304 / 596 / 539.38          |     0       |    0        |  49366 |  30679 |     20 |       0 |      27 | 153.894 MHz           |
-| sincos_cordic | 35 / 36 / 35.00                  | 1 / 2 / 1.00                |     8.5e-05 |    0.000302 |   1731 |   3741 |      3 |       0 |       0 | 384.468 MHz           |
+| sincos_cmath  | 303 / 595 / 538.38               | 304 / 596 / 539.38          |    0        |    0        |  49175 |  29527 |     20 |       0 |      27 | 156.715 MHz           |
+| sincos_cordic | 30 / 31 / 30.00                  | 1 / 2 / 1.00                |    0.000321 |    0.000982 |   1531 |   2924 |      3 |       0 |       0 | 379.507 MHz           |
 
 Notes:
 - Targeted FMax was 400MHz.

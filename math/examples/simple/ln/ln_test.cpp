@@ -1,4 +1,4 @@
-// ©2022 Microchip Technology Inc. and its subsidiaries
+//  ©2026 Microchip Technology Inc. and its subsidiaries
 //
 // Subject to your compliance with these terms, you may use this Microchip
 // software and any derivatives exclusively with Microchip products. You are
@@ -70,13 +70,13 @@ int test(double start_at, double limit, double delta, unsigned int W, int IW, in
 
     if (W == M_W && IW == M_IW){
       ap_ufixpt<M_W, M_IW> x_fixpt = x;
-      actual_lut = ln_lut_M_wrapper(x_fixpt, error).to_double();
-      actual_cordic = ln_cordic_M_wrapper(x_fixpt, error).to_double();
+      actual_lut = (double)ln_lut_M_wrapper(x_fixpt, error);
+      actual_cordic = (double)ln_cordic_M_wrapper(x_fixpt, error);
     }
     else if (W == S_W && IW == S_IW){
       ap_ufixpt<S_W, S_IW> x_fixpt = x;
-      actual_lut = ln_lut_S_wrapper(x_fixpt, error).to_double();
-      actual_cordic = ln_cordic_S_wrapper(x_fixpt, error).to_double();
+      actual_lut = (double)ln_lut_S_wrapper(x_fixpt, error);
+      actual_cordic = (double)ln_cordic_S_wrapper(x_fixpt, error);
     }
 
     diff_lut = fabs(expect - actual_lut);

@@ -10,7 +10,7 @@ using namespace hls::math;
 
 #define THRESHOLD 0.1 // Error Threshold
 
-void sin_performance(float n[__N_ELEM], float vals[__N_ELEM]){
+void hls_test(float n[__N_ELEM], float vals[__N_ELEM]){
   #pragma HLS function top dataflow
   #pragma HLS interface default type(axi_target)
   #pragma HLS interface argument(vals) type(axi_initiator) num_elements(__N_ELEM)
@@ -35,7 +35,7 @@ void sin_performance(float n[__N_ELEM], float vals[__N_ELEM]){
 
   #pragma HLS loop pipeline
   for(int i=0; i<__N_ELEM; i++)
-    vals[i] = ff1.read().to_double();
+    vals[i] = (double)ff1.read();
 }
 
 void cmath_test(float n[__N_ELEM], float vals[__N_ELEM]){
@@ -60,7 +60,7 @@ int main(){
   double cmath1 = timestamp();
 
   double hls_math0 = timestamp();
-  sin_performance(x, vals_fixpt);
+  hls_test(x, vals_fixpt);
   double hls_math1 = timestamp();
 
   // Test accuracy of results:

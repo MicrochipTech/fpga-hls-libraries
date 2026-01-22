@@ -77,7 +77,7 @@ $2 = 0.49999999906867743 [0xfffffff8] <W:34,IW:1>
 
 ## Notes
 
-For more information on SHLS ap_fixpt, see the [User Guide](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-11/GUID-61CF52C5-A40E-436D-9E38-AD885C0EF16D.html).
+For more information on SHLS ap_fixpt, see the [User Guide](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-17/Chunk684686268.html#GUID-61CF52C5-A40E-436D-9E38-AD885C0EF16D).
 
 Fixed point math functions internal calculations use the default Quantization (Q_M) and Overflow (O_M) modes (i.e. AP_TRN and AP_WRAP respectively.)
 
