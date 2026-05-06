@@ -20,13 +20,13 @@ template <
 void ImageEnhanceWrapper(
     vision::Img<PIXEL_T, H, W, STORAGE, NPPC> &ImgIn,
     vision::Img<PIXEL_T, H, W, STORAGE, NPPC> &ImgOut,
-    ap_uint<8> b_const,
-    ap_uint<8> g_const,
-    ap_uint<8> r_const,
+    ap_uint<8> b_factor,
+    ap_uint<8> g_factor,
+    ap_uint<8> r_factor,
     ap_int<10> brightness
 ) {
     #pragma HLS function top
-    vision::ImageEnhance(ImgIn, ImgOut, b_const, g_const, r_const, brightness);
+    vision::ImageEnhance(ImgIn, ImgOut, b_factor, g_factor, r_factor, brightness);
 }
 
 int main() {
@@ -47,12 +47,12 @@ int main() {
 
     // These numbers are intentionally random to try different factors and mess 
     // around with the original color of the image. 
-    ap_uint<8> r_const = 255;   // red factor = 256/32 = 8
-    ap_uint<8> g_const = 32;    // green factor = 32/32 = 1
-    ap_uint<8> b_const = 1;     // blue factor = 256/32 = 0.031
+    ap_uint<8> r_factor = 255;   // red factor = 256/32 = 8
+    ap_uint<8> g_factor = 32;    // green factor = 32/32 = 1
+    ap_uint<8> b_factor = 1;     // blue factor = 256/32 = 0.031
     ap_int<10> brightness = -60; // reduce the brightness
 
-    ImageEnhanceWrapper(InImg, OutImg, b_const, g_const, r_const, brightness);
+    ImageEnhanceWrapper(InImg, OutImg, b_factor, g_factor, r_factor, brightness);
 
     cv::Mat HlsOutMat, HlsOutMatBGR;
     convertToCvMat(OutImg, HlsOutMat);

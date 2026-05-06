@@ -161,14 +161,6 @@ configure_tool -name {SYNTHESIZE} \
     -params {SYNPLIFY_TCL_FILE:../src/synplify_options.tcl}
 run_tool -name {SYNTHESIZE}
 
-
-# set IDENTIFY 1
-if {[info exists IDENTIFY]} {
-    puts "Running IDENTIFY"
-    source ./instrument.tcl
-    run_tool -name {SYNTHESIZE}
-}
-
 configure_tool -name {PLACEROUTE} \
     -params {DELAY_ANALYSIS:MAX} \
     -params {EFFORT_LEVEL:false} \

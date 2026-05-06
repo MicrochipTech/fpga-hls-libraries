@@ -6,20 +6,15 @@
 using namespace hls;
 
 // For testing with cosim
-// #define SMALL
 
-#ifdef SMALL
+#ifdef SMALL_TEST_FRAME
 #warning "Runnning with SMALL image"
 #define WIDTH 100
 #define HEIGHT 56
-#define FILENAME "../../../media_files/toronto_100x56.bmp"
-#define GOLDEN_FILENAME "hls_out_golden_small.png"
 #define REF_SUM 1077558
 #else
 #define WIDTH 3840
 #define HEIGHT 2160
-#define FILENAME "../../../media_files/toronto_4k.jpg"
-#define GOLDEN_FILENAME "hls_out_golden_large.png"
 #define REF_SUM 1590725037
 #endif
 
@@ -129,8 +124,10 @@ void VideoPipelineTop(
 }
 
 //------------------------------------------------------------------------------
-int main() {
-    Mat BGRInMat = cv::imread(FILENAME, cv::IMREAD_COLOR);
+int main(int argc, char* argv[]) {
+    std::string input_file = argv[1];
+    std::string golden_file = argv[2];
+    Mat BGRInMat = cv::imread(input_file, cv::IMREAD_COLOR);
     BGRImgT InImg;
     BayerImgT BayerInImg;
     BayerAxisVideoT InStream(NumPixelWords), DDRReadFIFO(NumPixelWords);
@@ -171,7 +168,7 @@ int main() {
 
     // Check if the output image is identical to the reference.
     auto similarity = cv::norm(
-        cv::imread("hls_out.png"), cv::imread(GOLDEN_FILENAME), cv::NORM_INF);
+        cv::imread("hls_out.png"), cv::imread(golden_file), cv::NORM_INF);
     int error = (similarity != 0);
     error += (sum != REF_SUM);
     printf("%s\n", error ? "FAILED" : "PASSED" );
