@@ -1,4 +1,5 @@
 #include "opencv2/imgproc.hpp"
+#include <opencv2/opencv.hpp>
 #include "vision.hpp"
 
 using namespace hls;
@@ -29,7 +30,7 @@ void ImageEnhanceWrapper(
     vision::ImageEnhance(ImgIn, ImgOut, b_factor, g_factor, r_factor, brightness);
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     std::string INPUT_IMAGE=argv[1];
 
     Mat BGRInMat = cv::imread(INPUT_IMAGE, cv::IMREAD_COLOR);
