@@ -8,14 +8,14 @@ USER_LINK_FLAG += -L$(OPENCV_PATH)/lib -lopencv_core -lopencv_imgcodecs -lopencv
 #SMALL_TEST_FRAME=1 # for faster simulation.
 
 ifdef SMALL_TEST_FRAME 
-    INPUT_IMAGE+=toronto_100x56.bmp
-    GOLDEN_IMAGE+=hls_out_golden_small.png
+    INPUT_IMAGE=toronto_100x56.bmp
+    GOLDEN_IMAGE=hls_out_golden_small.png
     USER_CXX_FLAG += -DSMALL_TEST_FRAME
 endif
 
 ifndef SMALL_TEST_FRAME
-    FILENAME+=toronto_4k.jpg
-    GOLDEN_FILENAME+=hls_out_golden_large.png
+    INPUT_IMAGE=toronto_4k.jpg
+    GOLDEN_IMAGE=hls_out_golden_large.png
 endif
 PROGRAM_ARGUMENTS+=$(SHLS_LIBRARY_DIR)/vision/media_files/$(INPUT_IMAGE)
 PROGRAM_ARGUMENTS+=$(SHLS_LIBRARY_DIR)/vision/demo_designs/pfvk_agc_color_brightness/hls/$(GOLDEN_IMAGE)
