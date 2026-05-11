@@ -81,7 +81,7 @@ void ImageEnhance(
     ap_uint<8> b_factor,
     ap_uint<8> g_factor,
     ap_uint<8> r_factor,
-    ap_int<10>  brightness
+    ap_int<10> brightness
 ) {
     #pragma HLS memory partition argument(InImg) type(struct_fields)
     #pragma HLS memory partition argument(OutImg) type(struct_fields)
