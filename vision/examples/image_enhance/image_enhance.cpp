@@ -31,6 +31,7 @@ void ImageEnhanceWrapper(
 }
 
 int main(int argc, char* argv[]) {
+    
     std::string INPUT_IMAGE=argv[1];
 
     Mat BGRInMat = cv::imread(INPUT_IMAGE, cv::IMREAD_COLOR);
@@ -48,9 +49,9 @@ int main(int argc, char* argv[]) {
 
     // These numbers are intentionally random to try different factors and mess 
     // around with the original color of the image. 
-    ap_uint<8> r_factor = 255;   // red factor = 256/32 = 8
+    ap_uint<8> r_factor = 1;   // red factor = 256/32 = 8
     ap_uint<8> g_factor = 32;    // green factor = 32/32 = 1
-    ap_uint<8> b_factor = 1;     // blue factor = 256/32 = 0.031
+    ap_uint<8> b_factor = 255;     // blue factor = 256/32 = 0.031
     ap_int<10> brightness = -60; // reduce the brightness
 
     ImageEnhanceWrapper(InImg, OutImg, b_factor, g_factor, r_factor, brightness);
