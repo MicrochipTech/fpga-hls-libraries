@@ -118,7 +118,7 @@ void VideoPipelineTop(
     vision::DeBayer(BayerImg, BGRImg, BayerFormat);
     Sum(BGRImg, AfterSumImg, sum);
     vision::ImageEnhance(AfterSumImg, ImgEnhanced, b_const, g_const, r_const, brightness);
-    vision::GammaCorrection(ImgEnhanced, GammaCorrected, enable_gamma);
+    vision::GammaCorrection(ImgEnhanced, GammaCorrected, 0.5, enable_gamma); //ej
     Invert(GammaCorrected, ImageInverted, enable_invert);
     vision::Img2AxisVideo(ImageInverted, VideoOut);
 }
