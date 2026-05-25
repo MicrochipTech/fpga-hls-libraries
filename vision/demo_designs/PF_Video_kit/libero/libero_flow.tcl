@@ -20,6 +20,7 @@ download_core -vlnv "Actel:DirectCore:COREAXI4INTERCONNECT:${COREAXI4INTERCONNEC
 
 #source the below tcl file to create the top level SmartDesign and generate it
 cd src
+download_core -vlnv "Actel:SystemBuilder:PF_DDR4:${PF_DDR4_version}" -location {www.microchip-ip.com/repositories/SgCore}
 source ./VIDEO_KIT_TOP_recursive.tcl
 cd ..
 set_root -module {VIDEO_KIT_TOP::work} 
