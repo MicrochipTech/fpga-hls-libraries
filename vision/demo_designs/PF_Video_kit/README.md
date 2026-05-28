@@ -8,7 +8,7 @@
     - [Running Libero to generate the complete demo design](#running-libero-to-generate-the-complete-demo-design)
 
 <!-- /TOC -->
-# PolarFire Video Kit Demo Design
+# PolarFire Video Kit Debayer and Canny Edge Detection
 ## Overview
 
 To showcase the capabilities of the Vision library, we provide this reference demo design targeting the [PolarFire Video Kit](https://www.microchip.com/en-us/development-tool/MPF300-VIDEO-KIT-NS) board.
