@@ -8,7 +8,7 @@
     - [Running Libero to generate the complete demo design](#running-libero-to-generate-the-complete-demo-design)
 
 <!-- /TOC -->
-# PolarFire Video Kit Demo Design
+# PolarFire Video Kit Debayer and Canny Edge Detection
 ## Overview
 
 To showcase the capabilities of the Vision library, we provide this reference demo design targeting the [PolarFire Video Kit](https://www.microchip.com/en-us/development-tool/MPF300-VIDEO-KIT-NS) board.
@@ -149,11 +149,11 @@ You can execute the TCL scripts from Libero IDE as well as from command line.
 `Note: This demo is designed to work on the latest Libero version, 2023.2, and may not be compatible with previous versions of Libero`
 
 Here are the steps to run the TCL scripts from the Libero IDE,
-- First launch Libero IDE (On Windows, please launch IDE from SmartHLS' Cygwin terminal as following),
+- First launch Libero IDE,
   ```console
   > cd ./libero
   > rm -rf vision_pipeline  # Delete the folder in case you have run this step before.
-  > libero &
+  > libero
   ```
 - Once the IDE is launched, navigate to the top-level menu bar, select "Project" > "Execute Script...".
   Then click the `...` button and select the `libero_flow.tcl` under the libero folder.

@@ -1,5 +1,6 @@
-#include "vision.hpp"
+#include "opencv2/imgproc.hpp"
 #include <opencv2/opencv.hpp>
+#include "vision.hpp"
 
 using namespace hls;
 using cv::Mat;
@@ -30,7 +31,7 @@ void ImageEnhanceWrapper(
 }
 
 int main(int argc, char* argv[]) {
-
+    
     std::string INPUT_IMAGE=argv[1];
 
     Mat BGRInMat = cv::imread(INPUT_IMAGE, cv::IMREAD_COLOR);
@@ -38,7 +39,6 @@ int main(int argc, char* argv[]) {
         printf("Error loading the file: %s\n", INPUT_IMAGE.c_str());
         exit(0);
     }
-    
     Mat RGBMat;
     // ImageEnhance uses RGB format, but OpenCV uses BGR to read from files
     cv::cvtColor(BGRInMat, RGBMat, cv::COLOR_BGR2RGB);
@@ -49,16 +49,15 @@ int main(int argc, char* argv[]) {
 
     // These numbers are intentionally random to try different factors and mess 
     // around with the original color of the image. 
-    ap_uint<8> r_factor = 1;        // red factor = 256/32 = 8
-    ap_uint<8> g_factor = 32;       // green factor = 32/32 = 1
-    ap_uint<8> b_factor = 255;      // blue factor = 256/32 = 0.031
-    ap_int<10> brightness = -60;    // reduce the brightness
+    ap_uint<8> r_factor = 1;   // red factor = 256/32 = 8
+    ap_uint<8> g_factor = 32;    // green factor = 32/32 = 1
+    ap_uint<8> b_factor = 255;     // blue factor = 256/32 = 0.031
+    ap_int<10> brightness = -60; // reduce the brightness
 
     ImageEnhanceWrapper(InImg, OutImg, b_factor, g_factor, r_factor, brightness);
 
     cv::Mat HlsOutMat, HlsOutMatBGR;
     convertToCvMat(OutImg, HlsOutMat);
-    
     // ImageEnhance uses RGB format, but OpenCV uses BGR to write to files
     cv::cvtColor(HlsOutMat, HlsOutMatBGR, cv::COLOR_RGB2BGR);
     cv::imwrite("hls_out.png", HlsOutMatBGR);

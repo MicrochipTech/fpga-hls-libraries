@@ -36,9 +36,10 @@ namespace vision {
  * 
  * This module will perform the following transformation to the video frame:
  * 
-  * - $OutImg.r = brightness + (r\_factor / 32) * InImg.r$
+ * - $OutImg.r = brightness + (r\_factor / 32) * InImg.r$
  * - $OutImg.g = brightness + (g\_factor / 32) * InImg.g$
  * - $OutImg.b = brightness + (b\_factor / 32) * InImg.b$
+ * 
  * 
  * The multiplying factors (`r_factor, g_factor, b_factor`) are 8-bit unsigned integers.
  * The division by 32 is to allow the effective factor to be less than 1 (factor < 32), 
