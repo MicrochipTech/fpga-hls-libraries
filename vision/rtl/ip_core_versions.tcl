@@ -20,7 +20,7 @@ set CoreTimer_version               2.0.103
 set COREJTAGDEBUG_version           4.0.100
 set CoreAHBLite_version             5.6.105
 set PF_INIT_MONITOR_version         2.0.308
-set MIV_RV32IMA_L1_AHB_version      2.3.100
+set MIV_RV32_version                3.1.200
 set COREUART_version                5.6.102
 set Image_Enhancement_version       3.0.0
 set COREAXI4INTERCONNECT_version    2.8.103
@@ -47,7 +47,7 @@ global CoreTimer_version
 global COREJTAGDEBUG_version
 global CoreAHBLite_version
 global PF_INIT_MONITOR_version
-global MIV_RV32IMA_L1_AHB_version
+global MIV_RV32_version
 global COREUART_version
 global Image_Enhancement_version
 global COREAXI4INTERCONNECT_version
