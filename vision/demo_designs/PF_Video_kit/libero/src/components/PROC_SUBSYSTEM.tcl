@@ -521,13 +521,13 @@ sd_instantiate_macro -sd_name ${sd_name} -macro_name {INV} -instance_name {INV_5
 
 # Add MIV_RV32_C0_0 instance
 sd_instantiate_component -sd_name ${sd_name} -component_name {MIV_RV32_C0} -instance_name {MIV_RV32_C0_0}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {MIV_RV32_C0_0:IRQ} -pin_slices {[26:0]}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {MIV_RV32_C0_0:IRQ[26:0]} -value {GND}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {MIV_RV32_C0_0:IRQ} -pin_slices {[27:27]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {MIV_RV32_C0_0:IRQ} -pin_slices {[28:28]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {MIV_RV32_C0_0:IRQ} -pin_slices {[29:29]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {MIV_RV32_C0_0:IRQ} -pin_slices {[30:30]}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {MIV_RV32_C0_0:IRQ[30:30]} -value {GND}
+
+sd_instantiate_macro -sd_name ${sd_name} -macro_name {OR3} -instance_name {OR3_I2C_IRQ}
+sd_connect_pins -sd_name ${sd_name} -pin_names {"OR3_I2C_IRQ:A" "COREI2C_C0_0:INT"}
+sd_connect_pins -sd_name ${sd_name} -pin_names {"OR3_I2C_IRQ:B" "COREI2C_C0_1:INT"}
+sd_connect_pins -sd_name ${sd_name} -pin_names {"OR3_I2C_IRQ:C" "COREI2C_C0_2:INT"}
+sd_connect_pins -sd_name ${sd_name} -pin_names {"OR3_I2C_IRQ:Y" "MIV_RV32_C0_0:EXT_IRQ"}
+
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {MIV_RV32_C0_0:AHB_MST_MEM_HSEL}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {MIV_RV32_C0_0:AHB_MST_MMIO_HSEL}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {MIV_RV32_C0_0:EXT_RESETN}
