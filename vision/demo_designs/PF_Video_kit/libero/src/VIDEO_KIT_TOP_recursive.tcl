@@ -29,7 +29,7 @@ source components/COREAXI4INTERCONNECT_C0.tcl
 source components/PF_DDR4_C0.tcl 
 source components/COREI2C_C0.tcl 
 source components/CoreAHBLite_C0.tcl 
-source components/MIV_RV32IMA_L1_AHB_C0.tcl 
+source components/MIV_RV32_C0.tcl 
 source components/PF_SRAM_AHBL_AXI_C0.tcl 
 source components/PROC_SUBSYSTEM.tcl 
 source components/CORERESET_PF_C0.tcl 
