@@ -13,7 +13,7 @@ download_core -vlnv "Actel:DirectCore:CoreGPIO:${CoreGPIO_version}" -location {w
 download_core -vlnv "Actel:DirectCore:COREJTAGDEBUG:${COREJTAGDEBUG_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:CoreAHBLite:${CoreAHBLite_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:SgCore:PF_INIT_MONITOR:${PF_INIT_MONITOR_version}" -location {www.microchip-ip.com/repositories/SgCore}
-download_core -vlnv "Microsemi:MiV:MIV_RV32IMA_L1_AHB:${MIV_RV32IMA_L1_AHB_version}" -location {www.microchip-ip.com/repositories/DirectCore}
+download_core -vlnv "Microsemi:MiV:MIV_RV32:${MIV_RV32_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:COREUART:${COREUART_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Microsemi:SolutionCore:Image_Enhancement:${Image_Enhancement_version}" -location {www.microchip-ip.com/repositories/DirectCore}
 download_core -vlnv "Actel:DirectCore:COREAXI4INTERCONNECT:${COREAXI4INTERCONNECT_version}" -location {www.microchip-ip.com/repositories/DirectCore}

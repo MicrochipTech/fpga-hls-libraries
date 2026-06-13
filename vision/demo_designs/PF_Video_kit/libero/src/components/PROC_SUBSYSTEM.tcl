@@ -519,19 +519,19 @@ sd_instantiate_macro -sd_name ${sd_name} -macro_name {INV} -instance_name {INV_5
 
 
 
-# Add MIV_RV32IMA_L1_AHB_C0_0 instance
-sd_instantiate_component -sd_name ${sd_name} -component_name {MIV_RV32IMA_L1_AHB_C0} -instance_name {MIV_RV32IMA_L1_AHB_C0_0}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {MIV_RV32IMA_L1_AHB_C0_0:IRQ} -pin_slices {[26:0]}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {MIV_RV32IMA_L1_AHB_C0_0:IRQ[26:0]} -value {GND}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {MIV_RV32IMA_L1_AHB_C0_0:IRQ} -pin_slices {[27:27]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {MIV_RV32IMA_L1_AHB_C0_0:IRQ} -pin_slices {[28:28]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {MIV_RV32IMA_L1_AHB_C0_0:IRQ} -pin_slices {[29:29]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {MIV_RV32IMA_L1_AHB_C0_0:IRQ} -pin_slices {[30:30]}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {MIV_RV32IMA_L1_AHB_C0_0:IRQ[30:30]} -value {GND}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {MIV_RV32IMA_L1_AHB_C0_0:AHB_MST_MEM_HSEL}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {MIV_RV32IMA_L1_AHB_C0_0:AHB_MST_MMIO_HSEL}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {MIV_RV32IMA_L1_AHB_C0_0:EXT_RESETN}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {MIV_RV32IMA_L1_AHB_C0_0:DRV_TDO}
+# Add MIV_RV32_C0_0 instance
+sd_instantiate_component -sd_name ${sd_name} -component_name {MIV_RV32_C0} -instance_name {MIV_RV32_C0_0}
+
+sd_instantiate_macro -sd_name ${sd_name} -macro_name {OR3} -instance_name {OR3_I2C_IRQ}
+sd_connect_pins -sd_name ${sd_name} -pin_names {"OR3_I2C_IRQ:A" "COREI2C_C0_0:INT"}
+sd_connect_pins -sd_name ${sd_name} -pin_names {"OR3_I2C_IRQ:B" "COREI2C_C0_1:INT"}
+sd_connect_pins -sd_name ${sd_name} -pin_names {"OR3_I2C_IRQ:C" "COREI2C_C0_2:INT"}
+sd_connect_pins -sd_name ${sd_name} -pin_names {"OR3_I2C_IRQ:Y" "MIV_RV32_C0_0:EXT_IRQ"}
+
+sd_mark_pins_unused -sd_name ${sd_name} -pin_names {MIV_RV32_C0_0:AHB_MST_MEM_HSEL}
+sd_mark_pins_unused -sd_name ${sd_name} -pin_names {MIV_RV32_C0_0:AHB_MST_MMIO_HSEL}
+sd_mark_pins_unused -sd_name ${sd_name} -pin_names {MIV_RV32_C0_0:EXT_RESETN}
+sd_mark_pins_unused -sd_name ${sd_name} -pin_names {MIV_RV32_C0_0:DRV_TDO}
 
 
 
@@ -541,8 +541,8 @@ sd_instantiate_component -sd_name ${sd_name} -component_name {PF_SRAM_AHBL_AXI_C
 
 
 # Add scalar net connections
-sd_connect_pins -sd_name ${sd_name} -pin_names {"APB_CLK" "COREAHBTOAPB3_0:HCLK" "COREI2C_C0_0:BCLK" "COREI2C_C0_0:PCLK" "COREI2C_C0_1:BCLK" "COREI2C_C0_1:PCLK" "COREI2C_C0_2:BCLK" "COREI2C_C0_2:PCLK" "CoreAHBLite_0:HCLK" "CoreAHBLite_C0_0:HCLK" "CoreGPIO_OUT:PCLK" "MIV_RV32IMA_L1_AHB_C0_0:CLK" "PCLK" "PF_SRAM_AHBL_AXI_C0_0:HCLK" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"APB_Reset" "COREAHBTOAPB3_0:HRESETN" "COREI2C_C0_0:PRESETN" "COREI2C_C0_1:PRESETN" "COREI2C_C0_2:PRESETN" "CoreAHBLite_0:HRESETN" "CoreAHBLite_C0_0:HRESETN" "CoreGPIO_OUT:PRESETN" "HDMI_RST" "MIV_RV32IMA_L1_AHB_C0_0:RESETN" "PF_SRAM_AHBL_AXI_C0_0:HRESETN" "reset" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"APB_CLK" "COREAHBTOAPB3_0:HCLK" "COREI2C_C0_0:BCLK" "COREI2C_C0_0:PCLK" "COREI2C_C0_1:BCLK" "COREI2C_C0_1:PCLK" "COREI2C_C0_2:BCLK" "COREI2C_C0_2:PCLK" "CoreAHBLite_0:HCLK" "CoreAHBLite_C0_0:HCLK" "CoreGPIO_OUT:PCLK" "MIV_RV32_C0_0:CLK" "PCLK" "PF_SRAM_AHBL_AXI_C0_0:HCLK" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"APB_Reset" "COREAHBTOAPB3_0:HRESETN" "COREI2C_C0_0:PRESETN" "COREI2C_C0_1:PRESETN" "COREI2C_C0_2:PRESETN" "CoreAHBLite_0:HRESETN" "CoreAHBLite_C0_0:HRESETN" "CoreGPIO_OUT:PRESETN" "HDMI_RST" "MIV_RV32_C0_0:RESETN" "PF_SRAM_AHBL_AXI_C0_0:HRESETN" "reset" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_0:E" "INV_0:Y" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_0:PAD" "CAM1_SCL" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_0:Y" "COREI2C_C0_2:SCLI" }
@@ -563,23 +563,23 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_5:PAD" "CAM2_SDA" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BIBUF_5:Y" "COREI2C_C0_0:SDAI" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM1_RST" "CoreGPIO_OUT:GPIO_OUT[8:8]" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM2_RST" "CoreGPIO_OUT:GPIO_OUT[7:7]" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_0:INT" "MIV_RV32IMA_L1_AHB_C0_0:IRQ[29:29]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_0:INT" "MIV_RV32_C0_0:IRQ[29:29]" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_0:SCLO" "INV_4:A" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_0:SDAO" "INV_5:A" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_1:INT" "MIV_RV32IMA_L1_AHB_C0_0:IRQ[27:27]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_1:INT" "MIV_RV32_C0_0:IRQ[27:27]" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_1:SCLO" "INV_2:A" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_1:SDAO" "INV_3:A" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_2:INT" "MIV_RV32IMA_L1_AHB_C0_0:IRQ[28:28]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_2:INT" "MIV_RV32_C0_0:IRQ[28:28]" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_2:SCLO" "INV_0:A" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_2:SDAO" "INV_1:A" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TCK" "TCK" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TDI" "TDI" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TDO" "TDO" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TCK_0" "MIV_RV32IMA_L1_AHB_C0_0:TCK" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TDI_0" "MIV_RV32IMA_L1_AHB_C0_0:TDI" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TDO_0" "MIV_RV32IMA_L1_AHB_C0_0:TDO" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TMS_0" "MIV_RV32IMA_L1_AHB_C0_0:TMS" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TRST_0" "MIV_RV32IMA_L1_AHB_C0_0:TRST" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TCK_0" "MIV_RV32_C0_0:TCK" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TDI_0" "MIV_RV32_C0_0:TDI" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TDO_0" "MIV_RV32_C0_0:TDO" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TMS_0" "MIV_RV32_C0_0:TMS" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TGT_TRST_0" "MIV_RV32_C0_0:TRST" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TMS" "TMS" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_0:TRSTB" "TRSTB" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreGPIO_OUT:GPIO_OUT[4:4]" "TRNG_RST_N" }
@@ -595,8 +595,8 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"COREAHBTOAPB3_0:APBmaster" "Cor
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_0:APBslave" "CoreAPB3_0:APBmslave4" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_1:APBslave" "CoreAPB3_0:APBmslave8" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_2:APBslave" "CoreAPB3_0:APBmslave7" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreAHBLite_0:AHBmmaster0" "MIV_RV32IMA_L1_AHB_C0_0:AHB_MST_MMIO" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreAHBLite_C0_0:AHBmmaster0" "MIV_RV32IMA_L1_AHB_C0_0:AHB_MST_MEM" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreAHBLite_0:AHBmmaster0" "MIV_RV32_C0_0:AHB_MST_MMIO" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreAHBLite_C0_0:AHBmmaster0" "MIV_RV32_C0_0:AHB_MST_MEM" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreAHBLite_C0_0:AHBmslave16" "PF_SRAM_AHBL_AXI_C0_0:AHBSlaveInterface" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreAPB3_0:APBmslave5" "CoreGPIO_OUT:APB_bif" }
 
