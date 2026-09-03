@@ -1,0 +1,26 @@
+[2026-07-21 14:51:42] [GENERAL] Starting MCP server...
+    Date and time: 2026-07-21 14:51:42
+  Python platform: win32
+ MCHP-Server path: C:\Users\c79828\.claude\plugins\data\mchp-fpga-agent-mchp_marketplace\mchp-mcp\_internal\base_library.zip
+      Python argv: ['C:/Users/c79828/.claude/plugins/cache/mchp_marketplace/mchp-fpga-agent/56c582e5e3b0/../../../../data/mchp-fpga-agent-mchp_marketplace/mchp-mcp/mchp-mcp.exe']
+Python executable: C:\Users\c79828\.claude\plugins\data\mchp-fpga-agent-mchp_marketplace\mchp-mcp\mchp-mcp.exe
+   Python version: 3.12.12 (main, Feb 12 2026, 00:40:26) [MSC v.1944 64 bit (AMD64)]
+      Polarfire Designer path: C:\Users\c79828\Desktop\Applications\MAIN_2026_11_0_9-1\MAIN_2026_11_0_9-1\PolarFire_FPGA_Designer
+         Log path: c:\Users\c79828\Documents\HLS_Work\fpga-hls-libraries\logs
+              cwd: c:\Users\c79828\Documents\HLS_Work\fpga-hls-libraries
+
+[2026-07-21 14:51:42] [SERVER] Warning: .env file not found at C:\Users\c79828\.claude\plugins\data\mchp-fpga-agent-mchp_marketplace\mchp-mcp\.env
+[2026-07-21 14:51:42] [DB] Loading MICROCHIP_DEVICES DB...
+[2026-07-21 14:51:42] [SERVER] Client connected - Session ID: ef3d45e7-a029-48ad-9464-ec44eabfa090
+[2026-07-21 14:51:45] [DB] MICROCHIP_DEVICES DB loaded successfully | Number of records: 414 | Load Time: 3.21 s
+[2026-07-21 14:51:45] [DB] Loading MICROCHIP_FPGA_BOARDS DB...
+[2026-07-21 14:51:48] [DB] MICROCHIP_FPGA_BOARDS DB loaded successfully | Number of records: 1 | Load Time: 3.27 s
+[2026-07-21 14:51:48] [DB] Loading MICROCHIP_PF_STUDIO_IP DB...
+[2026-07-21 14:51:54] [DB] MICROCHIP_PF_STUDIO_IP DB loaded successfully | Number of records: 8100 | Load Time: 3.59 s
+[2026-07-21 14:51:54] [DB] Loading MICROCHIP_PF_STUDIO_LATEST_FPGA_DESIGNER DB...
+[2026-07-21 14:51:57] [DB] MICROCHIP_PF_STUDIO_LATEST_FPGA_DESIGNER DB loaded successfully | Number of records: 643 | Load Time: 3.02 s
+[2026-07-21 14:51:57] [DB] Loading MICROCHIP_PF_STUDIO_LATEST_SYNTHESIS DB...
+[2026-07-21 14:52:00] [DB] MICROCHIP_PF_STUDIO_LATEST_SYNTHESIS DB loaded successfully | Number of records: 2200 | Load Time: 2.64 s
+[2026-07-21 14:52:00] [DB] Loading MICROCHIP_PF_STUDIO_LATEST_SYSTEM_DESIGNER DB...
+[2026-07-21 14:52:03] [DB] MICROCHIP_PF_STUDIO_LATEST_SYSTEM_DESIGNER DB loaded successfully | Number of records: 382 | Load Time: 2.98 s
+[2026-07-21 14:52:03] [SERVER] DB preload runtime: 21.01 s
