@@ -3,7 +3,7 @@ set PF_CCC_version                  2.2.220
 set CORERESET_PF_version            2.2.107
 set CORERXIODBITALIGN_version       2.1.104
 set PF_IOD_GENERIC_RX_version       2.1.116
-set mipicsi2rxdecoderPF_version     2.2.5
+set mipicsi2rxdecoderPF_version     5.1.0
 set COREAHBTOAPB3_version           3.2.101
 set HDMI_RX_version                 4.2.0
 set HDMI_TX_version                 1.0.2
