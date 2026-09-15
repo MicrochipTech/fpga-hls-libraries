@@ -103,7 +103,7 @@ sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:mipi_interr
 
 sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:cam_pll_lock_i} -value {VCC}
 sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:aclk_i} -value {VCC}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:areset_i} -value {VCC}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:aresetn_i} -value {VCC}
 
 
 # Add PF_CCC_C2_0 instance
