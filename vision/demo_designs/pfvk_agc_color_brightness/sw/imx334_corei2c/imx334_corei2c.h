@@ -8,10 +8,7 @@
 #ifndef APPLICATION_IMX334_COREI2C_IMX334_COREI2C_H_
 #define APPLICATION_IMX334_COREI2C_IMX334_COREI2C_H_
 
-#include "common.h"
-#include "core_i2c.h"
-#include "core_gpio.h"
-#include "fpga_design_config.h"
+#include "common/common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,17 +28,16 @@ extern "C" {
 * 0 - eight lane  */
 #define CAM_CONFIG_lane 1
 
-#define CAM1_RST GPIO_8
-#define CAM2_RST GPIO_7
-#define CAM2_CLK_EN GPIO_9
+#define CAM2_RST GPIO_0
+#define CAM2_CLK_EN GPIO_1
 
 /*I2C Addresses*/
 #define IMX334_1_DEV_REG  (0x1A )	//After adjusting for shift
 #define IMX334_2_DEV_REG  (0x10)	//After adjusting for shift
 
-void imx334_cam_reginit(uint8_t );
-void imx334_cam_init(void);
-void gain_setting( uint8_t i2c_ch_sel,uint16_t in_gain);
+void imx334_cam_reginit();
+void imx334_cam_init();
+void gain_setting(uint16_t in_gain);
 
 #endif /* APPLICATION_IMX334_COREI2C_IMX334_COREI2C_H_ */
 

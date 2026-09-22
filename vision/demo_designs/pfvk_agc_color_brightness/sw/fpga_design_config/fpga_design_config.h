@@ -50,13 +50,10 @@
  * in the design
  */
 #define SHLS_BASE_ADDR                  0x60000000UL
-
 #define CORETIMER0_BASE_ADDR            0x70003000UL
 #define COREI2C_IMX2_BASE_ADDR          0x70004000UL 
 #define COREGPIO_OUT_BASE_ADDR          0x70005000UL
 #define COREUARTAPB0_BASE_ADDR          0x70006000UL
-// #define COREI2C_IMX1_BASE_ADDR          0x70007000UL
-#define COREI2C_HDMI_BASE_ADDR   	      0x70008000UL // not used
 
 
 /***************************************************************************//**

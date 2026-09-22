@@ -80,10 +80,10 @@ void Invert(BGRImgT &InImg, BGRImgT &OutImg, const ap_uint<1> enable) {
 }
 
 //------------------------------------------------------------------------------
-void DDR_Write_wrapper(BayerAxisVideoT &VideoIn, uint64_t *Buf, int HRes, int VRes) {
+void DDR_Write_wrapper(BayerAxisVideoT &VideoIn, uint64_t *Buf) {
     #pragma HLS function top
     #pragma HLS interface argument(Buf) type(axi_initiator) num_elements(NumAxiWords) max_burst_len(256)
-    vision::AxisVideo2AxiMM<AxiWordWidth, uint64_t, HEIGHT, WIDTH>(VideoIn, Buf, HRes, VRes);
+    vision::AxisVideo2AxiMM<AxiWordWidth, uint64_t, HEIGHT, WIDTH>(VideoIn, Buf, WIDTH, HEIGHT);
 }
 
 
@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
 
     static uint64_t Buf[NumPixelWords];
     RGBAxisVideoT OutputStream(NumPixelWords);
-    DDR_Write_wrapper(InStream, Buf, WIDTH, HEIGHT);
+    DDR_Write_wrapper(InStream, Buf);
 
     ap_uint<8> b_const = 62;
     ap_uint<8> g_const = 42;
