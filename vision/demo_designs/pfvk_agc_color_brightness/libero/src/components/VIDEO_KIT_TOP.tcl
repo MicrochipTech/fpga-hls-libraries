@@ -109,6 +109,8 @@ sd_save_core_instance_config -sd_name ${sd_name} -instance_name {DDR_Write_wrapp
 sd_update_instance -sd_name ${sd_name} -instance_name {DDR_Write_wrapper_top_0}
 sd_invert_pins -sd_name ${sd_name} -pin_names {DDR_Write_wrapper_top_0:reset}
 sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Write_wrapper_top_0:start} -value {VCC}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Write_wrapper_top_0:HRes} -value {00000000000000000000111100000000}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Write_wrapper_top_0:VRes} -value {00000000000000000000100001110000}
 
 
 

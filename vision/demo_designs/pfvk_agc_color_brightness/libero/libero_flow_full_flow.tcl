@@ -62,8 +62,8 @@ if { [file exists $project_dir/$project_name.prjx] } {
 } else {
     #Libero project creation
     new_project \
-        -location {$project_dir} \
-        -name {$project_name} \
+        -location $project_dir \
+        -name $project_name \
         -project_description {} \
         -block_mode 0 \
         -hdl Verilog \
