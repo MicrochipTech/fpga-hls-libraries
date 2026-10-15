@@ -243,6 +243,8 @@ configure_tool -name {VERIFYTIMING} \
 puts "Running SYNTHESIZE"
 run_tool -name {SYNTHESIZE}
 
+set IDENTIFY 1
+
 if {[info exists IDENTIFY]} {
     exec synplify_pro -licensetype synplifypro_actel -batch synplify_enable_debug.tcl
     exec identify_instrumentor_shell -licensetype identinstrumentor_actel identify_instrument.tcl
