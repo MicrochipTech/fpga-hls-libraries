@@ -20,7 +20,6 @@ sd_create_scalar_port -sd_name ${sd_name} -port_name {FABRIC_RESET_N_1} -port_di
 sd_create_scalar_port -sd_name ${sd_name} -port_name {FABRIC_RESET_N_2} -port_direction {OUT}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {FABRIC_RESET_N} -port_direction {OUT}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {EXT_RST_N} -port_direction {IN}
-sd_create_scalar_port -sd_name ${sd_name} -port_name {AXI_RST} -port_direction {IN}
 
 
 # Add CORERESET_PF_C0_0 instance
@@ -32,13 +31,7 @@ sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CORERESET_PF_C0_0:IN
 sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CORERESET_PF_C0_0:FF_US_RESTORE} -value {GND}
 sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CORERESET_PF_C0_0:FPGA_POR_N} -value {VCC}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CORERESET_PF_C0_0:PLL_POWERDOWN_B}
-
-# AND to include a soft reset from the CPU
-sd_instantiate_macro -sd_name ${sd_name} -macro_name {AND2} -instance_name {AND2_1}
-sd_invert_pins -sd_name ${sd_name} -pin_names {AND2_1:A}
-sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_1:A" "AXI_RST"}
-sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_1:B" "EXT_RST_N"}
-sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_1:Y" "CORERESET_PF_C0_0:EXT_RST_N"}
+sd_connect_pins -sd_name ${sd_name} -pin_names {"EXT_RST_N" "CORERESET_PF_C0_0:EXT_RST_N"}
 
 # Add CORERESET_PF_C1_0 instance
 sd_instantiate_component -sd_name ${sd_name} -component_name {CORERESET_PF_C1} -instance_name {CORERESET_PF_C1_0}

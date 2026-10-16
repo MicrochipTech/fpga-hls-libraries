@@ -65,8 +65,6 @@ sd_create_scalar_port -sd_name ${sd_name} -port_name {hdmi_clk} -port_direction 
 
 sd_create_scalar_port -sd_name ${sd_name} -port_name {CAM2_SCL} -port_direction {INOUT} -port_is_pad {1}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {CAM2_SDA} -port_direction {INOUT} -port_is_pad {1}
-sd_create_scalar_port -sd_name ${sd_name} -port_name {HDMI_SCL} -port_direction {INOUT} -port_is_pad {1}
-sd_create_scalar_port -sd_name ${sd_name} -port_name {HDMI_SDA} -port_direction {INOUT} -port_is_pad {1}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {SDA} -port_direction {INOUT} -port_is_pad {1}
 
 # Create top level Bus Ports
@@ -111,8 +109,6 @@ sd_save_core_instance_config -sd_name ${sd_name} -instance_name {DDR_Write_wrapp
 sd_update_instance -sd_name ${sd_name} -instance_name {DDR_Write_wrapper_top_0}
 sd_invert_pins -sd_name ${sd_name} -pin_names {DDR_Write_wrapper_top_0:reset}
 sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Write_wrapper_top_0:start} -value {VCC}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Write_wrapper_top_0:HRes} -value {00000000000000000000111100000000}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Write_wrapper_top_0:VRes} -value {00000000000000000000100001110000}
 
 
 
@@ -155,10 +151,6 @@ sd_create_pin_slices -sd_name ${sd_name} -pin_name {PF_DDR4_C0_0:axi0_wstrb} -pi
 
 # Add PROC_SUBSYSTEM_0 instance
 sd_instantiate_component -sd_name ${sd_name} -component_name {PROC_SUBSYSTEM} -instance_name {PROC_SUBSYSTEM_0}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {PROC_SUBSYSTEM_0:GPIO_OUT_0} -pin_slices {[0:0]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {PROC_SUBSYSTEM_0:GPIO_OUT_0} -pin_slices {[3:1]}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {PROC_SUBSYSTEM_0:GPIO_OUT_0[3:1]}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {PROC_SUBSYSTEM_0:HDMI_RST}
 
 # Add Reset_0 instance
 sd_instantiate_component -sd_name ${sd_name} -component_name {Reset} -instance_name {Reset_0}
@@ -184,7 +176,6 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"AND4_0:D" "PF_DDR4_C0_0:CTRLR_R
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND4_0:Y" "Reset_0:PLL_LOCK_0" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BG" "PF_DDR4_C0_0:BG" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM2_RST" "PROC_SUBSYSTEM_0:CAM2_RST" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"PROC_SUBSYSTEM_0:AXI_RST" "Reset_0:AXI_RST"}
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM2_RX_CLK_N" "IMX334_IF_TOP_0:CAM2_RX_CLK_N" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM2_RX_CLK_P" "IMX334_IF_TOP_0:CAM2_RX_CLK_P" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM2_SCL" "PROC_SUBSYSTEM_0:CAM2_SCL" }
@@ -240,8 +231,6 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI:LANE3_TXD_P" "LANE3_TXD_P"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI:REF_CLK_PAD_N" "REF_CLK_PAD_N" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI:REF_CLK_PAD_P" "REF_CLK_PAD_P" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI:SDA" "SDA" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_SCL" "PROC_SUBSYSTEM_0:HDMI_SCL" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_SDA" "PROC_SUBSYSTEM_0:HDMI_SDA" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"IMX334_IF_TOP_0:ARST_N" "IMX334_IF_TOP_0:INIT_DONE" "Reset_0:AUTOCALIB_DONE" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"IMX334_IF_TOP_0:TRNG_RST_N" "PROC_SUBSYSTEM_0:TRNG_RST_N" }
 # sd_connect_pins -sd_name ${sd_name} -pin_names {"IMX334_IF_TOP_0:c1_line_valid_o" "line_valid_o" }

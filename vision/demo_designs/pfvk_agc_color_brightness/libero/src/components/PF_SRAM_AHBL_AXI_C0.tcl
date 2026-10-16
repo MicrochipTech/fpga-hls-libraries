@@ -16,15 +16,14 @@ create_and_configure_core -core_vlnv "Actel:SystemBuilder:PF_SRAM_AHBL_AXI:${PF_
 "ECC_OPTIONS:0" \
 "FABRIC_INTERFACE_TYPE:0" \
 "IMPORT_FILE:" \
-"INIT_RAM:F" \
+"INIT_RAM:T" \
 "LPM_HINT:0" \
 "PIPELINE_OPTIONS:1" \
 "RDEPTH:65536" \
 "RWIDTH:40" \
 "USE_NATIVE_INTERFACE:F" \
 "WDEPTH:65536" \
-"WWIDTH:40" }
+"WWIDTH:40" \
+"IMPORT_FILE:../src/cfg_and_mem_files/imx334_4lane_raw10_1188Mbps_AE.hex" 
+}
 # Exporting Component Description of PF_SRAM_AHBL_AXI_C0 to TCL done
-
-
-# "IMPORT_FILE:../src/cfg_and_mem_files/imx334_4lane_raw10_1188Mbps_AE.hex" \

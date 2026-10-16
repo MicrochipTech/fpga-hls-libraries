@@ -28,6 +28,8 @@ source components/PF_CCC_C1.tcl
 source components/CCC.tcl 
 source components/COREAXI4INTERCONNECT_C0.tcl 
 source components/COREAXI4INTERCONNECT_C1.tcl
+source components/CoreAPB3_C0.tcl
+source components/CoreGPIO_OUT.tcl
 source components/PF_DDR4_C0.tcl 
 source components/COREI2C_C0.tcl 
 source components/CoreTimer_C0.tcl

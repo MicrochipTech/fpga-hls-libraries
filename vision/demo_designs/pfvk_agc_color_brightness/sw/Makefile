@@ -54,7 +54,8 @@ LDFLAGS += --gc-sections -Wl,-Map,$(BUILD_DIR)/ref_sc_miv.map
 
 INCLUDES += -I.
 INCLUDES += -I./fpga_design_config
-INCLUDES += -I./imx334_corei2c 
+INCLUDES += -I./imx334_corei2c
+INCLUDES += -I./common
 INCLUDES += -I$(MIV_PLATFORM) 
 INCLUDES += -I$(MIV_PLATFORM)/hal
 INCLUDES += -I$(MIV_PLATFORM)/miv_rv32_hal 
@@ -72,6 +73,7 @@ SRC = $(wildcard $(MIV_PLATFORM)/drivers/fpga_ip/CoreGPIO/*.c) \
       $(wildcard $(MIV_PLATFORM)/hal/*.c) \
       $(wildcard $(MIV_PLATFORM)/miv_rv32_hal/*.c) \
       $(wildcard ./imx334_corei2c/*.c) \
+      $(wildcard ./common/*.c) \
       $(wildcard $(HLS_PRJ)/hls_output/accelerator_drivers/*.cpp) \
       ./main.cpp
 
@@ -81,7 +83,7 @@ ASMSRC = $(wildcard $(MIV_PLATFORM)/hal/*.S) \
 SRC_OBJ := $(addsuffix .o,$(basename $(SRC))) $(addsuffix .o,$(basename $(ASMSRC)))
 BUILD_OBJ = $(foreach obj,$(SRC_OBJ), $(BUILD_DIR)/$(notdir $(obj)))
 
-.PHONY: all clean
+.PHONY: all clean dump
 
 all: $(BUILD_DIR)/main.hex
 
@@ -105,6 +107,11 @@ $(BUILD_DIR)/main.hex: $(BUILD_DIR)/main.elf
 	$(OBJCOPY) -O ihex --change-section-lma *-0x80000000 $< $@
 	$(SIZE) --format=berkeley $<
 	$(CP) $(call FIX_PATH,$(BUILD_DIR)/main.hex) $(call FIX_PATH,../libero/src/cfg_and_mem_files/imx334_4lane_raw10_1188Mbps_AE.hex)
+
+$(BUILD_DIR)/main.dump: $(BUILD_DIR)/main.elf
+	riscv64-unknown-elf-objdump -d -S $< > $@
+
+dump: $(BUILD_DIR)/main.dump
 
 # Create build directory
 $(BUILD_DIR):

@@ -66,11 +66,13 @@ int test(double start_at, double limit, double delta, unsigned int W, int IW, in
 
   printf("From %f to %f at intervals of %f, using W: %d, IW: %d\n", start_at, limit, delta, W, IW);
 
+  double _expect_sin;
+  double* expect_sin = &_expect_sin;
+  double _expect_cos;
+  double* expect_cos = &_expect_cos;
   for (double x = start_at; x <= limit; x += delta) {
     ap_fixpt<M_W, M_IW> x_fixpt = x;
 
-    double* expect_sin = (double*)malloc(sizeof(double));
-    double* expect_cos = (double*)malloc(sizeof(double));
     sincos_cmath_wrapper(x, expect_sin, expect_cos);
     sincos_struct_M r = sincos_cordic_M_wrapper(x_fixpt, actual_sin, actual_cos);
     
