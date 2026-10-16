@@ -210,10 +210,21 @@ NOTES:
 program a bitstream to the FPGA using FPExpress. Terminate openocd before programming
 a new bitstream.
 
-## Know issues
+## Testbenches
 
-Currently, the code in the RV32 CPU will not start running after the bitstream 
-is programmed. There are two options:
+There are three Verilog Testbenches included with the design: `IMX334_IF_TB.v`, `PROC_SUBSYSTEM_TB.v`, and `HDMI_2p0_TB.v`. To run them, open up the Libero project and right click simulate in the design flow tab. Then, click on open interactively, which will allow you to select the testbench file and run it in QuestaSim.
 
-1. Power-cycle the board after programming the bitstream, or
-2. Use gdb and openocd to initialize the processor
+IMX334_IF_TB tests the camera module which takes data in as MIPI CSI-2 format and outputs it in AXI-Stream format. You should see a long training burst in the waveform viewer followed by the actually arithmetic sequence being sent into the camera module as shown below.
+
+![IMX334_SIM_IMG](../../media_files/sim_images/IMX334_IF_SIM.png)
+
+The PROC_SUBSYSTEM_TB prints out the AXI4, I2C, and resets signals outputted by the processor subsystem. In the waveform, you should first see the resets being de-asserted, then the I2C writes to the camera, and finally the AXI4 writes to the video pipeline. Note: the I2C and UART transactions take a long time to simulate, so it is recommended to comment them out in the code if you want to reach the AXI4 transactions.
+
+The HDMI_2p0_TB allows you to view the transceiver output waveforms. The 2 frames of training required by the AXI-Stream to VGA converter are skipped to reduce simulation time.
+
+![HDMI_SIM_IMG](../../media_files/sim_images/HDMI_2P0_SIM.png)
+
+
+## Known Issues
+
+Sometimes the HDMI port will not connect properly upon initialization. Power cycling the board by turning it off for a few seconds and then turning it on will fix it.

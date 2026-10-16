@@ -10,6 +10,8 @@ You should install the following software:
 2. The [Discovery Kit Linux Image](https://github.com/polarfire-soc/meta-polarfire-soc-yocto-bsp/releases/tag/v2024.06)
 3. The [pre-generated FPGA programming job file](https://github.com/polarfire-soc/polarfire-soc-discovery-kit-reference-design/releases/download/v2024.06/MPFS_DISCOVERY.zip)
 
+**NOTE:** If you are using Libero 2026.1 on Ubuntu 22.04, there is a known issue that causes the Libero script in this example to fail with `cat: /etc/redhat-release: No such file or directory`. To workaround this issue, follow the instructions in this Knowledge Base article: [https://support.microchip.com/s/article/SmartHLS-v2026-1-Generate-Libero-Design-Fails-on-Ubuntu-22-04-3-LTS](https://support.microchip.com/s/article/SmartHLS-v2026-1-Generate-Libero-Design-Fails-on-Ubuntu-22-04-3-LTS). This issue will be fixed in the next release of Libero.
+
 You will need the following hardware:
 
 1. A [PolarFire SoC Discovery Kit](https://www.microchip.com/en-us/development-tool/mpfs-disco-kit)

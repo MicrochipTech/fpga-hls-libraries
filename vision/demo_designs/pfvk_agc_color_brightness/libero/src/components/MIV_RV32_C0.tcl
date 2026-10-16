@@ -45,7 +45,7 @@ create_and_configure_core -core_vlnv "Microsemi:MiV:MIV_RV32:${MIV_RV32_version}
 "MIV_HART_ID:0x0"  \
 "MTIME_PRESCALER:100"  \
 "NO_MACC_BLK:false"  \
-"NUM_EXT_IRQS:4"  \
+"NUM_EXT_IRQS:1"  \
 "RECONFIG_BOOTROM:false"  \
 "RESET_VECTOR_ADDR_0:0x0"  \
 "RESET_VECTOR_ADDR_1:0x8000"  \
