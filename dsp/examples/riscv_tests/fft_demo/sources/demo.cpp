@@ -80,11 +80,11 @@ void fft_wrapper(uint32_t *buf_in, uint32_t *buf_out) {
   #pragma HLS function top
   #pragma HLS interface default type(axi_target)
   #if defined(AXI_TARGET)
-  #pragma HLS interface argument(buf_in) type(axi_target) num_elements(SIZE) dma(false)
-  #pragma HLS interface argument(buf_out) type(axi_target) num_elements(SIZE) dma(false)
+    #pragma HLS interface argument(buf_in) type(axi_target) num_elements(SIZE) dma(false)
+    #pragma HLS interface argument(buf_out) type(axi_target) num_elements(SIZE) dma(false)
   #else
-  #pragma HLS interface argument(buf_in) type(axi_initiator) num_elements(SIZE) max_burst_len(SIZE) ptr_addr_interface(axi_target)
-  #pragma HLS interface argument(buf_out) type(axi_initiator) num_elements(SIZE) max_burst_len(SIZE) ptr_addr_interface(axi_target)
+    #pragma HLS interface argument(buf_in) type(axi_initiator) num_elements(SIZE) max_burst_len(SIZE) ptr_addr_interface(axi_target)
+    #pragma HLS interface argument(buf_out) type(axi_initiator) num_elements(SIZE) max_burst_len(SIZE) ptr_addr_interface(axi_target)
   #endif
 
     FIFO<fft_data_t> fifo_in(SIZE);

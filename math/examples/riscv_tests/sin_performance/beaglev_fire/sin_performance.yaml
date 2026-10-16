@@ -3,10 +3,9 @@ HSS:
     type: git
     link: https://github.com/polarfire-soc/hart-software-services.git
     branch: next
-    commit: 39f7a507f14c1155bf06234d29ce75ac2a76ffe1
+    commit: 4bea7e24f3e5ef1de360a80b0a27abb1eb6134e0
     patches:
         common:
-            - 0000-Make-Guard-against-parallelism.patch
             - 0001-Disable-annoying-debug-message.patch
             - 0002-Bring-back-old-DESIGNVER-formatting.patch
         variants:

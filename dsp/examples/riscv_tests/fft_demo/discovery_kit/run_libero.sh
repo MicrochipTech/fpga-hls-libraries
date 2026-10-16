@@ -33,6 +33,6 @@ args+=+HSS_UPDATE:1
 args+=+EXPORT_FPE:$prjDir
 libero script:MPFS_DISCOVERY_KIT_REFERENCE_DESIGN.tcl \
     script_args:$args \
-    logfile:disco_kit_sin_performance.log
+    logfile:disco_kit_fft_demo.log
 
 echo "ALL DONE"
