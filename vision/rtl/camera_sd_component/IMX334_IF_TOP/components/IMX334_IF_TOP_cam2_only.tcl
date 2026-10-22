@@ -46,7 +46,7 @@ sd_configure_core_instance -sd_name ${sd_name} -instance_name {Camera_To_AXIS_Co
 "C_WIDTH:8" \
 "DEBUBBLE:0" \
 "FIFO_DEPTH:4096" \
-"LINES_TO_SKIP:1" \
+"LINES_TO_SKIP:0" \
 "PIXEL_PER_CLK:4" \
 "TUSER_WIDTH:1" }\
 -validate_rules 0
