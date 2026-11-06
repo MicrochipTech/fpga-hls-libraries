@@ -3,7 +3,7 @@
 	url = https://github.com/Mi-V-Soft-RISC-V/platform.git
 [submodule "support/beaglev-fire/gateware"]
 	path = support/beaglev-fire/gateware
-	url = https://openbeagle.org/jennifermah76/gateware.git
+    url = https://openbeagle.org/beaglev-fire/gateware.git
 [submodule "support/discovery_kit/polarfire-soc-discovery-kit-reference-design"]
 	path = support/discovery_kit/polarfire-soc-discovery-kit-reference-design
-	url = git@github.com:ManuelSaldana/polarfire-soc-discovery-kit-reference-design.git
+	url = https://github.com/polarfire-soc/polarfire-soc-discovery-kit-reference-design.git

@@ -1,5 +1,7 @@
 ## sin_performance
 
+**NOTE:** If you are using Libero 2026.1 on Ubuntu 22.04, there is a known issue that causes the Libero script in this example to fail with `cat: /etc/redhat-release: No such file or directory`. To workaround this issue, follow the instructions in this Knowledge Base article: [https://support.microchip.com/s/article/SmartHLS-v2026-1-Generate-Libero-Design-Fails-on-Ubuntu-22-04-3-LTS](https://support.microchip.com/s/article/SmartHLS-v2026-1-Generate-Libero-Design-Fails-on-Ubuntu-22-04-3-LTS). This issue will be fixed in the next release of Libero.
+
 This example is meant to show the performance improvements gained when using the sin_lut function over the cmath sin function on the 
 [Icicle Kit](https://onlinedocs.microchip.com/v2/keyword-lookup?keyword=hls_iciclekit&redirect=true&version=latest). The design should be compiled using the 
 [SoC Flow](https://onlinedocs.microchip.com/oxy/GUID-AFCB5DCC-964F-4BE7-AA46-C756FA87ED7B-en-US-17/Chunk684686268.html#GUID-11C25EF4-411A-4B35-8AF6-D02BE3ED4E8D). 

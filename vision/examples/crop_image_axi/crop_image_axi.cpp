@@ -150,12 +150,6 @@ int main(int argc, char* argv[]) {
     imwrite("hls_output.png", OutMat);
 
     // 
-    // free resources
-    //
-    hls_free(InAxiMM);
-    hls_free(OutAxiMM);
-
-    // 
     // check the errors
     //
     int startRow = srcImgStart / WIDTH;
@@ -165,6 +159,12 @@ int main(int argc, char* argv[]) {
         std::cout << "FAIL\n";
     else
         std::cout << "PASS\n";
+
+    //
+    // free resources
+    //
+    hls_free(InAxiMM);
+    hls_free(OutAxiMM);
 
     return error;
 }

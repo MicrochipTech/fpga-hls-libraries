@@ -1,4 +1,4 @@
-CXXFLAGS=-std=c++11 -I$(SHLS_ROOT_DIR)/smarthls-library -I../../include
+CXXFLAGS=-std=c++11 -I../../include
 
 .PHONY: gen_log_table
 .PHONY: gen_cordic_table 

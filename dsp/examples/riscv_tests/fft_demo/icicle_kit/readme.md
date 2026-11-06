@@ -1,5 +1,7 @@
 # FFT with RISC-V
 
+**NOTE:** If you are using Libero 2026.1 on Ubuntu 22.04, there is a known issue that causes the Libero script in this example to fail with `cat: /etc/redhat-release: No such file or directory`. To workaround this issue, follow the instructions in this Knowledge Base article: [https://support.microchip.com/s/article/SmartHLS-v2026-1-Generate-Libero-Design-Fails-on-Ubuntu-22-04-3-LTS](https://support.microchip.com/s/article/SmartHLS-v2026-1-Generate-Libero-Design-Fails-on-Ubuntu-22-04-3-LTS). This issue will be fixed in the next release of Libero.
+
 The goal of this example is to demonstrate the use of the HLS FFT core on the RISC-V SoC using the SmartHLS SoC Flow. 
 The design is compiled using the SoC flow and run on the [Icicle Kit](https://www.microchip.com/en-us/development-tool/mpfs-icicle-kit-es) board.
 

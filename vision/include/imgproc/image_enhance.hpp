@@ -36,7 +36,7 @@ namespace vision {
  * 
  * This module will perform the following transformation to the video frame:
  * 
- * - $OutImg.r = brightness + (r\_factor / 32) * InImg.r$
+  * - $OutImg.r = brightness + (r\_factor / 32) * InImg.r$
  * - $OutImg.g = brightness + (g\_factor / 32) * InImg.g$
  * - $OutImg.b = brightness + (b\_factor / 32) * InImg.b$
  * 
