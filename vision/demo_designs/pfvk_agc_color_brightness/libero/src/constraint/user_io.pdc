@@ -1047,7 +1047,7 @@ set_io -port_name HDMIO_PD  \
     -DIRECTION INOUT
 
 
-#set_io -port_name HDMI_SDA  \
+##set_io -port_name HDMI_SDA  \
     -pin_name J20           \
     -fixed true             \
     -DIRECTION INOUT
