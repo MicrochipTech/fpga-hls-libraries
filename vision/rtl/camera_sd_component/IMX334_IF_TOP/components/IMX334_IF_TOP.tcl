@@ -135,10 +135,10 @@ sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CORERESET_PF_C3_0:PLL_POWERD
 
 # Add CSI2_RXDecoder_0 instance
 sd_instantiate_component -sd_name ${sd_name} -component_name {mipicsi2rxdecoderPF_C0} -instance_name {CSI2_RXDecoder_0}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_out_o} -pin_slices {[19:12]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_out_o} -pin_slices {[29:22]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_out_o} -pin_slices {[39:32]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_out_o} -pin_slices {[9:2]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_o} -pin_slices {[19:12]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_o} -pin_slices {[29:22]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_o} -pin_slices {[39:32]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_o} -pin_slices {[9:2]}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:frame_end_o}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:line_end_o}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:line_start_o}
@@ -148,10 +148,10 @@ sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:word_count_
 
 # Add CSI2_RXDecoder_1 instance
 sd_instantiate_component -sd_name ${sd_name} -component_name {mipicsi2rxdecoderPF_C0} -instance_name {CSI2_RXDecoder_1}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_out_o} -pin_slices {[19:12]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_out_o} -pin_slices {[29:22]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_out_o} -pin_slices {[39:32]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_out_o} -pin_slices {[9:2]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_o} -pin_slices {[19:12]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_o} -pin_slices {[29:22]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_o} -pin_slices {[39:32]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_o} -pin_slices {[9:2]}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:frame_end_o}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:line_end_o}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:line_start_o}
