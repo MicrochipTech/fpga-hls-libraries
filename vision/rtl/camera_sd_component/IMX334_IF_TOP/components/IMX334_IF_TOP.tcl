@@ -20,6 +20,7 @@ sd_create_scalar_port -sd_name ${sd_name} -port_name {i_axis_reset} -port_direct
 
 sd_create_scalar_port -sd_name ${sd_name} -port_name {AXIS_o_tlast} -port_direction {OUT}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {AXIS_o_tvalid} -port_direction {OUT}
+
 sd_create_scalar_port -sd_name ${sd_name} -port_name {CAMERA_CLK} -port_direction {OUT}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {c1_line_valid_o} -port_direction {OUT}
 
@@ -83,7 +84,7 @@ sd_configure_core_instance -sd_name ${sd_name} -instance_name {Camera_To_AXIS_Co
 "C_WIDTH:8" \
 "DEBUBBLE:0" \
 "FIFO_DEPTH:4096" \
-"LINES_TO_SKIP:1" \
+"LINES_TO_SKIP:0" \
 "PIXEL_PER_CLK:4" \
 "TUSER_WIDTH:1" }\
 -validate_rules 0
@@ -135,27 +136,35 @@ sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CORERESET_PF_C3_0:PLL_POWERD
 
 # Add CSI2_RXDecoder_0 instance
 sd_instantiate_component -sd_name ${sd_name} -component_name {mipicsi2rxdecoderPF_C0} -instance_name {CSI2_RXDecoder_0}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_out_o} -pin_slices {[19:12]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_out_o} -pin_slices {[29:22]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_out_o} -pin_slices {[39:32]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_out_o} -pin_slices {[9:2]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_o} -pin_slices {[19:12]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_o} -pin_slices {[29:22]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_o} -pin_slices {[39:32]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_o} -pin_slices {[9:2]}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:frame_end_o}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:line_end_o}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:line_start_o}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:word_count_o}
+# Decoder v5.1.0 ports not used in this design
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:cam_pll_lock_i} -value {VCC}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:aclk_i} -value {VCC}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:aresetn_i} -value {VCC}
 
 
 
 # Add CSI2_RXDecoder_1 instance
 sd_instantiate_component -sd_name ${sd_name} -component_name {mipicsi2rxdecoderPF_C0} -instance_name {CSI2_RXDecoder_1}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_out_o} -pin_slices {[19:12]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_out_o} -pin_slices {[29:22]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_out_o} -pin_slices {[39:32]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_out_o} -pin_slices {[9:2]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_o} -pin_slices {[19:12]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_o} -pin_slices {[29:22]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_o} -pin_slices {[39:32]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_1:data_o} -pin_slices {[9:2]}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:frame_end_o}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:line_end_o}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:line_start_o}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:word_count_o}
+# Decoder v5.1.0 ports not used in this design
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:cam_pll_lock_i} -value {VCC}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:aclk_i} -value {VCC}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_1:aresetn_i} -value {VCC}
 
 
 
@@ -190,8 +199,8 @@ sd_mark_pins_unused -sd_name ${sd_name} -pin_names {PF_IOD_GENERIC_RX_C0_1:CLK_T
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_0:A" "TRNG_RST_N" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_0:B" "CORERESET_PF_C1_0:PLL_LOCK" "CORERESET_PF_C2_0:PLL_LOCK" "CORERESET_PF_C3_0:PLL_LOCK" "PF_CCC_C2_0:PLL_LOCK_0" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_0:Y" "PF_IOD_GENERIC_RX_C0_0:TRAINING_RESETN" "PF_IOD_GENERIC_RX_C0_1:TRAINING_RESETN" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_1:A" "PF_IOD_GENERIC_RX_C0_1:training_done_o" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_1:B" "PF_IOD_GENERIC_RX_C0_0:training_done_o" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_1:A" "PF_IOD_GENERIC_RX_C0_1:training_done_o" "CSI2_RXDecoder_1:training_done_i" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_1:B" "PF_IOD_GENERIC_RX_C0_0:training_done_o" "CSI2_RXDecoder_0:training_done_i" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_1:Y" "CORERESET_PF_C1_0:EXT_RST_N" "CORERESET_PF_C2_0:EXT_RST_N" "CORERESET_PF_C3_0:EXT_RST_N" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"ARST_N" "PF_IOD_GENERIC_RX_C0_0:ARST_N" "PF_IOD_GENERIC_RX_C0_1:ARST_N" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM1_RX_CLK_N" "PF_IOD_GENERIC_RX_C0_0:RX_CLK_N" }
@@ -244,20 +253,20 @@ if { [info exists Extra_camera_pins] } {
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:frame_start_o" "Camera_To_AXIS_Converter_0:i_frame_start" "c2_frame_start_o" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:frame_valid_o" "c2_frame_valid_o" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:line_valid_o" "Camera_To_AXIS_Converter_0:i_data_valid" "c2_line_valid_o" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_0:data_out_o[19:12]" "c1_data_out_o[15:8]" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_0:data_out_o[29:22]" "c1_data_out_o[23:16]" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_0:data_out_o[39:32]" "c1_data_out_o[31:24]" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_0:data_out_o[9:2]" "c1_data_out_o[7:0]" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_out_o[19:12]" "Camera_To_AXIS_Converter_0:i_Data[15:8]" "c2_data_out_o[15:8]" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_out_o[29:22]" "Camera_To_AXIS_Converter_0:i_Data[23:16]" "c2_data_out_o[23:16]" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_out_o[39:32]" "Camera_To_AXIS_Converter_0:i_Data[31:24]" "c2_data_out_o[31:24]" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_out_o[9:2]" "Camera_To_AXIS_Converter_0:i_Data[7:0]" "c2_data_out_o[7:0]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_0:data_o[19:12]" "c1_data_out_o[15:8]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_0:data_o[29:22]" "c1_data_out_o[23:16]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_0:data_o[39:32]" "c1_data_out_o[31:24]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_0:data_o[9:2]" "c1_data_out_o[7:0]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_o[19:12]" "Camera_To_AXIS_Converter_0:i_Data[15:8]" "c2_data_out_o[15:8]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_o[29:22]" "Camera_To_AXIS_Converter_0:i_Data[23:16]" "c2_data_out_o[23:16]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_o[39:32]" "Camera_To_AXIS_Converter_0:i_Data[31:24]" "c2_data_out_o[31:24]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_o[9:2]" "Camera_To_AXIS_Converter_0:i_Data[7:0]" "c2_data_out_o[7:0]" }
 
 } else {
-    sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_out_o[19:12]" "Camera_To_AXIS_Converter_0:i_Data[15:8]" }
-    sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_out_o[29:22]" "Camera_To_AXIS_Converter_0:i_Data[23:16]" }
-    sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_out_o[39:32]" "Camera_To_AXIS_Converter_0:i_Data[31:24]" }
-    sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_out_o[9:2]" "Camera_To_AXIS_Converter_0:i_Data[7:0]" }
+    sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_o[19:12]" "Camera_To_AXIS_Converter_0:i_Data[15:8]" }
+    sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_o[29:22]" "Camera_To_AXIS_Converter_0:i_Data[23:16]" }
+    sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_o[39:32]" "Camera_To_AXIS_Converter_0:i_Data[31:24]" }
+    sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:data_o[9:2]" "Camera_To_AXIS_Converter_0:i_Data[7:0]" }
     sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:line_valid_o" "Camera_To_AXIS_Converter_0:i_data_valid" }
     sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_1:frame_start_o" "Camera_To_AXIS_Converter_0:i_frame_start" }
 
