@@ -214,7 +214,7 @@ create_and_configure_core -core_vlnv "Actel:SgCore:PF_CCC:${PF_CCC_version}" -co
 "PLL_FB_CLK_1:GL0_1"  \
 "PLL_FEEDBACK_MODE_0:Post-VCO"  \
 "PLL_FEEDBACK_MODE_1:Post-VCO"  \
-"PLL_IN_FREQ_0:150"  \
+"PLL_IN_FREQ_0:148.5"  \
 "PLL_IN_FREQ_1:100"  \
 "PLL_INT_MODE_EN_0:false"  \
 "PLL_INT_MODE_EN_1:false"  \
